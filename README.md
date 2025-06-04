@@ -1,131 +1,49 @@
 # GalaCash
 
-A fun and transparent cash flow management application designed to make managing finances more efficient and accessible for everyone.
+A modern financial management application built with React Router and TypeScript, designed to make managing finances more efficient and accessible.
 
 ## 🎯 Project Overview
 
-GalaCash enables treasurers to easily track and manage both income and expenses, while providing complete transparency on financial activities, without the usual administrative headache.
-
-### 🔍 Background
-
-**Problem:** Managing finances, especially in a group or community setting, can be frustrating and prone to errors. Traditional manual methods often lead to confusion and lack of transparency.
-
-**Solution:** GalaCash offers an intuitive platform where all financial activities are logged and accessible to members in real-time, minimizing the potential for mistakes and maximizing efficiency.
-
-## 🚀 Core Features
-
-### 💰 Income & Expense Management
-
-- Track all transactions with detailed categorization
-- Add, edit, or delete income/expense entries
-- Easy-to-use category selection
-
-### 🔐 Anytime Access
-
-- Individual user accounts
-- Real-time financial monitoring
-- Authorized access control
-
-### 📝 Fund Request Submissions
-
-- Submit and track fund requests
-- Structured approval workflow
-- Notification system for request status
-
-### 📊 Automatic Financial Reports
-
-- Scheduled report generation
-- Viewable, downloadable, and shareable formats
-- Comprehensive financial overview
-
-### 🔔 Push Notifications
-
-- Transaction alerts
-- Fund request status updates
-- Real-time activity notifications
-
-## ✨ Why GalaCash?
-
-- **Transparency:** Clear recording and visibility of all financial transactions
-- **Time Efficiency:** Eliminates manual bookkeeping needs
-- **Accountability:** Complete transaction documentation
-- **Accurate Data:** Automated recording reduces human error
-
-## 👥 Team Contributors
-
-### Project Manager
-
-- Ridwan
-
-### UI/UX Design
-
-- Giwank
-
-### Frontend Development
-
-- Dipta
-- Nando
-
-### Backend Development
-
-- Rafly
-- Ricky
-
-### Mobile Development
-
-- Akmal
-
-## 🎯 Key Objectives
-
-1. Design an intuitive interface for simplified cash flow management
-2. Develop secure backend features for transaction tracking
-3. Implement real-time notifications and updates
-4. Generate automated financial reports
+GalaCash is a full-stack application that enables treasurers to track and manage both income and expenses while providing complete transparency on financial activities.
 
 ## 🛠 Tech Stack
 
-- ⚛️ [React 19](https://react.dev/) - Frontend framework
-- 🛣️ [React Router](https://reactrouter.com/) - Routing and server-side rendering
-- 🎨 [TailwindCSS](https://tailwindcss.com/) - Styling
-- 🎯 [TypeScript](https://www.typescriptlang.org/) - Type safety
-- 📦 [Vite](https://vitejs.dev/) - Build tool
-- 🐋 [Docker](https://www.docker.com/) - Containerization
-
-## Development Tools
-
-- 🔍 [ESLint](https://eslint.org/) - Linting
-- 💅 [Prettier](https://prettier.io/) - Code formatting
-- 🐶 [Husky](https://typicode.github.io/husky/) - Git hooks
-- 📝 [Commitlint](https://commitlint.js.org/) - Commit message linting
+- ⚛️ [React 19](https://react.dev/) with TypeScript
+- 🛣️ [React Router v7](https://reactrouter.com/) for routing and SSR
+- 🎨 [TailwindCSS](https://tailwindcss.com/) with custom theme
+- 🎯 [TypeScript](https://www.typescriptlang.org/) for type safety
+- 📦 [Vite](https://vitejs.dev/) for fast builds
+- 🎭 [Shadcn UI](https://ui.shadcn.com/) - Accessible components built on Radix UI
+- 🏗️ [Zustand](https://zustand-demo.pmnd.rs/) for state management
+- ✨ [Zod](https://zod.dev/) for schema validation
+- 📝 [React Hook Form](https://react-hook-form.com/) for form handling
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js (LTS version)
+- Node.js (LTS version) - specified in [.nvmrc](d:\College\projects\galacash.nvmrc)
 - npm or pnpm
 
 ### Installation
 
 ```bash
-# Install dependencies
 npm install
 ```
 
 ### Development
 
 ```bash
-# Start development server
 npm run dev
 ```
 
-Visit `http://localhost:5173` in your browser.
+Visit `http://localhost:5173` - configured in [vite.config.ts](d:\College\projects\galacash\vite.config.ts)
 
-### Code Quality
+## 📝 Code Quality
 
 ```bash
 # Type checking
-npm run type-check
+npm run typecheck
 
 # Lint code
 npm run lint
@@ -139,13 +57,34 @@ npm run format
 ```
 app/
 ├── components/     # Reusable UI components
-│   └── ui/        # Core UI components
+│   └── ui/        # Shadcn UI components
 ├── lib/           # Utility functions
+│   └── utils.ts   # Common utilities
 ├── routes/        # Application routes
-└── welcome/       # Welcome page components
+│   └── home.tsx   # Home page route
+└── welcome/       # Welcome components
+    └── welcome.tsx
 ```
 
-## 🔨 Development
+## 🛠 Development Tools
+
+### Code Quality Tools
+
+- 🔍 ESLint with TypeScript and React plugins - [.eslintrc.json](d:\College\projects\galacash.eslintrc.json)
+- 💅 Prettier with TailwindCSS plugin - [.prettierrc](d:\College\projects\galacash.prettierrc)
+- 🐶 Husky for Git hooks
+- 📝 Commitlint for conventional commits - [commitlint.config.js](d:\College\projects\galacash\commitlint.config.js)
+
+### VS Code Integration
+
+Configured in [.vscode/](d:\College\projects\galacash.vscode):
+
+- Format on save
+- ESLint auto-fix
+- Tailwind CSS IntelliSense
+- TypeScript path aliases
+
+## 🚀 Deployment
 
 ### Production Build
 
@@ -155,6 +94,8 @@ npm run build
 
 ### Docker Deployment
 
+Multi-stage Dockerfile for optimized production builds:
+
 ```bash
 # Build image
 docker build -t galacash .
@@ -163,12 +104,15 @@ docker build -t galacash .
 docker run -p 3000:3000 galacash
 ```
 
-## Git Workflow
+## 🔄 Git Workflow
 
-This project uses conventional commits and enforces code quality through git hooks:
+### Pre-commit Hooks
 
-- Pre-commit: Runs linting, formatting, and type checking
-- Commit message: Enforces conventional commit format
+Configured in [.lintstagedrc.json](d:\College\projects\galacash.lintstagedrc.json):
+
+- ESLint for `.ts`/`.tsx` files
+- Prettier for all supported files
+- TypeScript type checking
 
 ### Commit Message Format
 
@@ -181,23 +125,18 @@ fix(api): handle error responses
 docs(readme): update installation steps
 ```
 
-## Code Style Guide
-
-- ESLint configuration in [.eslintrc.json](d:\College\projects\galacash.eslintrc.json)
-- Prettier configuration in [.prettierrc](d:\College\projects\galacash.prettierrc)
-- TypeScript configuration in [tsconfig.json](d:\College\projects\galacash\tsconfig.json)
-
-## Scripts
+## 📜 Available Scripts
 
 - `dev` - Start development server
 - `build` - Create production build
 - `start` - Start production server
-- `typecheck` - Run TypeScript type checking
+- `typecheck` - Run TypeScript checks
 - `lint` - Run ESLint
 - `lint:fix` - Fix ESLint issues
-- `format` - Format code with Prettier
-- `type-check` - Run TypeScript compiler
+- `format` - Format with Prettier
+- `clean` - Clean build directory
+- `commit` - Commit with conventional format
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License.
