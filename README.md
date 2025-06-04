@@ -22,35 +22,102 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 
 ### Prerequisites
 
-- Node.js (LTS version) - specified in [.nvmrc](d:\College\projects\galacash.nvmrc)
+- Node.js (LTS version) - specified in [.nvmrc](.nvmrc)
 - npm or pnpm
+- Git
+- VS Code (recommended)
 
-### Installation
+### First Time Setup
 
-```bash
-npm install
-```
+1. **Clone Repository**
 
-### Development
+   ```powershell
+   git clone https://github.com/username/galacash.git
+   cd galacash
+   ```
 
-```bash
-npm run dev
-```
+2. **Setup Node.js**
 
-Visit `http://localhost:5173` - configured in [vite.config.ts](d:\College\projects\galacash\vite.config.ts)
+   ```powershell
+   # Install and use correct Node.js version
+   nvm install lts/*
+   nvm use lts/*
+   ```
 
-## 📝 Code Quality
+3. **Install Dependencies**
 
-```bash
-# Type checking
-npm run typecheck
+   ```powershell
+   # Install project dependencies
+   npm install
 
-# Lint code
-npm run lint
+   # Setup Git hooks
+   npm run prepare
+   ```
 
-# Format code
-npm run format
-```
+4. **Configure Environment**
+
+   ```powershell
+   # Create local environment file
+   copy .env.example .env
+   ```
+
+5. **VS Code Setup**
+   Install recommended extensions:
+   - ESLint
+   - Prettier
+   - Tailwind CSS IntelliSense
+   - GitLens
+
+### Development Workflow
+
+1. **Start Development Server**
+
+   ```powershell
+   npm run dev
+   ```
+
+   Visit: http://localhost:5173
+
+2. **Run Quality Checks**
+
+   ```powershell
+   # Type checking
+   npm run typecheck
+
+   # Lint code
+   npm run lint
+
+   # Format code
+   npm run format
+   ```
+
+3. **Making Commits**
+
+   ```powershell
+   # Stage your changes
+   git add .
+
+   # Commit using conventional commits
+   npm run commit
+   ```
+
+### Troubleshooting
+
+- **Git Hooks Not Running**
+
+  ```powershell
+  npm run prepare
+  ```
+
+- **Path Aliases Not Working**
+
+  - Restart TypeScript Server in VS Code
+  - Command Palette (`Ctrl + Shift + P`): `TypeScript: Restart TS Server`
+
+- **Tailwind Classes Not Working**
+  - Verify your [components.json](components.json) exists
+  - Restart VS Code
+  - Restart dev server: `npm run dev`
 
 ## 📦 Project Structure
 
