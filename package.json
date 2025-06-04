@@ -13,7 +13,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css,md}\"",
     "format:write": "prettier --write \"app/**/*.{ts,tsx,css,md}\"",
     "type-check": "tsc --noEmit",
-    "prepare": "husky install",
+    "prepare": "husky",
     "commit": "git-cz",
     "clean": "rimraf dist",
     "lint-staged": "lint-staged"
