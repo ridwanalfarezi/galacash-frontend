@@ -13,9 +13,10 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css,md}\"",
     "format:write": "prettier --write \"app/**/*.{ts,tsx,css,md}\"",
     "type-check": "tsc --noEmit",
-    "prepare": "npx husky init",
+    "prepare": "husky install",
     "commit": "git-cz",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "lint-staged": "lint-staged"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
