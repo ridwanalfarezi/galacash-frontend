@@ -104,34 +104,51 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 ## 📦 Project Structure
 
 ```text
-app/                   # Application source code
-├── [app.css](http://_vscodecontentref_/0)           # Global styles and Tailwind imports
-├── [root.tsx](http://_vscodecontentref_/1)          # Root layout and error handling
-├── [routes.ts](http://_vscodecontentref_/2)         # Route configuration
-├── components/       # Reusable UI components
-│   └── ui/          # Shadcn UI components (Button, etc.)
-├── lib/             # Utility functions
-│   └── [utils.ts](http://_vscodecontentref_/3)     # Common utilities (cn, etc.)
-├── routes/          # Route components
-│   └── [home.tsx](http://_vscodecontentref_/4)     # Home page route
-└── welcome/         # Welcome module
-    └── [welcome.tsx](http://_vscodecontentref_/5)  # Welcome page component
-
-config/              # Configuration files
-├── [.eslintrc.json](http://_vscodecontentref_/6)   # ESLint configuration
-├── .prettierrc      # Prettier configuration
-├── [tsconfig.json](http://_vscodecontentref_/7)    # TypeScript configuration
-├── [vite.config.ts](http://_vscodecontentref_/8)   # Vite configuration
-└── [components.json](http://_vscodecontentref_/9)  # UI components configuration
-
-.husky/              # Git hooks
-├── pre-commit       # Pre-commit hooks (lint, format)
-├── commit-msg       # Commit message validation
-└── [husky.sh](http://_vscodecontentref_/10)      # Husky shell script
-
-.vscode/             # VS Code settings
-├── [settings.json](http://_vscodecontentref_/11)    # Editor configuration
-└── [launch.json](http://_vscodecontentref_/12)     # Debug configuration
+.
+├── app/                      # Application source code
+│   ├── app.css              # Global styles and Tailwind imports
+│   ├── root.tsx             # Root layout and error boundaries
+│   ├── routes.ts            # Route definitions
+│   ├── components/          # Reusable components
+│   │   └── ui/             # Shadcn UI components
+│   │       └── button.tsx  # Button component
+│   ├── lib/                # Utility functions
+│   │   └── utils.ts       # Common utilities (cn, etc.)
+│   ├── routes/             # Route components
+│   │   └── home.tsx       # Home page route
+│   └── welcome/            # Welcome module
+│       └── welcome.tsx    # Welcome page component
+│
+├── .husky/                  # Git hooks configuration
+│   ├── _/                  # Husky core scripts
+│   │   ├── husky.sh       # Husky shell script
+│   │   └── ...            # Other hook scripts
+│   ├── pre-commit         # Pre-commit hook
+│   └── commit-msg         # Commit message hook
+│
+├── .vscode/                 # Editor configuration
+│   ├── settings.json      # VS Code settings
+│   └── launch.json        # Debug configuration
+│
+├── Configuration Files
+│   ├── .eslintrc.json     # ESLint rules
+│   ├── .prettierrc        # Prettier config
+│   ├── .lintstagedrc.json # Lint-staged config
+│   ├── tsconfig.json      # TypeScript config
+│   ├── vite.config.ts     # Vite bundler config
+│   └── components.json    # UI components config
+│
+├── Docker Files
+│   ├── Dockerfile         # Multi-stage build config
+│   └── .dockerignore     # Docker ignore patterns
+│
+├── Environment
+│   ├── .nvmrc            # Node.js version
+│   └── env.d.ts          # Environment variables types
+│
+└── Git Configuration
+    ├── .gitignore        # Git ignore patterns
+    └── .gitattributes    # Git attributes
 ```
 
 ## 🛠 Development Tools
@@ -142,7 +159,6 @@ config/              # Configuration files
 - 💅 Prettier with TailwindCSS plugin - [.prettierrc](d:\College\projects\galacash.prettierrc)
 - 🐶 Husky for Git hooks
 - 📝 Commitlint for conventional commits - [commitlint.config.js](d:\College\projects\galacash\commitlint.config.js)
-
 
 ## 🚀 Deployment
 
@@ -185,15 +201,21 @@ docs(readme): update deployment steps
 
 ## 📑 Scripts
 
-| Command     | Description              |
-| ----------- | ------------------------ |
-| `dev`       | Start dev server         |
-| `build`     | Create production build  |
-| `preview`   | Preview production build |
-| `lint`      | Run ESLint               |
-| `typecheck` | Run type checking        |
-| `format`    | Format code              |
-| `commit`    | Interactive commit       |
+| Command        | Description                         |
+| -------------- | ----------------------------------- |
+| `dev`          | Start development server            |
+| `build`        | Create production build             |
+| `start`        | Start production server             |
+| `typecheck`    | Generate types and check TypeScript |
+| `lint`         | Run ESLint                          |
+| `lint:fix`     | Fix ESLint issues                   |
+| `format`       | Format code with Prettier           |
+| `format:check` | Check code formatting               |
+| `type-check`   | Run TypeScript type checking        |
+| `prepare`      | Setup Husky git hooks               |
+| `commit`       | Interactive conventional commit     |
+| `clean`        | Clean build directory               |
+| `lint-staged`  | Run linters on staged files         |
 
 ## License
 
