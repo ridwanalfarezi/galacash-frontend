@@ -1,0 +1,10 @@
+{
+  "app/**/*.{ts,tsx}": [
+    "eslint --fix",
+    "prettier --write",
+    "tsc-files --noEmit"
+  ],
+  "app/**/*.{css,scss}": ["prettier --write"],
+  "app/**/*.{json,md}": ["prettier --write"],
+  "*.{json,md,css,js,ts}": ["prettier --write"]
+}
