@@ -3,6 +3,7 @@
 import { CircleArrowDown, CircleArrowUp, Clock, Gift } from 'lucide-react'
 import { useState } from 'react'
 import type { DateRange } from 'react-day-picker'
+import { Link } from 'react-router'
 import { Icons } from '~/components/icons'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DatePicker } from '~/components/ui/date-picker'
@@ -209,6 +210,11 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ))}
+              <div className="flex justify-center">
+                <Link to="/user/kas-kelas" className="hover:underline">
+                  View More
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -249,6 +255,11 @@ export default function DashboardPage() {
                   </div>
                 ))}
             </CardContent>
+            <div className="flex justify-center">
+              <Link to="/user/aju-dana" className="hover:underline">
+                View More
+              </Link>
+            </div>
           </Card>
         </div>
       </div>
