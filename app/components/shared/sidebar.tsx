@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronUp } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { Icons } from '~/components/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
@@ -13,36 +13,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
-
-const navigation = [
-  { name: 'Dashboard', href: '/user/dashboard', icon: Icons.Home },
-  { name: 'Kas Kelas', href: '/kas-kelas', icon: Icons.Money },
-  { name: 'Aju Dana', href: '/aju-dana', icon: Icons.LowIncomeLevel },
-]
-
-const mockUser = {
-  name: 'Fathya Khairani R',
-  role: 'Bendahara',
-  avatar: '/placeholder.svg?height=40&width=40',
-}
+import { mockUser, navigation } from './navdata'
 
 export function Sidebar() {
   const location = useLocation()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  useEffect(() => {
-    const handleResize = () => {
-      setSidebarCollapsed(window.innerWidth < 768)
-    }
-
-    handleResize()
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
   return (
     <div
-      className={`flex flex-col rounded-tr-4xl rounded-br-4xl bg-white shadow-lg transition-[width] duration-300 ease-in-out ${
+      className={`md:flex hidden md:p flex-col rounded-tr-4xl rounded-br-4xl bg-white shadow-lg transition-[width] duration-300 ease-in-out ${
         sidebarCollapsed ? 'w-20' : 'w-60'
       }`}
     >
@@ -66,7 +45,7 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 p-4">
         <div className="space-y-4">
-          {navigation.map((item) => {
+          {navigation.map((item: any) => {
             const isActive = location.pathname === item.href
             return (
               <Link key={item.name} to={item.href} className="block">
@@ -74,7 +53,7 @@ export function Sidebar() {
                   variant={isActive ? 'default' : 'ghost'}
                   className={`w-full cursor-pointer ${
                     sidebarCollapsed ? 'justify-center px-2' : 'justify-start px-4'
-                  } ${isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-900'} hover:bg-blue-50 hover:text-blue-700`}
+                  } ${isActive ? 'bg-blue-50 text-blue-500' : 'text-gray-900'} hover:bg-blue-50 hover:text-blue-500`}
                 >
                   <item.icon size={24} />
                   {!sidebarCollapsed && (
