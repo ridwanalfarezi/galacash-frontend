@@ -126,9 +126,9 @@ export function FilterComponent({
             variant="outline"
             size="sm"
             onClick={handleClearAllFilters}
-            className="border-red-300 text-red-500 hover:bg-red-50"
+            className="border-destructive text-destructive hover:bg-destructive hover:text-white"
           >
-            <RotateCcw className="mr-2 h-4 w-4" />
+            <RotateCcw className="h-4 w-4" />
             Reset
           </Button>
         )}
@@ -268,7 +268,7 @@ export function FilterComponent({
       </SheetTrigger>
       <SheetContent side="right" className="w-full max-w-sm overflow-y-auto border-l px-6 py-6">
         <SheetHeader className="mb-4 p-0">
-          <SheetTitle className="text-xl">Filter Pengajuan Dana</SheetTitle>
+          <SheetTitle className="text-2xl">Filter Pengajuan Dana</SheetTitle>
         </SheetHeader>
         <FilterContent />
       </SheetContent>

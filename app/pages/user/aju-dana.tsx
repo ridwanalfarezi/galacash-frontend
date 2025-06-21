@@ -240,7 +240,7 @@ export default function AjuDanaPage() {
     <div className="p-6">
       <div className="mx-auto max-w-7xl space-y-8">
         <Card className="rounded-4xl border-0">
-          <CardHeader className="flex flex-col items-center justify-between space-y-0 pb-4 md:flex-row">
+          <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
             <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
               Rekap Pengajuan Anda
             </CardTitle>
@@ -278,9 +278,9 @@ export default function AjuDanaPage() {
                 <Button
                   variant="outline"
                   onClick={clearAllFiltersA}
-                  className="w-full bg-red-50/70 text-red-500 hover:bg-red-50 hover:text-red-700 sm:w-auto"
+                  className="text-destructive hover:bg-destructive border-destructive w-full hover:text-white sm:w-auto"
                 >
-                  <RotateCcw className="mr-2 h-4 w-4" />
+                  <RotateCcw className="h-4 w-4" />
                   Reset
                 </Button>
               )}
@@ -299,7 +299,7 @@ export default function AjuDanaPage() {
             <div className="hidden overflow-x-auto sm:block">
               <table className="w-full min-w-[700px]">
                 <thead>
-                  <tr className="border-b border-gray-200">
+                  <tr className="border-b border-gray-300">
                     <th className="px-4 py-3 text-left font-medium">Tanggal</th>
                     <th className="px-4 py-3 text-left font-medium">Keperluan</th>
                     <th className="px-4 py-3 text-left font-medium">Kategori</th>
@@ -352,7 +352,7 @@ export default function AjuDanaPage() {
                       <span>• {app.applicant}</span>
                     </div>
                     <div className="mt-2 flex items-center justify-between">
-                      <span className="font-bold text-blue-700">{formatCurrency(app.amount)}</span>
+                      <span className="font-bold text-blue-500">{formatCurrency(app.amount)}</span>
                       <Button variant="ghost" size="sm" onClick={() => handleViewDetail(app)}>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
@@ -365,7 +365,7 @@ export default function AjuDanaPage() {
         </Card>
 
         <Card className="rounded-4xl border-0">
-          <CardHeader className="flex flex-col items-center justify-between space-y-0 pb-4 md:flex-row">
+          <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
             <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
               Rekap Pengajuan Dana
             </CardTitle>
@@ -401,9 +401,9 @@ export default function AjuDanaPage() {
                 <Button
                   variant="outline"
                   onClick={clearAllFiltersB}
-                  className="bg-red-50/70 text-red-500 hover:bg-red-50 hover:text-red-700"
+                  className="text-destructive hover:bg-destructive border-destructive w-full hover:text-white sm:w-auto"
                 >
-                  <RotateCcw className="mr-2 h-4 w-4" />
+                  <RotateCcw className="h-4 w-4" />
                   Reset
                 </Button>
               )}
@@ -417,7 +417,7 @@ export default function AjuDanaPage() {
             <div className="hidden overflow-x-auto sm:block">
               <table className="w-full min-w-[700px]">
                 <thead>
-                  <tr className="border-b border-gray-200">
+                  <tr className="border-b border-gray-300">
                     <th className="px-4 py-3 text-left font-medium">Tanggal</th>
                     <th className="px-4 py-3 text-left font-medium">Keperluan</th>
                     <th className="px-4 py-3 text-left font-medium">Kategori</th>
@@ -436,7 +436,7 @@ export default function AjuDanaPage() {
                     </tr>
                   ) : (
                     filteredAndSortedApplicationsB.map((app) => (
-                      <tr key={app.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm">{app.date}</td>
                         <td className="px-4 py-3 text-sm">{app.purpose}</td>
                         <td className="px-4 py-3 text-sm">🎯 {app.category}</td>
@@ -478,7 +478,7 @@ export default function AjuDanaPage() {
                       <span>• {app.applicant}</span>
                     </div>
                     <div className="mt-2 flex items-center justify-between">
-                      <span className="font-bold text-blue-700">{formatCurrency(app.amount)}</span>
+                      <span className="font-bold text-blue-500">{formatCurrency(app.amount)}</span>
                       <Button variant="ghost" size="sm" onClick={() => handleViewDetail(app)}>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
@@ -491,7 +491,6 @@ export default function AjuDanaPage() {
         </Card>
       </div>
 
-      {/* Modal Components */}
       <BuatAjuDanaModal
         isOpen={isApplicationModalOpen}
         onClose={() => setIsApplicationModalOpen(false)}

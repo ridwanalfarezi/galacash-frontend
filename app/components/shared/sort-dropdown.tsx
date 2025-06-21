@@ -5,12 +5,12 @@ import { useState } from 'react'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
 
 export interface SortOption {
@@ -208,7 +208,7 @@ export function SortDropdown({
             <div key={colIndex} className="flex flex-col gap-1">
               {columnData.map(([category, options], idx) => (
                 <div key={category}>
-                  <DropdownMenuLabel className="bg-gray-50 px-2 py-1.5 text-xs font-medium text-gray-500">
+                  <DropdownMenuLabel className="bg-gray-50 px-2 py-1.5 text-sm font-medium text-gray-500">
                     {category}
                   </DropdownMenuLabel>
                   {options.map((option) => (
@@ -216,14 +216,14 @@ export function SortDropdown({
                       key={option.id}
                       onClick={() => handleSortSelect(option.id)}
                       className={`hover:bg-accent hover:text-accent-foreground flex cursor-pointer items-center justify-between py-2.5 transition-colors ${
-                        currentSort?.id === option.id ? 'bg-blue-50 text-blue-700' : ''
+                        currentSort?.id === option.id ? 'bg-blue-50 text-blue-500' : ''
                       }`}
                     >
                       <div className="flex items-center gap-2">
                         <span>{option.label.replace(`${category}: `, '')}</span>
                         {getSortIcon(option.direction)}
                       </div>
-                      {currentSort?.id === option.id && <Check className="h-4 w-4 text-blue-700" />}
+                      {currentSort?.id === option.id && <Check className="h-4 w-4 text-blue-500" />}
                     </DropdownMenuItem>
                   ))}
                   {idx < columnData.length - 1 && <DropdownMenuSeparator />}

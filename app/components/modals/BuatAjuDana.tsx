@@ -44,30 +44,28 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
       setFormData((prev) => ({ ...prev, attachment: file }))
     }
   }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
+      <DialogContent
+        className="max-h-[90vh] overflow-y-auto rounded-3xl border-0 sm:max-w-[600px]"
+        style={{ scrollbarWidth: 'none' }}
+      >
         <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold">Ajukan Dana</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold sm:text-3xl">Ajukan Dana</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="purpose" className="text-base font-medium">
-              Keperluan
-            </Label>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <Label className="text-lg font-normal sm:text-xl">Keperluan</Label>
             <Input
               id="purpose"
               placeholder="Lorem ipsum dolor sit amet"
               value={formData.purpose}
               onChange={(e) => setFormData((prev) => ({ ...prev, purpose: e.target.value }))}
-              className="h-12"
             />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-base font-medium">
+          <div className="space-y-1">
+            <Label htmlFor="description" className="text-lg font-normal sm:text-xl">
               Deskripsi
             </Label>
             <Textarea
@@ -75,20 +73,18 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
               placeholder="Lorem ipsum dolor sit amet"
               value={formData.description}
               onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-              className="min-h-[100px] resize-none"
             />
-          </div>
-
+          </div>{' '}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="category" className="text-base font-medium">
+            <div className="space-y-1">
+              <Label htmlFor="category" className="text-lg font-normal sm:text-xl">
                 Kategori
               </Label>
               <Select
                 value={formData.category}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}
               >
-                <SelectTrigger className="h-12">
+                <SelectTrigger className="w-full rounded-md border-2 border-gray-500 py-4.5 text-base focus:border-gray-900">
                   <SelectValue placeholder="Pilih Kategori" />
                 </SelectTrigger>
                 <SelectContent>
@@ -100,51 +96,52 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="amount" className="text-base font-medium">
+            <div className="space-y-1">
+              <Label htmlFor="amount" className="text-lg font-normal sm:text-xl">
                 Nominal
               </Label>
               <div className="relative">
-                <span className="absolute top-1/2 left-3 -translate-y-1/2 transform text-gray-500">
-                  Rp.
-                </span>
                 <Input
                   id="amount"
                   type="text"
-                  placeholder="99.999.999"
+                  placeholder="Rp 99.999.999"
                   value={formData.amount}
                   onChange={(e) => setFormData((prev) => ({ ...prev, amount: e.target.value }))}
-                  className="h-12 pl-12"
                 />
               </div>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="attachment" className="text-base font-medium">
+          </div>{' '}
+          <div className="space-y-1">
+            <Label htmlFor="attachment" className="text-lg font-normal sm:text-xl">
               Lampiran
             </Label>
             <div className="relative">
               <Input id="attachment" type="file" onChange={handleFileChange} className="hidden" />
               <Label
                 htmlFor="attachment"
-                className="flex h-12 w-full cursor-pointer items-center justify-between rounded-md border border-gray-300 px-3 py-2 hover:bg-gray-50"
+                className="flex w-full cursor-pointer items-center justify-between rounded-md border-2 border-gray-500 px-3 py-2 text-base focus-within:border-gray-900 hover:bg-gray-50"
               >
-                <span className="text-gray-500">
+                <span className={formData.attachment ? 'text-gray-900' : 'text-gray-500'}>
                   {formData.attachment ? formData.attachment.name : 'Upload File'}
                 </span>
-                <Upload className="h-4 w-4 text-gray-400" />
+                <Upload className="h-6 w-6 text-gray-900" />
               </Label>
             </div>
           </div>
-
-          <div className="flex justify-end pt-4">
-            <Button
-              type="submit"
-              className="h-12 bg-blue-600 px-8 py-2 text-base font-medium hover:bg-blue-700"
-            >
-              Simpan
-            </Button>
+          <div className="flex w-full border-t pt-6 sm:justify-end">
+            <div className="flex w-full gap-2 sm:w-fit">
+              <Button
+                type="button"
+                variant="outline"
+                className="sm:flex-1 sm:px-10"
+                onClick={onClose}
+              >
+                Batal
+              </Button>
+              <Button type="submit" className="sm:flex-1 sm:px-10">
+                Buat
+              </Button>
+            </div>
           </div>
         </form>
       </DialogContent>
