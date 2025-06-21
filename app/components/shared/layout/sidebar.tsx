@@ -21,7 +21,7 @@ export function Sidebar() {
 
   return (
     <div
-      className={`md:flex hidden md:p flex-col rounded-tr-4xl rounded-br-4xl bg-white shadow-lg transition-[width] duration-300 ease-in-out ${
+      className={`md:p hidden flex-col rounded-tr-4xl rounded-br-4xl bg-white shadow-lg transition-[width] duration-300 ease-in-out md:flex ${
         sidebarCollapsed ? 'w-20' : 'w-60'
       }`}
     >
