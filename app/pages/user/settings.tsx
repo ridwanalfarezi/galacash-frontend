@@ -1,8 +1,19 @@
 import React from 'react'
 
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
+
 const SettingsPage = () => {
   return (
-    <div className="p-6">
+    <div className="h-[93%] p-8">
       {/* Header */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-[32px] font-semibold text-gray-900">Settings</h1>
@@ -10,48 +21,68 @@ const SettingsPage = () => {
       </div>
 
       {/* Settings background */}
-      <div className="bg-card rounded-lg p-6 shadow-md">
-        {/* Profile picture */}
-        <div className="flex flex-col items-center">
-          <img
-            sizes="width: 100%; height: 100%; border-radius: 240px"
-            src="C:\Users\User\Work\UNIV\GALAPROJECT\GalaCash\public\logo.png"
-            className="h-32 w-32 rounded-full object-cover"
-          />
-          <button className="mt-3 rounded bg-blue-900 px-4 py-2 text-white">
-            Edit Foto Profil
-          </button>
+      <div className="bg-card flex h-full gap-10 rounded-lg p-10 shadow-md">
+        {/* Left side: Profile picture and settings form */}
+        <div className="flex-1">
+          {/* Profile picture */}
+          <div className="mb-4 flex flex-col items-center justify-center gap-y-11">
+            <img src="/patya.png" className="size-64 rounded-full object-cover" />
+            <Button>Edit Foto Profil</Button>
+          </div>
+          {/* Settings form */}
+          <form className="space-y-4">
+            <div className="space-y-1">
+              <Label className="text-xl">Nama</Label>
+              <Input type="text" placeholder="Enter your name" />
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xl">Email</Label>
+              <Input type="email" placeholder="Enter your e-mail" />
+            </div>
+
+            {/* class select */}
+            <div className="space-y-1">
+              <Label className="text-xl">Kelas</Label>
+              <Select>
+                <SelectTrigger className="w-1/2 rounded-md border-2 border-gray-500 py-4.5 text-base focus:border-gray-900">
+                  <SelectValue placeholder="Pilih Kelas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="education">Kelas A</SelectItem>
+                  <SelectItem value="health">Kelas B</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </form>
+          <div className="grid h-32 place-content-end">
+            <Button>Simpan</Button>
+          </div>
         </div>
+        {/* Right side: password lama dan password baru*/}
+        <div className="flex-1">
+          <h2 className="mb-4 text-xl font-medium">Ubah Password</h2>
+          {/* Settings form */}
+          <form className="space-y-4">
+            <div className="space-y-1">
+              <Label className="text-xl">Password Lama</Label>
+              <Input type="password" placeholder="Password Lama" />
+            </div>
 
-        {/* Settings form */}
-        <form>
-          <div className="mb-4 w-full">
-            <label className="mb-2 block text-sm font-medium text-gray-700">Nama</label>
-            <input
-              type="Nama"
-              className="w-full rounded border border-gray-300 p-2"
-              placeholder="Enter your name"
-            />
-          </div>
+            <div className="space-y-1">
+              <Label className="text-xl">Password Baru</Label>
+              <Input type="password" placeholder="Password Baru" />
+            </div>
 
-          <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="E-mail"
-              className="w-full rounded border border-gray-300 p-2"
-              placeholder="Enter your Email"
-            />
-          </div>
-
-          {/* class select */}
-          <div>
-            <label className="mb-1 block font-medium">Kelas</label>
-            <select className="w-half rounded border border-gray-300 p-2">
-              <option>Kelas A</option>
-              <option>Kelas B</option>
-            </select>
-          </div>
-        </form>
+            <div className="space-y-1">
+              <Label className="text-xl">Konfirmasi Password Baru</Label>
+              <Input type="password" placeholder="Konfirmasi Password Baru" />
+            </div>
+            <div className="grid h-106 place-content-end">
+              <Button>Simpan</Button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   )
