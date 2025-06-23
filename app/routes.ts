@@ -7,5 +7,4 @@ export default [
       route('aju-dana', './routes/user/aju-dana.tsx'),
     ]),
   ]),
-  route('sign-in', './routes/sign-in.tsx'),
 ] satisfies RouteConfig
