@@ -238,7 +238,7 @@ export default function AjuDanaPage() {
 
   return (
     <div className="p-6">
-      <div className="mx-auto max-w-7xl space-y-8">
+      <div className="max-w-[1440px] space-y-8">
         <Card className="rounded-4xl border-0">
           <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
             <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
