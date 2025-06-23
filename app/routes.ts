@@ -5,6 +5,7 @@ export default [
     layout('./components/shared/layout/layout.tsx', [
       route('dashboard', './routes/user/dashboard.tsx'),
       route('aju-dana', './routes/user/aju-dana.tsx'),
+      route('settings', './routes/user/settings.tsx'),
     ]),
   ]),
 ] satisfies RouteConfig
