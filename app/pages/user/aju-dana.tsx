@@ -297,7 +297,7 @@ export default function AjuDanaPage() {
           </CardHeader>
           <CardContent>
             <div className="hidden overflow-x-auto sm:block">
-              <table className="w-full">
+              <table className="w-full max-w-[1440px]">
                 <thead>
                   <tr className="border-b border-gray-300">
                     <th className="px-4 py-3 text-left font-medium">Tanggal</th>
@@ -415,7 +415,7 @@ export default function AjuDanaPage() {
           </CardHeader>
           <CardContent>
             <div className="hidden overflow-x-auto sm:block">
-              <table className="w-full">
+              <table className="w-full max-w-[1440px]">
                 <thead>
                   <tr className="border-b border-gray-300">
                     <th className="px-4 py-3 text-left font-medium">Tanggal</th>
