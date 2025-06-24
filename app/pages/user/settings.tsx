@@ -13,15 +13,15 @@ import {
 
 const SettingsPage = () => {
   return (
-    <div className="h-[93%] p-8">
+    <div className="p-8">
       {/* Header */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-[32px] font-semibold text-gray-900">Settings</h1>
         <div className="flex items-center gap-2"></div>
       </div>
 
-      {/* Settings background */}
-      <div className="bg-card flex h-full gap-10 rounded-lg p-10 shadow-md">
+      {/* Settings card */}
+      <div className="bg-card flex flex-col gap-15 rounded-2xl p-10 shadow-lg md:flex-row md:gap-10">
         {/* Left side: Profile picture and settings form */}
         <div className="flex-1">
           {/* Profile picture */}
@@ -55,13 +55,16 @@ const SettingsPage = () => {
               </Select>
             </div>
           </form>
-          <div className="grid h-32 place-content-end">
+
+          <div className="mt-4 grid grid-cols-1 md:mt-0 md:min-h-26 md:place-items-end">
             <Button>Simpan</Button>
           </div>
         </div>
+        {/* Divider */}
+        <div className="hidden h-auto w-px bg-gray-500 md:block"></div>
         {/* Right side: password lama dan password baru*/}
         <div className="flex-1">
-          <h2 className="mb-4 text-xl font-medium">Ubah Password</h2>
+          <h2 className="mb-4 text-2xl font-medium">Ubah Password</h2>
           {/* Settings form */}
           <form className="space-y-4">
             <div className="space-y-1">
@@ -78,10 +81,11 @@ const SettingsPage = () => {
               <Label className="text-xl">Konfirmasi Password Baru</Label>
               <Input type="password" placeholder="Konfirmasi Password Baru" />
             </div>
-            <div className="grid h-106 place-content-end">
-              <Button>Simpan</Button>
-            </div>
           </form>
+
+          <div className="mt-4 grid grid-cols-1 md:mt-0 md:min-h-104 md:place-items-end">
+            <Button>Simpan</Button>
+          </div>
         </div>
       </div>
     </div>
