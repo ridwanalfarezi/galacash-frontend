@@ -49,7 +49,7 @@ const SettingsPage = () => {
             </div>
           </form>
 
-          <div className="mt-4 grid grid-cols-1 md:mt-0 md:min-h-26 md:place-items-end">
+          <div className="mt-4 grid grid-cols-1 md:mt-0 md:min-h-27 md:place-items-end">
             <Button>Simpan</Button>
           </div>
         </div>
