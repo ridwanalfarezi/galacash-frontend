@@ -2,6 +2,7 @@
 
 import { ChevronDown, ChevronUp, Filter, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
+
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -66,7 +67,7 @@ export function FilterComponent({
     currentFilters.categories.length +
     (currentFilters.amountRange[0] > 0 || currentFilters.amountRange[1] < maxAmount ? 1 : 0)
 
-  const handleFilterChange = (key: keyof FilterState, value: any) => {
+  const handleFilterChange = (key: keyof FilterState, value: FilterState[keyof FilterState]) => {
     const newFilters = { ...localFilters, [key]: value }
     setLocalFilters(newFilters)
     onFilterChange(newFilters)
@@ -229,7 +230,9 @@ export function FilterComponent({
             <div className="px-1">
               <Slider
                 value={localFilters.amountRange}
-                onValueChange={(value) => handleFilterChange('amountRange', value)}
+                onValueChange={(value) =>
+                  handleFilterChange('amountRange', value as [number, number])
+                }
                 max={maxAmount}
                 min={0}
                 step={100000}

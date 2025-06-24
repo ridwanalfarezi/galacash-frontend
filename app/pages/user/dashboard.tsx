@@ -4,13 +4,22 @@ import { CircleArrowDown, CircleArrowUp, Clock, Gift } from 'lucide-react'
 import { useState } from 'react'
 import type { DateRange } from 'react-day-picker'
 import { Link } from 'react-router'
+
 import { Icons } from '~/components/icons'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DatePicker } from '~/components/ui/date-picker'
+
 import { formatCurrency, formatDate, groupTransactionsByDate } from '../../lib/utils'
 
-// Mock data untuk fase slicing
-const mockTransactions = [
+interface Transaction {
+  id: string
+  type: 'income' | 'expense'
+  description: string
+  amount: number
+  date: string
+}
+
+const mockTransactions: Transaction[] = [
   {
     id: '1',
     type: 'expense',
@@ -94,7 +103,6 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6">
-      {/* Header */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-[32px] font-semibold text-gray-900">Saldo Kas</h1>
         <div className="flex items-center gap-2">
@@ -102,7 +110,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Summary Cards */}
       <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card className="gap-4 rounded-4xl border-none border-blue-200 bg-blue-50">
           <CardHeader>
@@ -167,7 +174,7 @@ export default function DashboardPage() {
                     {formatDate(day.date)}
                   </h3>
                   <div className="space-y-6 sm:space-y-3">
-                    {(day.items as any[]).map((transaction: any) => (
+                    {(day.items as Transaction[]).map((transaction: Transaction) => (
                       <div
                         key={transaction.id}
                         className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"

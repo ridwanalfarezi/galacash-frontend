@@ -3,6 +3,7 @@
 import { ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
+
 import { Icons } from '~/components/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import { Button } from '~/components/ui/button'
@@ -13,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
+
 import { mockUser, navigation } from './navdata'
 
 export function Sidebar() {
@@ -25,12 +27,10 @@ export function Sidebar() {
         sidebarCollapsed ? 'w-20' : 'w-60'
       }`}
     >
-      {/* Logo */}
       <div className="p-6">
         <img src="/logo.png" alt="Logo" className={sidebarCollapsed ? 'w-auto' : 'w-40'} />
       </div>
 
-      {/* Collapse Button */}
       <div className="p-4">
         <Button
           variant="ghost"
@@ -42,10 +42,9 @@ export function Sidebar() {
         </Button>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 p-4">
         <div className="space-y-4">
-          {navigation.map((item: any) => {
+          {navigation.map((item) => {
             const isActive = location.pathname === item.href
             return (
               <Link key={item.name} to={item.href} className="block">
@@ -66,7 +65,6 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* User Profile */}
       <div className={`flex p-4 ${sidebarCollapsed ? 'items-center' : ''}`}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

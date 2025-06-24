@@ -1,6 +1,7 @@
 'use client'
 
 import { Link, useLocation } from 'react-router'
+
 import { Icons } from '~/components/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import {
@@ -11,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
 import { cn } from '~/lib/utils'
+
 import { mockUser, navigation } from './navdata'
 
 export function BottomBar() {
@@ -19,7 +21,7 @@ export function BottomBar() {
   return (
     <div className="fixed bottom-0 z-50 block w-full border-t border-gray-200 bg-white md:hidden">
       <nav className="flex h-16 items-center justify-evenly">
-        {navigation.map((item: any) => {
+        {navigation.map((item) => {
           const isActive = location.pathname === item.href
           return (
             <Link
