@@ -1,9 +1,9 @@
 import SignInPage from '~/pages/sign-in'
 
 export function meta() {
-  return [{ title: 'GalaCash | Dashboard' }]
+  return [{ title: 'GalaCash | Sign In' }]
 }
 
-export default function Dashboard() {
+export default function SignIn() {
   return <SignInPage />
 }
