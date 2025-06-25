@@ -91,10 +91,12 @@ export function Sidebar() {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
-            <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
-              <Icons.Settings className="mr-2 text-gray-900" />
-              <span className="text-base font-normal text-gray-900">Settings</span>
-            </DropdownMenuItem>
+            <Link to="/user/settings">
+              <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
+                <Icons.Settings className="mr-2 text-gray-900" />
+                <span className="text-base font-normal text-gray-900">Settings</span>
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuSeparator className="bg-gray-200" />
             <DropdownMenuItem className="cursor-pointer hover:bg-red-50">
               <Icons.SignOut className="mr-2 text-red-900" />
