@@ -15,5 +15,5 @@ export const navigation: NavigationItem[] = [
 export const mockUser = {
   name: 'Fathya Khairani R',
   role: 'Bendahara',
-  avatar: '/placeholder.svg?height=40&width=40',
+  avatar: '/patya.png',
 }

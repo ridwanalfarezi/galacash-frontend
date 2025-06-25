@@ -1,8 +1,10 @@
 'use client'
+
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { ChevronRight, Filter } from 'lucide-react'
 import { useState } from 'react'
 
+import { FinancialPieChart } from '~/components/chart/financial-pie-chart'
 import { Icons } from '~/components/icons'
 import Export from '~/components/icons/export'
 import Sort from '~/components/icons/sort'
@@ -45,8 +47,22 @@ const historyTransaction: HistoryTransaction[] = [
   },
 ]
 
+const incomeData = [
+  { name: 'Pembayaran SPP', value: 500000, fill: '#50b89a' },
+  { name: 'Donasi Kegiatan', value: 200000, fill: '#8cd9a7' },
+  { name: 'Infaq Bulanan', value: 300000, fill: '#34a0a4' },
+]
+
+// Sample expense data
+const expenseData = [
+  { name: 'Pembelian Buku', value: 150000, fill: '#920c22' },
+  { name: 'Konsumsi Rapat', value: 75000, fill: '#af2038' },
+  { name: 'ATK Kelas', value: 125000, fill: '#800016' },
+]
+
 export default function KasKelasPage() {
   const [detailModal, setDetailModal] = useState<HistoryTransaction | null>(null)
+  const [isChartVisible, setIsChartVisible] = useState(true)
   const isDetailModalOpen = detailModal !== null
 
   const openDetailModal = (transaction: HistoryTransaction) => {
@@ -81,6 +97,39 @@ export default function KasKelasPage() {
     <>
       <div className="p-6">
         <div className="mx-auto max-w-[1440px] space-y-8">
+          <Card className="relative rounded-4xl border-0">
+            <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
+              <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
+                Rekap Keuangan Kas
+              </CardTitle>
+            </CardHeader>
+            {isChartVisible && (
+              <CardContent>
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                  <FinancialPieChart
+                    data={incomeData}
+                    title="Pemasukan"
+                    type="income"
+                    className="flex justify-center"
+                  />
+                  <FinancialPieChart
+                    data={expenseData}
+                    title="Pengeluaran"
+                    type="expense"
+                    className="flex justify-center"
+                  />
+                </div>
+              </CardContent>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsChartVisible(!isChartVisible)}
+              className="absolute right-4 bottom-4 text-gray-500 hover:text-gray-700"
+            >
+              {isChartVisible ? 'Hide' : 'Show'}
+            </Button>
+          </Card>
           <Card className="rounded-4xl border-0">
             <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
               <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
