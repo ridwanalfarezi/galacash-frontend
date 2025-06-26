@@ -1,7 +1,6 @@
 import AjuDanaPage from '~/pages/user/aju-dana'
-import type { Route } from './+types/dashboard'
 
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [{ title: 'GalaCash | Aju Dana' }]
 }
 

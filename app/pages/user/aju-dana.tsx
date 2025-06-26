@@ -1,6 +1,7 @@
 'use client'
 import { CheckIcon, ChevronRight, Clock, RotateCcw, XIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
+
 import Export from '~/components/icons/export'
 import Plus from '~/components/icons/plus'
 import Sort from '~/components/icons/sort'
@@ -118,15 +119,15 @@ export default function AjuDanaPage() {
 
     if (currentSortA) {
       filtered.sort((a, b) => {
-        let aVal: any = a[currentSortA.field as keyof Application]
-        let bVal: any = b[currentSortA.field as keyof Application]
+        let aVal: string | number = a[currentSortA.field as keyof Application] as string | number
+        let bVal: string | number = b[currentSortA.field as keyof Application] as string | number
 
         if (currentSortA.field === 'date') {
-          aVal = new Date(aVal).getTime()
-          bVal = new Date(bVal).getTime()
+          aVal = new Date(aVal as string).getTime()
+          bVal = new Date(bVal as string).getTime()
         } else if (typeof aVal === 'string') {
           aVal = aVal.toLowerCase()
-          bVal = bVal.toLowerCase()
+          bVal = (bVal as string).toLowerCase()
         }
 
         return currentSortA.direction === 'asc' ? (aVal > bVal ? 1 : -1) : aVal < bVal ? 1 : -1
@@ -181,15 +182,15 @@ export default function AjuDanaPage() {
 
     if (currentSortB) {
       filtered.sort((a, b) => {
-        let aVal: any = a[currentSortB.field as keyof Application]
-        let bVal: any = b[currentSortB.field as keyof Application]
+        let aVal: string | number = a[currentSortB.field as keyof Application] as string | number
+        let bVal: string | number = b[currentSortB.field as keyof Application] as string | number
 
         if (currentSortB.field === 'date') {
-          aVal = new Date(aVal).getTime()
-          bVal = new Date(bVal).getTime()
+          aVal = new Date(aVal as string).getTime()
+          bVal = new Date(bVal as string).getTime()
         } else if (typeof aVal === 'string') {
           aVal = aVal.toLowerCase()
-          bVal = bVal.toLowerCase()
+          bVal = (bVal as string).toLowerCase()
         }
 
         return currentSortB.direction === 'asc' ? (aVal > bVal ? 1 : -1) : aVal < bVal ? 1 : -1
