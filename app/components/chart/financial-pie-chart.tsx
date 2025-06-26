@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Label, Pie, PieChart, Sector } from 'recharts'
+import { Pie, PieChart, Sector } from 'recharts'
 import type { PieSectorDataItem } from 'recharts/types/polar/Pie'
 
 import { formatCurrency } from '~/lib/utils'
@@ -21,13 +21,7 @@ interface FinancialPieChartProps {
   className?: string
 }
 
-export function FinancialPieChart({ data, title, type, className }: FinancialPieChartProps) {
-  const [isMounted, setIsMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
+export function FinancialPieChart({ data, title, className }: FinancialPieChartProps) {
   const total = React.useMemo(() => data.reduce((acc, item) => acc + item.value, 0), [data])
 
   const chartConfig = React.useMemo(() => {
@@ -49,34 +43,44 @@ export function FinancialPieChart({ data, title, type, className }: FinancialPie
     return <Sector {...props} outerRadius={outerRadius + 10} />
   }
 
-  const titleColor = type === 'income' ? 'text-green-700' : 'text-red-700'
-
-  if (!isMounted) {
-    return (
-      <div className={className}>
-        <div className="mx-auto flex aspect-square w-full max-w-[350px] items-center justify-center">
-          <div className="text-center">
-            <div className={`mb-2 text-sm font-medium ${titleColor}`}>{title}</div>
-            <div className="text-xl font-bold">{formatCurrency(total)}</div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className={className}>
-      <ChartContainer config={chartConfig} className="mx-auto aspect-square w-full max-w-[350px]">
+      <ChartContainer
+        config={chartConfig}
+        className="mx-auto aspect-square min-h-[200px] w-full max-w-[350px]"
+      >
         <PieChart>
           <ChartTooltip
             cursor={false}
             content={
               <ChartTooltipContent
                 hideLabel
-                formatter={(value) => formatCurrency(value as number)}
+                formatter={(value, item, payload) => {
+                  const { fill } = payload.payload as ChartDataItem
+                  return (
+                    <>
+                      <span className={'text-sm capitalize'} style={{ color: `${fill}` }}>
+                        {item}
+                      </span>
+                      <span className="text-sm">{formatCurrency(value as number)}</span>
+                    </>
+                  )
+                }}
               />
             }
           />
+          <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle">
+            <tspan
+              x="50%"
+              dy="-1em"
+              className={`text-sm ${title === 'Pemasukan' ? 'fill-green-700' : 'fill-red-700'}`}
+            >
+              {title}
+            </tspan>
+            <tspan x="50%" dy="1.5em" className="fill-gray-900 text-base font-semibold">
+              {formatCurrency(total)}
+            </tspan>
+          </text>
           <Pie
             data={data}
             dataKey="value"
@@ -84,29 +88,7 @@ export function FinancialPieChart({ data, title, type, className }: FinancialPie
             innerRadius={80}
             strokeWidth={5}
             activeShape={renderActiveShape}
-          >
-            <Label
-              content={({ viewBox }) => {
-                if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
-                  return (
-                    <text
-                      x={viewBox.cx}
-                      y={viewBox.cy}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                    >
-                      <tspan x={viewBox.cx} y={(viewBox.cy || 0) - 12}>
-                        {title}
-                      </tspan>
-                      <tspan x={viewBox.cx} y={(viewBox?.cy || 0) + 12}>
-                        {formatCurrency(total)}
-                      </tspan>
-                    </text>
-                  )
-                }
-              }}
-            />
-          </Pie>
+          />
         </PieChart>
       </ChartContainer>
     </div>
