@@ -60,7 +60,7 @@ export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDa
 
             <div className="space-y-1">
               <Label className="text-lg font-normal sm:text-xl">Nominal</Label>
-              <Input value={formatCurrency(application.amount)} readOnly className="h-9 sm:h-10" />
+              <Input value={formatCurrency(application.amount)} readOnly />
             </div>
           </div>
 
