@@ -245,7 +245,7 @@ export default function AjuDanaPage() {
             <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
               Rekap Pengajuan Anda
             </CardTitle>
-            <div className="flex flex-wrap items-center gap-4 sm:gap-2">
+            <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
               <FilterComponent
                 currentFilters={filtersA}
                 onFilterChange={setFiltersA}
@@ -370,7 +370,7 @@ export default function AjuDanaPage() {
             <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
               Rekap Pengajuan Dana
             </CardTitle>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
               <FilterComponent
                 currentFilters={filtersB}
                 onFilterChange={setFiltersB}
