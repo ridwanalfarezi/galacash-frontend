@@ -2,7 +2,7 @@
 
 import { ChevronUp } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 
 import { Icons } from '~/components/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
@@ -20,6 +20,13 @@ import { mockUser, navigation } from './navdata'
 export function Sidebar() {
   const location = useLocation()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const navigate = useNavigate()
+
+  const signOut = () => {
+    // Implement sign out logic here
+    console.log('User signed out')
+    navigate('/sign-in')
+  }
 
   return (
     <div
@@ -98,7 +105,7 @@ export function Sidebar() {
               </DropdownMenuItem>
             </Link>
             <DropdownMenuSeparator className="bg-gray-200" />
-            <DropdownMenuItem className="cursor-pointer hover:bg-red-50">
+            <DropdownMenuItem className="cursor-pointer hover:bg-red-50" onClick={signOut}>
               <Icons.SignOut className="mr-2 text-red-900" />
               <span className="text-base font-normal text-red-900">Sign Out</span>
             </DropdownMenuItem>

@@ -8,4 +8,5 @@ export default [
       route('settings', './routes/user/settings.tsx'),
     ]),
   ]),
+  route('sign-in', './routes/sign-in.tsx'),
 ] satisfies RouteConfig
