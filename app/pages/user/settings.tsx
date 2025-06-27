@@ -30,7 +30,12 @@ const SettingsPage = () => {
         <div className="flex-1">
           <div className="mb-4 flex flex-col items-center justify-center gap-y-11">
             <img src="/patya.png" className="size-64 rounded-full object-cover" />
-            <Button>Edit Foto Profil</Button>
+            <Button>
+              <label htmlFor="photo" className="cursor-pointer">
+                Ubah Foto Profil
+              </label>
+            </Button>
+            <input type="file" accept="image/*" id="photo" hidden />
           </div>
           <form className="space-y-4">
             <div className="space-y-1">

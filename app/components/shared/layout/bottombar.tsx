@@ -27,7 +27,7 @@ export function BottomBar() {
   }
 
   return (
-    <div className="border- t fixed bottom-0 z-50 block w-full border-gray-200 bg-white md:hidden">
+    <div className="fixed bottom-0 z-50 block w-full border-t border-gray-200 bg-white md:hidden">
       <nav className="flex h-16 items-center justify-evenly">
         {navigation.map((item) => {
           const isActive = location.pathname === item.href
