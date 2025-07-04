@@ -305,7 +305,10 @@ export default function KasKelasPage() {
                         <td className="px-4 py-3 text-sm">{app.date}</td>
                         <td className="px-4 py-3 text-sm">{app.purpose}</td>
                         <td className="px-4 py-3">{getTypeBadge(app.type)}</td>
-                        <td className="px-4 py-3 text-sm font-medium">
+                        <td
+                          className={`px-4 py-3 text-sm font-medium ${app.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
+                        >
+                          {app.type === 'income' ? '+' : '-'}
                           {formatCurrency(app.amount)}
                         </td>
                         <td className="px-4 py-3" onClick={() => openDetailModal(app)}>
@@ -336,7 +339,10 @@ export default function KasKelasPage() {
                       </div>
                       <div className="font-semibold">{app.purpose}</div>
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-blue-500">
+                        <span
+                          className={`font-bold ${app.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
+                        >
+                          {app.type === 'income' ? '+' : '-'}
                           {formatCurrency(app.amount)}
                         </span>
                         <Button variant="ghost" size="sm" onClick={() => openDetailModal(app)}>
