@@ -25,28 +25,42 @@ const mockTransactions: Transaction[] = [
     type: 'expense',
     description: 'Pembelian ATK',
     amount: 150000,
-    date: '2025-06-1',
+    date: '2025-07-01',
   },
   {
     id: '2',
     type: 'income',
     description: 'Iuran Kas',
     amount: 500000,
-    date: '2025-06-1',
+    date: '2025-07-01',
   },
   {
     id: '3',
     type: 'expense',
     description: 'Snack Rapat',
     amount: 75000,
-    date: '2025-06-10',
+    date: '2025-07-02',
   },
   {
     id: '4',
     type: 'income',
     description: 'Iuran Kas',
     amount: 500000,
-    date: '2025-06-10',
+    date: '2025-07-02',
+  },
+  {
+    id: '5',
+    type: 'expense',
+    description: 'Konsumsi Meeting',
+    amount: 125000,
+    date: '2025-07-03',
+  },
+  {
+    id: '6',
+    type: 'income',
+    description: 'Dana Kegiatan',
+    amount: 300000,
+    date: '2025-07-03',
   },
 ]
 
@@ -168,55 +182,67 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-8">
-              {groupedTransactions.map((day, dayIndex) => (
-                <div key={dayIndex}>
-                  <h3 className="mb-2 border-b border-gray-900 pb-2 text-lg font-semibold text-gray-900 xl:text-xl">
-                    {formatDate(day.date)}
-                  </h3>
-                  <div className="space-y-6 sm:space-y-3">
-                    {(day.items as Transaction[]).map((transaction: Transaction) => (
-                      <div
-                        key={transaction.id}
-                        className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div
-                            className={`flex items-center justify-center rounded-full p-1 ${
-                              transaction.type === 'income'
-                                ? 'bg-green-100 text-green-600'
-                                : 'bg-red-100 text-red-600'
-                            }`}
-                          >
-                            {transaction.type === 'income' ? (
-                              <CircleArrowDown className="size-8" />
-                            ) : (
-                              <CircleArrowUp className="size-8" />
-                            )}
-                          </div>
-                          <div>
-                            <h4 className="text-base font-medium">
-                              {transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}
-                            </h4>
-                            <h6 className="text-xs text-gray-500">{transaction.description}</h6>
-                            <h6
-                              className={`font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'} block text-sm md:hidden md:text-base`}
-                            >
-                              {transaction.type === 'income' ? '+' : '-'}
-                              {formatCurrency(transaction.amount)}
-                            </h6>
-                          </div>
-                        </div>
-                        <h6
-                          className={`font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'} hidden text-sm md:block md:text-base`}
+              {groupedTransactions.length > 0 ? (
+                groupedTransactions.map((day, dayIndex) => (
+                  <div key={dayIndex}>
+                    <h3 className="mb-2 border-b border-gray-900 pb-2 text-lg font-semibold text-gray-900 xl:text-xl">
+                      {formatDate(day.date)}
+                    </h3>
+                    <div className="space-y-6 sm:space-y-3">
+                      {(day.items as Transaction[]).map((transaction: Transaction) => (
+                        <div
+                          key={transaction.id}
+                          className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
                         >
-                          {transaction.type === 'income' ? '+' : '-'}
-                          {formatCurrency(transaction.amount)}
-                        </h6>
-                      </div>
-                    ))}
+                          <div className="flex items-center space-x-3">
+                            <div
+                              className={`flex items-center justify-center rounded-full p-1 ${
+                                transaction.type === 'income'
+                                  ? 'bg-green-100 text-green-600'
+                                  : 'bg-red-100 text-red-600'
+                              }`}
+                            >
+                              {transaction.type === 'income' ? (
+                                <CircleArrowDown className="size-8" />
+                              ) : (
+                                <CircleArrowUp className="size-8" />
+                              )}
+                            </div>
+                            <div>
+                              <h4 className="text-base font-medium">
+                                {transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}
+                              </h4>
+                              <h6 className="text-xs text-gray-500">{transaction.description}</h6>
+                              <h6
+                                className={`font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'} block text-sm md:hidden md:text-base`}
+                              >
+                                {transaction.type === 'income' ? '+' : '-'}
+                                {formatCurrency(transaction.amount)}
+                              </h6>
+                            </div>
+                          </div>
+                          <h6
+                            className={`font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'} hidden text-sm md:block md:text-base`}
+                          >
+                            {transaction.type === 'income' ? '+' : '-'}
+                            {formatCurrency(transaction.amount)}
+                          </h6>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="mb-4 text-gray-400">
+                    <Clock className="mx-auto size-12" />
+                  </div>
+                  <h3 className="mb-2 text-lg font-medium text-gray-900">Tidak ada transaksi</h3>
+                  <p className="text-sm text-gray-500">
+                    Belum ada transaksi pada periode yang dipilih
+                  </p>
                 </div>
-              ))}
+              )}
               <div className="flex justify-center">
                 <Link to="/user/kas-kelas" className="hover:underline">
                   View More

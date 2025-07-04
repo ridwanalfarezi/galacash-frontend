@@ -1,6 +1,7 @@
 import { type RouteConfig, layout, prefix, route } from '@react-router/dev/routes'
 
 export default [
+  route('/', './routes/index.tsx'),
   ...prefix('user', [
     layout('./components/shared/layout/layout.tsx', [
       route('dashboard', './routes/user/dashboard.tsx'),
