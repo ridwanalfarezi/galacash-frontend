@@ -1,6 +1,14 @@
 'use client'
-import { CheckIcon, ChevronRight, Clock, RotateCcw, XIcon } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import {
+  CheckIcon,
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  Clock,
+  RotateCcw,
+  XIcon,
+} from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 
 import Export from '~/components/icons/export'
 import Plus from '~/components/icons/plus'
@@ -12,6 +20,7 @@ import { SortDropdown, type SortOption } from '~/components/shared/sort-dropdown
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { useIsMobile } from '~/hooks/use-mobile'
 
 interface Application {
   id: string
@@ -74,6 +83,10 @@ export default function AjuDanaPage() {
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
+
+  // Toggle states for buttons
+  const [isButtonsAVisible, setIsButtonsAVisible] = useState(true)
+  const [isButtonsBVisible, setIsButtonsBVisible] = useState(true)
   const [currentSortA, setCurrentSortA] = useState<SortOption | null>(null)
   const maxAmountA = useMemo(() => Math.max(...mockApplications.map((app) => app.amount)), [])
   const [filtersA, setFiltersA] = useState<FilterState>({
@@ -237,63 +250,99 @@ export default function AjuDanaPage() {
     setIsDetailModalOpen(true)
   }
 
+  const isMobile = useIsMobile()
+
+  useEffect(() => {
+    if (isMobile) {
+      setIsButtonsAVisible(false)
+      setIsButtonsBVisible(false)
+    }
+  }, [isMobile])
+
   return (
     <div className="p-6">
       <div className="mx-auto max-w-[1440px] space-y-8">
         <Card className="rounded-4xl border-0">
           <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
-            <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
-              Rekap Pengajuan Anda
-            </CardTitle>
-            <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
-              <FilterComponent
-                currentFilters={filtersA}
-                onFilterChange={setFiltersA}
-                applicants={['Ridwan', 'Raisa']}
-                categories={['Transport', 'Makanan']}
-                maxAmount={maxAmountA}
-                className="w-full sm:w-auto"
-              />
+            <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
+              <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
+                Rekap Pengajuan Anda
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsButtonsAVisible(!isButtonsAVisible)}
+                className="p-1 transition-transform duration-200 hover:scale-110 sm:hidden"
+              >
+                <div className="transition-transform duration-300">
+                  {isButtonsAVisible ? (
+                    <ChevronUp className="size-6" />
+                  ) : (
+                    <ChevronDown className="size-6" />
+                  )}
+                </div>
+              </Button>
+            </div>
+            <div
+              className={`transition-all duration-300 ease-in-out sm:block sm:w-auto sm:translate-y-0 sm:opacity-100 ${
+                !isButtonsAVisible
+                  ? 'max-h-0 w-full translate-y-2 overflow-hidden opacity-0'
+                  : 'max-h-96 w-full translate-y-0 overflow-visible opacity-100'
+              }`}
+            >
+              <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
+                <FilterComponent
+                  currentFilters={filtersA}
+                  onFilterChange={setFiltersA}
+                  applicants={['Ridwan', 'Raisa']}
+                  categories={['Transport', 'Makanan']}
+                  maxAmount={maxAmountA}
+                  className="w-full sm:w-auto"
+                />
 
-              <SortDropdown
-                currentSort={currentSortA}
-                onSortChange={setCurrentSortA}
-                align="end"
-                trigger={
+                <SortDropdown
+                  currentSort={currentSortA}
+                  onSortChange={setCurrentSortA}
+                  align="end"
+                  trigger={
+                    <Button
+                      variant={isSortActiveA ? 'default' : 'outline'}
+                      className={`w-full sm:w-auto ${isSortActiveA ? 'bg-blue-500 text-white hover:bg-blue-700' : ''}`}
+                    >
+                      <Sort />
+                      Sort
+                      {isSortActiveA && (
+                        <Badge className="ml-1 h-5 bg-white px-1.5 py-0.5 text-xs text-blue-500">
+                          1
+                        </Badge>
+                      )}
+                    </Button>
+                  }
+                />
+
+                {(isFilterActiveA || isSortActiveA) && (
                   <Button
-                    variant={isSortActiveA ? 'default' : 'outline'}
-                    className={`w-full sm:w-auto ${isSortActiveA ? 'bg-blue-500 text-white hover:bg-blue-700' : ''}`}
+                    variant="outline"
+                    onClick={clearAllFiltersA}
+                    className="text-destructive hover:bg-destructive border-destructive w-full hover:text-white sm:w-auto"
                   >
-                    <Sort />
-                    Sort
-                    {isSortActiveA && (
-                      <Badge className="ml-1 h-5 bg-white px-1.5 py-0.5 text-xs text-blue-500">
-                        1
-                      </Badge>
-                    )}
+                    <RotateCcw className="h-4 w-4" />
+                    Reset
                   </Button>
-                }
-              />
+                )}
 
-              {(isFilterActiveA || isSortActiveA) && (
-                <Button
-                  variant="outline"
-                  onClick={clearAllFiltersA}
-                  className="text-destructive hover:bg-destructive border-destructive w-full hover:text-white sm:w-auto"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  Reset
+                <Button className="w-full sm:w-auto">
+                  <Export size={20} />
+                  Export
                 </Button>
-              )}
-
-              <Button className="w-full sm:w-auto">
-                <Export size={20} />
-                Export
-              </Button>
-              <Button onClick={() => setIsApplicationModalOpen(true)} className="w-full sm:w-auto">
-                <Plus />
-                Ajukan Dana
-              </Button>
+                <Button
+                  onClick={() => setIsApplicationModalOpen(true)}
+                  className="w-full sm:w-auto"
+                >
+                  <Plus />
+                  Ajukan Dana
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -367,51 +416,75 @@ export default function AjuDanaPage() {
 
         <Card className="rounded-4xl border-0">
           <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
-            <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
-              Rekap Pengajuan Dana
-            </CardTitle>
-            <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
-              <FilterComponent
-                currentFilters={filtersB}
-                onFilterChange={setFiltersB}
-                applicants={['Ridwan', 'Raisa']}
-                categories={['Transport', 'Makanan']}
-                maxAmount={maxAmountB}
-                className="w-full sm:w-auto"
-              />
-              <SortDropdown
-                currentSort={currentSortB}
-                onSortChange={setCurrentSortB}
-                align="end"
-                trigger={
-                  <Button
-                    variant={isSortActiveB ? 'default' : 'outline'}
-                    className={`w-full sm:w-auto ${isSortActiveB ? 'bg-blue-500 text-white hover:bg-blue-700' : ''}`}
-                  >
-                    <Sort />
-                    Sort
-                    {isSortActiveB && (
-                      <Badge className="ml-1 h-5 bg-white px-1.5 py-0.5 text-xs text-blue-500">
-                        1
-                      </Badge>
-                    )}
-                  </Button>
-                }
-              />
-              {(isFilterActiveB || isSortActiveB) && (
-                <Button
-                  variant="outline"
-                  onClick={clearAllFiltersB}
-                  className="text-destructive hover:bg-destructive border-destructive w-full hover:text-white sm:w-auto"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  Reset
-                </Button>
-              )}
-              <Button className="w-full sm:w-auto">
-                <Export size={20} />
-                Export
+            <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
+              <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
+                Rekap Pengajuan Dana
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsButtonsBVisible(!isButtonsBVisible)}
+                className="p-1 transition-transform duration-200 hover:scale-110 sm:hidden"
+              >
+                <div className="transition-transform duration-300">
+                  {isButtonsBVisible ? (
+                    <ChevronUp className="size-6" />
+                  ) : (
+                    <ChevronDown className="size-6" />
+                  )}
+                </div>
               </Button>
+            </div>
+            <div
+              className={`transition-all duration-300 ease-in-out sm:block sm:w-auto sm:translate-y-0 sm:opacity-100 ${
+                !isButtonsBVisible
+                  ? 'max-h-0 w-full translate-y-2 overflow-hidden opacity-0'
+                  : 'max-h-96 w-full translate-y-0 overflow-visible opacity-100'
+              }`}
+            >
+              <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
+                <FilterComponent
+                  currentFilters={filtersB}
+                  onFilterChange={setFiltersB}
+                  applicants={['Ridwan', 'Raisa']}
+                  categories={['Transport', 'Makanan']}
+                  maxAmount={maxAmountB}
+                  className="w-full sm:w-auto"
+                />
+                <SortDropdown
+                  currentSort={currentSortB}
+                  onSortChange={setCurrentSortB}
+                  align="end"
+                  trigger={
+                    <Button
+                      variant={isSortActiveB ? 'default' : 'outline'}
+                      className={`w-full sm:w-auto ${isSortActiveB ? 'bg-blue-500 text-white hover:bg-blue-700' : ''}`}
+                    >
+                      <Sort />
+                      Sort
+                      {isSortActiveB && (
+                        <Badge className="ml-1 h-5 bg-white px-1.5 py-0.5 text-xs text-blue-500">
+                          1
+                        </Badge>
+                      )}
+                    </Button>
+                  }
+                />
+                {(isFilterActiveB || isSortActiveB) && (
+                  <Button
+                    variant="outline"
+                    onClick={clearAllFiltersB}
+                    className="text-destructive hover:bg-destructive border-destructive w-full hover:text-white sm:w-auto"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    Reset
+                  </Button>
+                )}
+                <Button className="w-full sm:w-auto">
+                  <Export size={20} />
+                  Export
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>

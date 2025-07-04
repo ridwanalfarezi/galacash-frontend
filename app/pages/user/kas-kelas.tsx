@@ -1,8 +1,8 @@
 'use client'
 
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
-import { ChevronRight, Filter } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { ChevronDown, ChevronRight, ChevronUp, Filter } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { FinancialPieChart } from '~/components/chart/financial-pie-chart'
 import { Icons } from '~/components/icons'
@@ -13,6 +13,7 @@ import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu'
+import { useIsMobile } from '~/hooks/use-mobile'
 import { formatCurrency } from '~/lib/utils'
 
 interface HistoryTransaction {
@@ -63,6 +64,10 @@ const expenseData = [
 export default function KasKelasPage() {
   const [detailModal, setDetailModal] = useState<HistoryTransaction | null>(null)
   const [isChartVisible, setIsChartVisible] = useState(true)
+
+  // Toggle state for buttons (mobile only)
+  const [isButtonsVisible, setIsButtonsVisible] = useState(true)
+
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all')
   const [sortBy, setSortBy] = useState<
     | 'date-newest'
@@ -174,6 +179,12 @@ export default function KasKelasPage() {
     }
   }
 
+  const isMobile = useIsMobile()
+
+  useEffect(() => {
+    if (isMobile) setIsButtonsVisible(false)
+  }, [isMobile])
+
   return (
     <>
       <div className="p-6">
@@ -213,78 +224,102 @@ export default function KasKelasPage() {
           </Card>
           <Card className="rounded-4xl border-0">
             <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
-              <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
-                Riwayat Transaksi
-              </CardTitle>
-              <div className="flex flex-wrap items-center gap-4 sm:gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="w-full sm:w-auto">
-                      <Filter size={20} />
-                      {getFilterLabel()}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => setFilterType('all')}
-                    >
-                      <span>Semua</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="cursor-pointer hover:text-green-700 focus:bg-green-50"
-                      onClick={() => setFilterType('income')}
-                    >
-                      <Icons.ArrowUpCircle size={20} className="text-green-700" />
-                      <span className="text-green-700">Pemasukan</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="cursor-pointer hover:text-red-700 focus:bg-red-50"
-                      onClick={() => setFilterType('expense')}
-                    >
-                      <Icons.ArrowDownCircle size={20} className="text-red-700" />
-                      <span className="text-red-700">Pengeluaran</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="w-full sm:w-auto">
-                      <Sort size={20} />
-                      {getSortLabel()}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-auto">
-                    <DropdownMenuItem onClick={() => setSortBy('date-newest')}>
-                      Tanggal Terbaru
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortBy('date-oldest')}>
-                      Tanggal Terlama
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortBy('amount-highest')}>
-                      Nominal Tertinggi
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortBy('amount-lowest')}>
-                      Nominal Terendah
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortBy('purpose-az')}>
-                      Keperluan: A ke Z
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortBy('purpose-za')}>
-                      Keperluan: Z ke A
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortBy('type-az')}>
-                      Tipe: A ke Z
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortBy('type-za')}>
-                      Tipe: Z ke A
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Button className="w-full sm:w-auto">
-                  <Export size={20} />
-                  Export
+              <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start">
+                <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
+                  Riwayat Transaksi
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsButtonsVisible(!isButtonsVisible)}
+                  className="p-1 transition-transform duration-200 hover:scale-110 sm:hidden"
+                >
+                  <div className="transition-transform duration-300">
+                    {isButtonsVisible ? (
+                      <ChevronUp className="size-6" />
+                    ) : (
+                      <ChevronDown className="size-6" />
+                    )}
+                  </div>
                 </Button>
+              </div>
+              <div
+                className={`transition-all duration-300 ease-in-out sm:block sm:w-auto sm:translate-y-0 sm:opacity-100 ${
+                  !isButtonsVisible
+                    ? 'max-h-0 w-full translate-y-2 overflow-hidden opacity-0'
+                    : 'max-h-96 w-full translate-y-0 overflow-visible opacity-100'
+                }`}
+              >
+                <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full sm:w-auto">
+                        <Filter size={20} />
+                        {getFilterLabel()}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => setFilterType('all')}
+                      >
+                        <span>Semua</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer hover:text-green-700 focus:bg-green-50"
+                        onClick={() => setFilterType('income')}
+                      >
+                        <Icons.ArrowUpCircle size={20} className="text-green-700" />
+                        <span className="text-green-700">Pemasukan</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer hover:text-red-700 focus:bg-red-50"
+                        onClick={() => setFilterType('expense')}
+                      >
+                        <Icons.ArrowDownCircle size={20} className="text-red-700" />
+                        <span className="text-red-700">Pengeluaran</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full sm:w-auto">
+                        <Sort size={20} />
+                        {getSortLabel()}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-auto">
+                      <DropdownMenuItem onClick={() => setSortBy('date-newest')}>
+                        Tanggal Terbaru
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSortBy('date-oldest')}>
+                        Tanggal Terlama
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSortBy('amount-highest')}>
+                        Nominal Tertinggi
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSortBy('amount-lowest')}>
+                        Nominal Terendah
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSortBy('purpose-az')}>
+                        Keperluan: A ke Z
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSortBy('purpose-za')}>
+                        Keperluan: Z ke A
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSortBy('type-az')}>
+                        Tipe: A ke Z
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSortBy('type-za')}>
+                        Tipe: Z ke A
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Button className="w-full sm:w-auto">
+                    <Export size={20} />
+                    Export
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
