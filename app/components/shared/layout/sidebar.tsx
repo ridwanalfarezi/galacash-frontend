@@ -53,7 +53,7 @@ export function Sidebar() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="right">
-                <p>Expand Sidebar</p>
+                <p>Perluas</p>
               </TooltipContent>
             </Tooltip>
           ) : (
@@ -63,7 +63,7 @@ export function Sidebar() {
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             >
               <Icons.CloseSidebar />
-              <span className="ml-2 text-2xl">Collapsed</span>
+              <span className="ml-2 text-2xl">Perkecil</span>
             </Button>
           )}
         </div>
@@ -122,13 +122,13 @@ export function Sidebar() {
                     <Link to="/user/settings">
                       <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
                         <Icons.Settings className="mr-2 text-gray-900" />
-                        <span className="text-base font-normal text-gray-900">Settings</span>
+                        <span className="text-base font-normal text-gray-900">Pengaturan</span>
                       </DropdownMenuItem>
                     </Link>
                     <DropdownMenuSeparator className="bg-gray-200" />
                     <DropdownMenuItem className="cursor-pointer hover:bg-red-50" onClick={signOut}>
                       <Icons.SignOut className="mr-2 text-red-900" />
-                      <span className="text-base font-normal text-red-900">Sign Out</span>
+                      <span className="text-base font-normal text-red-900">Keluar</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -158,13 +158,13 @@ export function Sidebar() {
                 <Link to="/user/settings">
                   <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
                     <Icons.Settings className="mr-2 text-gray-900" />
-                    <span className="text-base font-normal text-gray-900">Settings</span>
+                    <span className="text-base font-normal text-gray-900">Pengaturan</span>
                   </DropdownMenuItem>
                 </Link>
                 <DropdownMenuSeparator className="bg-gray-200" />
                 <DropdownMenuItem className="cursor-pointer hover:bg-red-50" onClick={signOut}>
                   <Icons.SignOut className="mr-2 text-red-900" />
-                  <span className="text-base font-normal text-red-900">Sign Out</span>
+                  <span className="text-base font-normal text-red-900">Keluar</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

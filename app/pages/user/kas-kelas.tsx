@@ -190,10 +190,24 @@ export default function KasKelasPage() {
       <div className="p-6">
         <div className="mx-auto max-w-[1440px] space-y-8">
           <Card className="relative rounded-4xl border-0">
-            <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
+            <CardHeader className="flex items-center justify-between space-y-0">
               <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
                 Rekap Keuangan Kas
               </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsChartVisible(!isChartVisible)}
+                className="p-1 transition-transform duration-200 hover:scale-110"
+              >
+                <div className="transition-transform duration-300">
+                  {isChartVisible ? (
+                    <ChevronUp className="size-6" />
+                  ) : (
+                    <ChevronDown className="size-6" />
+                  )}
+                </div>
+              </Button>
             </CardHeader>
             {isChartVisible && (
               <CardContent>
@@ -213,14 +227,6 @@ export default function KasKelasPage() {
                 </div>
               </CardContent>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsChartVisible(!isChartVisible)}
-              className="absolute right-4 bottom-4 text-gray-500 hover:text-gray-700"
-            >
-              {isChartVisible ? 'Hide' : 'Show'}
-            </Button>
           </Card>
           <Card className="rounded-4xl border-0">
             <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">

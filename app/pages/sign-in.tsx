@@ -58,7 +58,7 @@ function PasswordInput({
     <div className="relative w-full">
       <input
         type={showPassword ? 'text' : 'password'}
-        placeholder="Password"
+        placeholder="Kata Sandi"
         value={value}
         onChange={onChange}
         className={`h-12 w-full rounded-b-2xl border px-4 py-3.5 pr-12 placeholder-gray-500 focus:z-20 focus:outline-2 focus:outline-blue-500 ${error ? 'border-red-500' : 'border-gray-500'}`}
@@ -69,7 +69,7 @@ function PasswordInput({
         type="button"
         onClick={toggleShowPassword}
         className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 focus:outline-none"
-        aria-label={showPassword ? 'Sembunyikan Password' : 'Tampilkan Password'}
+        aria-label={showPassword ? 'Sembunyikan Kata Sandi' : 'Tampilkan Kata Sandi'}
         tabIndex={-1}
       >
         {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
