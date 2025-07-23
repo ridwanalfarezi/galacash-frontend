@@ -1,6 +1,6 @@
 'use client'
 
-import { Copy, CreditCard, DollarSign, Upload, Wallet } from 'lucide-react'
+import { Copy, Upload } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { Badge } from '~/components/ui/badge'
@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/u
 import { Label } from '~/components/ui/label'
 import { Separator } from '~/components/ui/separator'
 import { formatCurrency } from '~/lib/utils'
+
+import { Icons } from '../icons'
 
 interface TagihanKasDetail {
   id: string
@@ -116,22 +118,42 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
           <div className="space-y-3">
             <Label className="text-base font-medium">Metode Pembayaran</Label>
 
+            {/* Bank Option - Always show, auto-selected for waiting confirmation */}
+            <button
+              onClick={() => !isWaitingConfirmation && handlePaymentMethodSelect('bank')}
+              disabled={isWaitingConfirmation}
+              className={`flex w-full items-center gap-3 rounded-lg border-3 p-4 text-left transition-colors ${
+                selectedPaymentMethod === 'bank' || isWaitingConfirmation
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-900 hover:border-blue-500 hover:bg-blue-50'
+              } ${isWaitingConfirmation ? 'cursor-default' : 'cursor-pointer'}`}
+            >
+              <Icons.Bank
+                className={`h-5 w-5 ${selectedPaymentMethod === 'bank' ? 'text-blue-500' : 'text-gray-900'}`}
+              />
+              <span
+                className={`font-medium ${selectedPaymentMethod === 'bank' ? 'text-blue-500' : 'text-gray-900'}`}
+              >
+                Bank
+              </span>
+            </button>
+
             {!showBankOnly && (
               <>
                 {/* E-Wallet Option */}
                 <button
                   onClick={() => handlePaymentMethodSelect('ewallet')}
-                  className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border-2 p-4 text-left transition-colors ${
+                  className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border-3 p-4 text-left transition-colors ${
                     selectedPaymentMethod === 'ewallet'
                       ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      : 'border-gray-900 hover:border-blue-500 hover:bg-blue-50'
                   }`}
                 >
-                  <Wallet
-                    className={`h-5 w-5 ${selectedPaymentMethod === 'ewallet' ? 'text-blue-600' : 'text-gray-600'}`}
+                  <Icons.Wallet
+                    className={`h-5 w-5 ${selectedPaymentMethod === 'ewallet' ? 'text-blue-500' : 'text-gray-900'}`}
                   />
                   <span
-                    className={`font-medium ${selectedPaymentMethod === 'ewallet' ? 'text-blue-600' : 'text-gray-600'}`}
+                    className={`font-medium ${selectedPaymentMethod === 'ewallet' ? 'text-blue-500' : 'text-gray-900'}`}
                   >
                     E-Wallet
                   </span>
@@ -140,53 +162,33 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
                 {/* Cash Option */}
                 <button
                   onClick={() => handlePaymentMethodSelect('cash')}
-                  className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border-2 p-4 text-left transition-colors ${
+                  className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border-3 p-4 text-left transition-colors ${
                     selectedPaymentMethod === 'cash'
                       ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      : 'border-gray-900 hover:border-blue-500 hover:bg-blue-50'
                   }`}
                 >
-                  <DollarSign
-                    className={`h-5 w-5 ${selectedPaymentMethod === 'cash' ? 'text-blue-600' : 'text-gray-600'}`}
+                  <Icons.Money
+                    className={`h-5 w-5 ${selectedPaymentMethod === 'cash' ? 'text-blue-500' : 'text-gray-900'}`}
                   />
                   <span
-                    className={`font-medium ${selectedPaymentMethod === 'cash' ? 'text-blue-600' : 'text-gray-600'}`}
+                    className={`font-medium ${selectedPaymentMethod === 'cash' ? 'text-blue-500' : 'text-gray-900'}`}
                   >
                     Cash
                   </span>
                 </button>
               </>
             )}
-
-            {/* Bank Option - Always show, auto-selected for waiting confirmation */}
-            <button
-              onClick={() => !isWaitingConfirmation && handlePaymentMethodSelect('bank')}
-              disabled={isWaitingConfirmation}
-              className={`flex w-full items-center gap-3 rounded-lg border-2 p-4 text-left transition-colors ${
-                selectedPaymentMethod === 'bank' || isWaitingConfirmation
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              } ${isWaitingConfirmation ? 'cursor-default' : 'cursor-pointer'}`}
-            >
-              <CreditCard
-                className={`h-5 w-5 ${selectedPaymentMethod === 'bank' ? 'text-blue-600' : 'text-gray-600'}`}
-              />
-              <span
-                className={`font-medium ${selectedPaymentMethod === 'bank' ? 'text-blue-600' : 'text-gray-600'}`}
-              >
-                Bank
-              </span>
-            </button>
           </div>
         </div>
 
         {/* Bank Account Details - Show when bank is selected or waiting for confirmation */}
         {(selectedPaymentMethod === 'bank' || isWaitingConfirmation) && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="flex items-center justify-between rounded-lg border border-gray-500 p-4">
               <div>
                 <p className="font-medium">Bank Mandiri a.n Fathya Khairani R</p>
-                <p className="text-sm text-gray-600">123-456-789-000</p>
+                <p className="text-sm text-gray-500">123-456-789-000</p>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -199,10 +201,10 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="flex items-center justify-between rounded-lg border border-gray-500 p-4">
               <div>
                 <p className="font-medium">Bank Mandiri a.n Careal Alif Mafazi</p>
-                <p className="text-sm text-gray-600">123-456-789-000</p>
+                <p className="text-sm text-gray-500">123-456-789-000</p>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -223,7 +225,7 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
             <div className="flex items-center justify-between rounded-lg border p-4">
               <div>
                 <p className="font-medium">GoPay - Fathya Khairani R</p>
-                <p className="text-sm text-gray-600">0812-3456-7890</p>
+                <p className="text-sm text-gray-500">0812-3456-7890</p>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -239,7 +241,7 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
             <div className="flex items-center justify-between rounded-lg border p-4">
               <div>
                 <p className="font-medium">OVO - Careal Alif Mafazi</p>
-                <p className="text-sm text-gray-600">0856-7890-1234</p>
+                <p className="text-sm text-gray-500">0856-7890-1234</p>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -255,7 +257,7 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
             <div className="flex items-center justify-between rounded-lg border p-4">
               <div>
                 <p className="font-medium">DANA - Fathya Khairani R</p>
-                <p className="text-sm text-gray-600">0821-9876-5432</p>
+                <p className="text-sm text-gray-500">0821-9876-5432</p>
               </div>
               <div className="flex gap-2">
                 <Button
