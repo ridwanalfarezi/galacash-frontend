@@ -132,7 +132,7 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
             <div className="flex w-full gap-2 sm:w-fit">
               <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 className="sm:flex-1 sm:px-10"
                 onClick={onClose}
               >

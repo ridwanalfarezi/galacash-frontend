@@ -72,7 +72,7 @@ function PasswordInput({
         aria-label={showPassword ? 'Sembunyikan Kata Sandi' : 'Tampilkan Kata Sandi'}
         tabIndex={-1}
       >
-        {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
+        {showPassword ? <EyeOff className="h-6 w-6" /> : <Eye className="h-6 w-6" />}
       </button>
       {error && <p className="absolute -bottom-6 left-0 text-sm text-red-500">{error}</p>}
     </div>

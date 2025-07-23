@@ -124,7 +124,7 @@ export function FilterComponent({
         </div>
         {hasActiveFilters && (
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={handleClearAllFilters}
             className="border-destructive text-destructive hover:bg-destructive hover:text-white"
@@ -253,7 +253,7 @@ export function FilterComponent({
       <SheetTrigger asChild>
         {trigger || (
           <Button
-            variant={hasActiveFilters ? 'default' : 'outline'}
+            variant={hasActiveFilters ? 'default' : 'secondary'}
             size="sm"
             className={`${className} ${
               hasActiveFilters ? 'bg-blue-500 text-white hover:bg-blue-700' : ''

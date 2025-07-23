@@ -49,7 +49,7 @@ export function Sidebar() {
                   className="w-full cursor-pointer justify-center px-2 hover:bg-gray-50"
                   onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                 >
-                  <Icons.CloseSidebar />
+                  <Icons.CloseSidebar className="size-8" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="right">
@@ -62,8 +62,8 @@ export function Sidebar() {
               className="w-full cursor-pointer justify-start px-4 hover:bg-gray-50"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             >
-              <Icons.CloseSidebar />
-              <span className="ml-2 text-2xl">Perkecil</span>
+              <Icons.CloseSidebar className="size-8" />
+              <span className="ml-2 text-2xl">Ciutkan</span>
             </Button>
           )}
         </div>
@@ -81,7 +81,7 @@ export function Sidebar() {
                           variant={isActive ? 'default' : 'ghost'}
                           className={`w-full cursor-pointer justify-center px-2 ${isActive ? 'bg-blue-50 text-blue-500' : 'text-gray-900'} hover:bg-blue-50 hover:text-blue-500`}
                         >
-                          <item.icon size={24} />
+                          <item.icon className="size-8" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="right">
@@ -93,7 +93,7 @@ export function Sidebar() {
                       variant={isActive ? 'default' : 'ghost'}
                       className={`w-full cursor-pointer justify-start px-4 ${isActive ? 'bg-blue-50 text-blue-500' : 'text-gray-900'} hover:bg-blue-50 hover:text-blue-500`}
                     >
-                      <item.icon size={24} />
+                      <item.icon className={item.className} />
                       <span className="ml-2 text-xl xl:text-2xl">{item.name}</span>
                     </Button>
                   )}
@@ -121,13 +121,13 @@ export function Sidebar() {
                   <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
                     <Link to="/user/settings">
                       <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
-                        <Icons.Settings className="mr-2 text-gray-900" />
+                        <Icons.Settings className="mr-2 h-5 w-5 text-gray-900" />
                         <span className="text-base font-normal text-gray-900">Pengaturan</span>
                       </DropdownMenuItem>
                     </Link>
                     <DropdownMenuSeparator className="bg-gray-200" />
                     <DropdownMenuItem className="cursor-pointer hover:bg-red-50" onClick={signOut}>
-                      <Icons.SignOut className="mr-2 text-red-900" />
+                      <Icons.SignOut className="mr-2 h-5 w-5 text-red-900" />
                       <span className="text-base font-normal text-red-900">Keluar</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>

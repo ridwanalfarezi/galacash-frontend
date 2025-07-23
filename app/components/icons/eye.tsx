@@ -1,15 +1,16 @@
-import type { IconProps } from '.'
+import clsx from 'clsx'
+import type { ComponentProps } from 'react'
 
-const Eye = ({ size = 24, className }: IconProps) => {
+const Eye = (props: ComponentProps<'svg'>) => {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
+      width="24"
+      height="24"
       viewBox="0 0 24 24"
       fill="none"
-      className={className}
-      style={{ width: size, height: size }}
+      xmlns="http://www.w3.org/2000/svg"
+      className={clsx('stroke-current', props.className)}
+      {...props}
     >
       <g clipPath="url(#clip0_1392_1449)">
         <path

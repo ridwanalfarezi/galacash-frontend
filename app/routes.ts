@@ -7,6 +7,7 @@ export default [
       route('dashboard', './routes/user/dashboard.tsx'),
       route('kas-kelas', './routes/user/kas-kelas.tsx'),
       route('aju-dana', './routes/user/aju-dana.tsx'),
+      route('tagihan-kas', './routes/user/tagihan-kas.tsx'),
       route('settings', './routes/user/settings.tsx'),
     ]),
   ]),

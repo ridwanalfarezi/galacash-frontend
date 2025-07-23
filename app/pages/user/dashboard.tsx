@@ -128,7 +128,7 @@ export default function DashboardPage() {
         <Card className="gap-4 rounded-4xl border-none border-blue-200 bg-blue-50">
           <CardHeader>
             <CardTitle className="flex items-center text-lg font-semibold text-gray-900 md:text-2xl xl:text-3xl">
-              <Icons.MoneyTotal className="mr-2" />
+              <Icons.MoneyTotal className="mr-2 h-6 w-6" />
               Total Saldo
             </CardTitle>
           </CardHeader>
@@ -143,7 +143,7 @@ export default function DashboardPage() {
         <Card className="gap-4 rounded-4xl border-none border-green-200 bg-green-50">
           <CardHeader>
             <CardTitle className="flex items-center text-lg font-semibold text-gray-900 md:text-2xl xl:text-3xl">
-              <Icons.ArrowDownCircle className="mr-2" />
+              <Icons.ArrowDownCircle className="mr-2 h-6 w-6" />
               Total Pemasukan
             </CardTitle>
           </CardHeader>
@@ -158,7 +158,7 @@ export default function DashboardPage() {
         <Card className="gap-4 rounded-4xl border-none border-red-200 bg-red-50">
           <CardHeader>
             <CardTitle className="flex items-center text-lg font-semibold text-gray-900 md:text-2xl xl:text-3xl">
-              <Icons.ArrowUpCircle className="mr-2" />
+              <Icons.ArrowUpCircle className="mr-2 h-6 w-6" />
               Total Pengeluaran
             </CardTitle>
           </CardHeader>

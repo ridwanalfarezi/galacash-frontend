@@ -40,7 +40,7 @@ export function BottomBar() {
                 isActive ? 'text-blue-500' : 'text-gray-900 hover:text-blue-500'
               )}
             >
-              <item.icon size={24} />
+              <item.icon className="h-6 w-6" />
               <span className="text-xs">{item.name}</span>
             </Link>
           )

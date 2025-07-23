@@ -1,15 +1,16 @@
-import type { IconProps } from '.'
+import clsx from 'clsx'
+import type { ComponentProps } from 'react'
 
-const MoneyTotal = ({ size = 32, className }: IconProps) => {
+const MoneyTotal = (props: ComponentProps<'svg'>) => {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
+      width="32"
+      height="33"
       viewBox="0 0 32 33"
       fill="none"
-      className={className}
-      style={{ width: size, height: size }}
+      xmlns="http://www.w3.org/2000/svg"
+      className={clsx('fill-current', props.className)}
+      {...props}
     >
       <path
         d="M18 21.9583C18 22.4888 17.7893 22.9975 17.4142 23.3725C17.0391 23.7476 16.5304 23.9583 16 23.9583C15.4696 23.9583 14.9609 23.7476 14.5858 23.3725C14.2107 22.9975 14 22.4888 14 21.9583C14 21.4279 14.2107 20.9192 14.5858 20.5441C14.9609 20.169 15.4696 19.9583 16 19.9583C16.5304 19.9583 17.0391 20.169 17.4142 20.5441C17.7893 20.9192 18 21.4279 18 21.9583Z"

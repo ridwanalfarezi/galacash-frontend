@@ -163,14 +163,14 @@ export default function KasKelasPage() {
       case 'income':
         return (
           <Badge className="bg-green-50 font-normal text-green-700 md:text-base">
-            <Icons.ArrowUpCircle size={20} />
+            <Icons.ArrowUpCircle className="h-5 w-5" />
             Pemasukan
           </Badge>
         )
       case 'expense':
         return (
           <Badge className="bg-red-50 font-normal text-red-700 md:text-base">
-            <Icons.ArrowDownCircle size={20} />
+            <Icons.ArrowDownCircle className="h-5 w-5" />
             Pengeluaran
           </Badge>
         )
@@ -259,8 +259,8 @@ export default function KasKelasPage() {
                 <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full sm:w-auto">
-                        <Filter size={20} />
+                      <Button variant="secondary" className="w-full sm:w-auto">
+                        <Filter className="h-5 w-5" />
                         {getFilterLabel()}
                       </Button>
                     </DropdownMenuTrigger>
@@ -275,22 +275,22 @@ export default function KasKelasPage() {
                         className="cursor-pointer hover:text-green-700 focus:bg-green-50"
                         onClick={() => setFilterType('income')}
                       >
-                        <Icons.ArrowUpCircle size={20} className="text-green-700" />
+                        <Icons.ArrowUpCircle className="h-5 w-5 text-green-700" />
                         <span className="text-green-700">Pemasukan</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer hover:text-red-700 focus:bg-red-50"
                         onClick={() => setFilterType('expense')}
                       >
-                        <Icons.ArrowDownCircle size={20} className="text-red-700" />
+                        <Icons.ArrowDownCircle className="h-5 w-5 text-red-700" />
                         <span className="text-red-700">Pengeluaran</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full sm:w-auto">
-                        <Sort size={20} />
+                      <Button variant="secondary" className="w-full sm:w-auto">
+                        <Sort className="h-5 w-5" />
                         {getSortLabel()}
                       </Button>
                     </DropdownMenuTrigger>
@@ -322,7 +322,7 @@ export default function KasKelasPage() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <Button className="w-full sm:w-auto">
-                    <Export size={20} />
+                    <Export className="h-5 w-5" />
                     Export
                   </Button>
                 </div>

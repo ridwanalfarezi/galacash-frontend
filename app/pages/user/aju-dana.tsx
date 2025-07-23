@@ -306,10 +306,10 @@ export default function AjuDanaPage() {
                   align="end"
                   trigger={
                     <Button
-                      variant={isSortActiveA ? 'default' : 'outline'}
+                      variant={isSortActiveA ? 'default' : 'secondary'}
                       className={`w-full sm:w-auto ${isSortActiveA ? 'bg-blue-500 text-white hover:bg-blue-700' : ''}`}
                     >
-                      <Sort />
+                      <Sort className="h-5 w-5" />
                       Sort
                       {isSortActiveA && (
                         <Badge className="ml-1 h-5 bg-white px-1.5 py-0.5 text-xs text-blue-500">
@@ -322,7 +322,7 @@ export default function AjuDanaPage() {
 
                 {(isFilterActiveA || isSortActiveA) && (
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     onClick={clearAllFiltersA}
                     className="text-destructive hover:bg-destructive border-destructive w-full hover:text-white sm:w-auto"
                   >
@@ -332,14 +332,14 @@ export default function AjuDanaPage() {
                 )}
 
                 <Button className="w-full sm:w-auto">
-                  <Export size={20} />
+                  <Export className="h-5 w-5" />
                   Export
                 </Button>
                 <Button
                   onClick={() => setIsApplicationModalOpen(true)}
                   className="w-full sm:w-auto"
                 >
-                  <Plus />
+                  <Plus className="h-5 w-5" />
                   Ajukan Dana
                 </Button>
               </div>
@@ -457,10 +457,10 @@ export default function AjuDanaPage() {
                   align="end"
                   trigger={
                     <Button
-                      variant={isSortActiveB ? 'default' : 'outline'}
+                      variant={isSortActiveB ? 'default' : 'secondary'}
                       className={`w-full sm:w-auto ${isSortActiveB ? 'bg-blue-500 text-white hover:bg-blue-700' : ''}`}
                     >
-                      <Sort />
+                      <Sort className="h-5 w-5" />
                       Sort
                       {isSortActiveB && (
                         <Badge className="ml-1 h-5 bg-white px-1.5 py-0.5 text-xs text-blue-500">
@@ -472,7 +472,7 @@ export default function AjuDanaPage() {
                 />
                 {(isFilterActiveB || isSortActiveB) && (
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     onClick={clearAllFiltersB}
                     className="text-destructive hover:bg-destructive border-destructive w-full hover:text-white sm:w-auto"
                   >
@@ -481,7 +481,7 @@ export default function AjuDanaPage() {
                   </Button>
                 )}
                 <Button className="w-full sm:w-auto">
-                  <Export size={20} />
+                  <Export className="h-5 w-5" />
                   Export
                 </Button>
               </div>
