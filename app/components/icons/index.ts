@@ -1,3 +1,4 @@
+import Alert from './alert'
 import ArrowDownCircle from './arrow-down-circle'
 import ArrowUpCircle from './arrow-up-circle'
 import Bank from './bank'
@@ -36,6 +37,7 @@ export const Icons = {
   Notebook,
   Bank,
   Wallet,
+  Alert,
 } as const
 
 export type IconKey = keyof typeof Icons
