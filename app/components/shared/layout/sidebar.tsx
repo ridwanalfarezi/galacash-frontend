@@ -59,11 +59,11 @@ export function Sidebar() {
           ) : (
             <Button
               variant="ghost"
-              className="w-full cursor-pointer justify-start px-4 hover:bg-gray-50"
+              className="w-full cursor-pointer justify-start gap-4 px-4 hover:bg-gray-50"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             >
               <Icons.CloseSidebar className="size-8" />
-              <span className="ml-2 text-2xl">Ciutkan</span>
+              <span className="text-2xl">Ciutkan</span>
             </Button>
           )}
         </div>
@@ -81,7 +81,9 @@ export function Sidebar() {
                           variant={isActive ? 'default' : 'ghost'}
                           className={`w-full cursor-pointer justify-center px-2 ${isActive ? 'bg-blue-50 text-blue-500' : 'text-gray-900'} hover:bg-blue-50 hover:text-blue-500`}
                         >
-                          <item.icon className="size-8" />
+                          <div className="flex size-6 items-center justify-center">
+                            <item.icon className={item.className} />
+                          </div>
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="right">
@@ -91,10 +93,13 @@ export function Sidebar() {
                   ) : (
                     <Button
                       variant={isActive ? 'default' : 'ghost'}
-                      className={`w-full cursor-pointer justify-start px-4 ${isActive ? 'bg-blue-50 text-blue-500' : 'text-gray-900'} hover:bg-blue-50 hover:text-blue-500`}
+                      className={`w-full cursor-pointer justify-start gap-4 px-4 ${isActive ? 'bg-blue-50 text-blue-500' : 'text-gray-900'} hover:bg-blue-50 hover:text-blue-500`}
                     >
-                      <item.icon className={item.className} />
-                      <span className="ml-2 text-xl xl:text-2xl">{item.name}</span>
+                      <div className="flex size-6 items-center justify-center">
+                        <item.icon className={item.className} />
+                      </div>
+                      {/* <item.icon className={item.className} /> */}
+                      <span className="text-xl xl:text-2xl">{item.name}</span>
                     </Button>
                   )}
                 </Link>

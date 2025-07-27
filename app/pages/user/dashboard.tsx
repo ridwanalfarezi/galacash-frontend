@@ -1,12 +1,12 @@
 'use client'
 
-import { CircleArrowDown, CircleArrowUp, Clock, Gift } from 'lucide-react'
+import { CircleArrowDown, CircleArrowUp, Clock, Gift, Calendar as CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import type { DateRange } from 'react-day-picker'
 import { Link } from 'react-router'
 
 import { Icons } from '~/components/icons'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '~/components/ui/card'
 import { DatePicker } from '~/components/ui/date-picker'
 
 import { formatCurrency, formatDate, groupTransactionsByDate } from '../../lib/utils'
@@ -91,6 +91,21 @@ const mockSummary = {
   totalExpense: 1573428.69,
 }
 
+const mockBills = [
+  {
+    id: '1',
+    amount: 30000,
+    date: '2025-06-01',
+    dueDate: '2025-06-30',
+  },
+  {
+    id: '2',
+    amount: 30000,
+    date: '2025-07-01',
+    dueDate: '2025-07-31',
+  },
+]
+
 export default function DashboardPage() {
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
@@ -114,6 +129,22 @@ export default function DashboardPage() {
       .filter((t) => t.type === 'expense')
       .reduce((sum, t) => sum + t.amount, 0),
   }
+
+  const totalBills = mockBills.reduce(
+    (totalBill, bill) => {
+      totalBill.amount += bill.amount
+      totalBill.date = new Date(Math.min(totalBill.date.getTime(), new Date(bill.date).getTime()))
+      totalBill.dueDate = new Date(
+        Math.max(totalBill.dueDate.getTime(), new Date(bill.dueDate).getTime())
+      )
+      return totalBill
+    },
+    {
+      amount: 0,
+      date: new Date('2100-01-01'),
+      dueDate: new Date('2000-01-01'),
+    }
+  )
 
   return (
     <div className="p-6">
@@ -174,7 +205,52 @@ export default function DashboardPage() {
       {/* Content Grid */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Transaction History */}
-        <div className="lg:col-span-2">
+        <div className="grid gap-4 lg:col-span-2">
+          {/* Tagihan Notification */}
+          <Card className="gap-2 rounded-4xl border-none bg-red-700 text-gray-100">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-start gap-2 text-lg font-semibold md:text-2xl xl:text-3xl">
+                <Icons.Alert className="size-6" />
+                Tagihan Kas Anda
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col">
+              <div className="flex items-center gap-2 text-sm">
+                <CalendarIcon className="size-4" />
+                {totalBills.date.toLocaleDateString('id', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}{' '}
+                -{' '}
+                {totalBills.dueDate.toLocaleDateString('id', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </div>
+              <div className="text-xl font-bold md:text-3xl xl:text-[40px]">
+                {formatCurrency(totalBills.amount)}
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between gap-2">
+              <div className="hidden md:block">
+                Harap bayar tagihan anda sebelum{' '}
+                <span className="font-semibold">
+                  {totalBills.dueDate.toLocaleDateString('id', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </span>
+              </div>
+              <Link to="/user/tagihan-kas" className="font-semibold hover:underline">
+                Bayar Sekarang
+              </Link>
+            </CardFooter>
+          </Card>
+
+          {/* Transaction History Card */}
           <Card className="rounded-4xl border-none">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-gray-900 md:text-2xl xl:text-3xl">
