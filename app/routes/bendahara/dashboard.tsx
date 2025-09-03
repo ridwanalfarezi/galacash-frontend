@@ -1,4 +1,4 @@
-import DashboardPage from '~/pages/user/dashboard'
+import DashboardPage from '~/pages/bendahara/dashboard'
 
 export function meta() {
   return [{ title: 'GalaCash | Dashboard' }]

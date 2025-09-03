@@ -14,9 +14,9 @@ export default [
       route('dashboard', './routes/bendahara/dashboard.tsx'),
       route('kas-kelas', './routes/bendahara/kas-kelas.tsx'),
       route('aju-dana', './routes/bendahara/aju-dana.tsx'),
-      route('tagihan-kas', './routes/bendahara/tagihan-kas.tsx'),
+      route('rekap-kas', './routes/bendahara/rekap-kas.tsx'),
       route('settings', './routes/bendahara/settings.tsx'),
     ]),
   ]),
-  route('sign-in', './routes/sign-in.tsx'),
+  route('sign-in', './routes/auth/sign-in.tsx'),
 ] satisfies RouteConfig

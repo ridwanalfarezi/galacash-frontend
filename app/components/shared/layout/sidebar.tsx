@@ -16,7 +16,13 @@ import {
 } from '~/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
 
-import { mockUser, navigation } from './navdata'
+import {
+  mockBendahara,
+  mockUser,
+  navigationBendahara,
+  navigationUser,
+  type NavigationItem,
+} from './navdata'
 
 export function Sidebar() {
   const location = useLocation()
@@ -28,6 +34,12 @@ export function Sidebar() {
     console.log('User signed out')
     navigate('/sign-in')
   }
+
+  const navigation: NavigationItem[] = location.pathname.startsWith('/bendahara')
+    ? navigationBendahara
+    : navigationUser
+
+  const user = location.pathname.startsWith('/bendahara') ? mockBendahara : mockUser
 
   return (
     <TooltipProvider>
@@ -70,7 +82,7 @@ export function Sidebar() {
 
         <nav className="flex-1 p-4">
           <div className="space-y-4">
-            {navigation.map((item) => {
+            {navigation.map((item: NavigationItem) => {
               const isActive = location.pathname === item.href
               return (
                 <Link key={item.name} to={item.href} className="block">
@@ -117,14 +129,14 @@ export function Sidebar() {
                     <div className="h-auto w-full cursor-pointer p-0">
                       <div className="flex items-center justify-center gap-2">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={mockUser.avatar} />
+                          <AvatarImage src={user.avatar} />
                           <AvatarFallback>FK</AvatarFallback>
                         </Avatar>
                       </div>
                     </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
-                    <Link to="/user/settings">
+                    <Link to={`/${user.role}/settings`}>
                       <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
                         <Icons.Settings className="mr-2 h-5 w-5 text-gray-900" />
                         <span className="text-base font-normal text-gray-900">Pengaturan</span>
@@ -139,7 +151,7 @@ export function Sidebar() {
                 </DropdownMenu>
               </TooltipTrigger>
               <TooltipContent side="right">
-                <p>{mockUser.name}</p>
+                <p>{user.name}</p>
               </TooltipContent>
             </Tooltip>
           ) : (
@@ -148,19 +160,27 @@ export function Sidebar() {
                 <div className="h-auto w-full cursor-pointer p-0">
                   <div className="flex items-center justify-between gap-2">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={mockUser.avatar} />
+                      <AvatarImage src={user.avatar} />
                       <AvatarFallback>FK</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-1 flex-col text-left">
-                      <span className="text-sm font-medium">{mockUser.name}</span>
-                      <span className="text-xs text-gray-700">{mockUser.role}</span>
+                      <span className="text-sm font-medium">{user.name}</span>
+                      <span className="text-xs text-gray-700">
+                        {user.role === 'bendahara'
+                          ? 'email' in user
+                            ? user.email
+                            : ''
+                          : 'nim' in user
+                            ? user.nim
+                            : ''}
+                      </span>
                     </div>
                     <ChevronUp size={20} />
                   </div>
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
-                <Link to="/user/settings">
+                <Link to={`/${user.role}/settings`}>
                   <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
                     <Icons.Settings className="mr-2 text-gray-900" />
                     <span className="text-base font-normal text-gray-900">Pengaturan</span>

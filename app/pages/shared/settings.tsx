@@ -1,5 +1,6 @@
 import { Eye, EyeClosed } from 'lucide-react'
 import { useState } from 'react'
+import { useLocation } from 'react-router'
 
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -18,6 +19,10 @@ const SettingsPage = () => {
     new: false,
     confirm: false,
   })
+
+  const location = useLocation()
+
+  const isBendahara = location.pathname.startsWith('/bendahara')
 
   return (
     <div className="p-8">
@@ -43,10 +48,26 @@ const SettingsPage = () => {
               <Input type="text" placeholder="Enter your name" />
             </div>
 
-            <div className="space-y-1">
-              <Label className="text-xl">Email</Label>
-              <Input type="email" placeholder="Enter your e-mail" />
-            </div>
+            {isBendahara ? (
+              <div className="space-y-1">
+                <Label className="text-xl">Email</Label>
+                <Input type="email" placeholder="Enter your e-mail" />
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <Label className="text-xl">NIM</Label>
+                <Input
+                  type="text"
+                  placeholder="Enter your NIM"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  onInput={(e) => {
+                    const input = e.target as HTMLInputElement
+                    input.value = input.value.replace(/[^0-9]/g, '')
+                  }}
+                />
+              </div>
+            )}
 
             <div className="space-y-1">
               <Label className="text-xl">Kelas</Label>

@@ -1,4 +1,4 @@
-import SettingsPage from '~/pages/user/settings'
+import SettingsPage from '~/pages/shared/settings'
 
 export function meta() {
   return [{ title: 'GalaCash | Settings' }]

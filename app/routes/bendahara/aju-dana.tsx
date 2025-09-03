@@ -1,4 +1,4 @@
-import AjuDanaPage from '~/pages/user/aju-dana'
+import AjuDanaPage from '~/pages/bendahara/aju-dana'
 
 export function meta() {
   return [{ title: 'GalaCash | Aju Dana' }]
