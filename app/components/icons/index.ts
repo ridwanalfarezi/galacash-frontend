@@ -2,6 +2,7 @@ import Alert from './alert'
 import ArrowDownCircle from './arrow-down-circle'
 import ArrowUpCircle from './arrow-up-circle'
 import Bank from './bank'
+import Check from './check'
 import CloseSidebar from './close-sidebar'
 import Export from './export'
 import Eye from './eye'
@@ -17,6 +18,7 @@ import SignOut from './sign-out'
 import Sort from './sort'
 import TagihanKas from './tagihan-kas'
 import Wallet from './wallet'
+import X from './x'
 
 export const Icons = {
   Home,
@@ -38,6 +40,8 @@ export const Icons = {
   Bank,
   Wallet,
   Alert,
+  Check,
+  X,
 } as const
 
 export type IconKey = keyof typeof Icons
