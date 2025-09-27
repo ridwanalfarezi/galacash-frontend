@@ -1,3 +1,3 @@
 export default function BendaharaRekapKas() {
-  return <h1>Bendahara Rekap Kas</h1>
+  return <h1>Bendahara Kas Kelas</h1>
 }
