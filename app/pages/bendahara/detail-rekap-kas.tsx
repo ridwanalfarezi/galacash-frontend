@@ -73,18 +73,23 @@ export default function BendaharaDetailKelas() {
   return (
     <div className="p-6">
       <Card className="mx-auto max-w-[1440px] rounded-4xl border-0">
-        <CardHeader className="bg-card py6">
-          <CardTitle className="md:text-2xl xl:text-[30px]">Rekap Tagihan Kas</CardTitle>
+        <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
+          <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
+            <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
+              Rekap Tagihan Kas
+            </CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
-          <table className="w-full text-left text-sm text-black">
-            <thead className="border-b text-xl">
+          <table className="w-full text-left text-sm">
+            <thead className="border-b text-[16px]">
               <tr>
                 <th className="px-4 py-3">Bulan</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">ID Tagihan</th>
                 <th className="px-4 py-3">Tenggat Waktu</th>
                 <th className="px-4 py-3">Total Tagihan</th>
+                <th className="w-12" />
               </tr>
             </thead>
             <tbody>
@@ -102,12 +107,7 @@ export default function BendaharaDetailKelas() {
                   <td className="px-4 py-3">{row.dueDate}</td>
                   <td className="px-4 py-3 font-semibold text-blue-500">{row.total}</td>
                   <td className="px-4 py-3 text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="bg-white text-gray-500 hover:text-gray-700"
-                      asChild
-                    >
+                    <Button variant="ghost" size="sm" asChild>
                       <Link to={`/bendahara/rekap-kas/${row.nim}`}>
                         <ChevronRight className="h-4 w-4" />
                       </Link>
