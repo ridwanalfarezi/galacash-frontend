@@ -1,5 +1,4 @@
 import { ChevronRight } from 'lucide-react'
-import { Link } from 'react-router'
 
 import { Button } from '~/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '~/components/ui/card'
@@ -69,7 +68,7 @@ const statusColor: Record<Tagihan['status'], string> = {
   'Sudah Dibayar': 'bg-green-100 text-green-700',
 }
 
-export default function BendaharaDetailKelas() {
+export default function BendaharaDetailRekapKas() {
   return (
     <div className="p-6">
       <Card className="mx-auto max-w-[1440px] rounded-4xl border-0">
@@ -108,9 +107,7 @@ export default function BendaharaDetailKelas() {
                   <td className="px-4 py-3 font-semibold text-blue-500">{row.total}</td>
                   <td className="px-4 py-3 text-right">
                     <Button variant="ghost" size="sm" asChild>
-                      <Link to={`/bendahara/rekap-kas/${row.nim}`}>
-                        <ChevronRight className="h-4 w-4" />
-                      </Link>
+                      <ChevronRight className="h-4 w-4" />
                     </Button>
                   </td>
                 </tr>
