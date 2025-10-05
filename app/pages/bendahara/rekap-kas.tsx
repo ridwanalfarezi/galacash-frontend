@@ -1,8 +1,12 @@
-import { Check, ChevronRight, X } from 'lucide-react'
+import { Check, ChevronDown, ChevronRight, ChevronUp, Filter, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 
+import { Icons } from '~/components/icons'
 import { Button } from '~/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '~/components/ui/card'
+import { Popover, PopoverTrigger } from '~/components/ui/popover'
+import { useIsMobile } from '~/hooks/use-mobile'
 
 interface Tagihan {
   nim: string
@@ -99,6 +103,13 @@ function renderStatusBulan(isLunas: boolean) {
 }
 
 export default function BendaharaRekapkas() {
+  const [isButtonsVisible, setIsButtonsVisible] = useState(true)
+
+  const isMobile = useIsMobile()
+
+  useEffect(() => {
+    if (isMobile) setIsButtonsVisible(false)
+  }, [isMobile])
   return (
     <div className="p-6">
       <Card className="mx-auto max-w-[1440px] rounded-4xl border-0">
@@ -107,6 +118,48 @@ export default function BendaharaRekapkas() {
             <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
               Rekap Tagihan Kas
             </CardTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsButtonsVisible(!isButtonsVisible)}
+              className="p-1 transition-transform duration-200 hover:scale-110 md:hidden"
+            >
+              <div className="transition-transform duration-300">
+                {isButtonsVisible ? (
+                  <ChevronUp className="size-6" />
+                ) : (
+                  <ChevronDown className="size-6" />
+                )}
+              </div>
+            </Button>
+          </div>
+          <div
+            className={`transition-all duration-300 ease-in-out md:block md:w-auto md:translate-y-0 md:opacity-100 ${
+              !isButtonsVisible
+                ? 'max-h-0 w-full translate-y-2 overflow-hidden opacity-0'
+                : 'max-h-96 w-full translate-y-0 overflow-visible opacity-100'
+            }`}
+          >
+            <div className="flex w-full flex-wrap items-center justify-center gap-4 sm:w-auto sm:gap-2">
+              {/* Filter Dropdown */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button className="relative w-full sm:w-auto">
+                    <Filter className="h-5 w-5" />
+                    Filter
+                  </Button>
+                </PopoverTrigger>
+              </Popover>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button className="w-full sm:w-auto">
+                    <Icons.Sort className="h-5 w-5" />
+                    Sort
+                  </Button>
+                </PopoverTrigger>
+              </Popover>
+            </div>
           </div>
         </CardHeader>
 
@@ -149,7 +202,10 @@ export default function BendaharaRekapkas() {
 
                       <td className="px-4 py-3">
                         <Button variant="ghost" size="sm" asChild>
-                          <Link to={`/bendahara/rekap-kas/${item.nim}`}>
+                          <Link
+                            to={`/bendahara/rekap-kas/${item.nim}`}
+                            state={{ nama: item.nama }} // ✅ kirim nama ke halaman tujuan
+                          >
                             <ChevronRight className="h-4 w-4" />
                           </Link>
                         </Button>

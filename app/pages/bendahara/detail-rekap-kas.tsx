@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight, ChevronUp, Filter, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router'
 
 import { Icons } from '~/components/icons'
 import { DetailTagihanKas } from '~/components/modals/DetailTagihanKas'
@@ -91,6 +92,8 @@ export default function BendaharaDetailRekapKas() {
   const [isButtonsVisible, setIsButtonsVisible] = useState(true)
   const [selectedTagihan, setSelectedTagihan] = useState<Tagihan | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+  const location = useLocation()
+  const nama = location.state?.nama || 'Mahasiswa'
 
   // Filter and Sort states
   const [filters, setFilters] = useState<FilterState>({
@@ -170,7 +173,7 @@ export default function BendaharaDetailRekapKas() {
         <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
           <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
             <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
-              Rekap Tagihan Kas
+              Rekap Tagihan Kas - {nama}
             </CardTitle>
             <Button
               variant="ghost"
