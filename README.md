@@ -1,8 +1,21 @@
 # GalaCash
 
-A modern financial management application built with React Router and TypeScript, designed to make managing finances more efficient and accessible.
-
-## 🎯 Project Overview
+A modern financial management application built with React Router and TypeScript, designed to make managing finances more efficient and accessible. └── routes/ # Route components
+├── auth/ # Authentication routes
+│ └── sign-in.tsx
+├── bendahara/ # Treasurer routes
+│ ├── dashboard.tsx
+│ ├── aju-dana.tsx
+│ ├── kas-kelas.tsx
+│ ├── rekap-kas.tsx # Financial recap
+│ └── settings.tsx
+├── user/ # Student routes
+│ ├── dashboard.tsx
+│ ├── aju-dana.tsx
+│ ├── kas-kelas.tsx
+│ ├── tagihan-kas.tsx # Bill payments
+│ └── settings.tsx
+└── index.tsx # Home routeverview
 
 GalaCash is a full-stack application that enables treasurers to track and manage both income and expenses while providing complete transparency on financial activities.
 
@@ -109,15 +122,79 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 │   ├── app.css              # Global styles and Tailwind imports
 │   ├── root.tsx             # Root layout and error boundaries
 │   ├── routes.ts            # Route definitions
+│   │
 │   ├── components/          # Reusable components
+│   │   ├── chart/          # Chart components
+│   │   │   └── financial-pie-chart.tsx
+│   │   ├── icons/          # Icon components
+│   │   │   ├── index.ts    # Icon exports
+│   │   │   └── *.tsx       # Individual icon components
+│   │   ├── modals/         # Modal components
+│   │   │   ├── BuatAjuDana.tsx
+│   │   │   ├── DetailAjuDana.tsx
+│   │   │   ├── DetailTagihanKas.tsx
+│   │   │   └── DetailTransaksi.tsx
+│   │   ├── shared/         # Shared components
+│   │   │   ├── filter-component.tsx
+│   │   │   ├── sort-dropdown.tsx
+│   │   │   └── layout/     # Layout components
+│   │   │       ├── bottombar.tsx
+│   │   │       ├── layout.tsx
+│   │   │       ├── navdata.ts
+│   │   │       └── sidebar.tsx
 │   │   └── ui/             # Shadcn UI components
-│   │       └── button.tsx  # Button component
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── input.tsx
+│   │       └── ...         # Other UI components
+│   │
+│   ├── hooks/              # Custom React hooks
+│   │   └── use-mobile.ts
+│   │
 │   ├── lib/                # Utility functions
-│   │   └── utils.ts       # Common utilities (cn, etc.)
-│   ├── routes/             # Route components
-│   │   └── home.tsx       # Home page route
-│   └── welcome/            # Welcome module
-│       └── welcome.tsx    # Welcome page component
+│   │   └── utils.ts        # Common utilities (cn, etc.)
+│   │
+│   ├── pages/              # Page components
+│   │   ├── auth/           # Authentication pages
+│   │   │   └── sign-in.tsx # Sign-in page
+│   │   ├── shared/         # Shared pages across roles
+│   │   │   └── settings.tsx # Settings page (shared)
+│   │   ├── bendahara/      # Treasurer-specific pages
+│   │   │   ├── dashboard.tsx
+│   │   │   ├── aju-dana.tsx
+│   │   │   ├── kas-kelas.tsx
+│   │   │   └── rekap-kas.tsx
+│   │   └── user/           # Student-specific pages
+│   │       ├── dashboard.tsx
+│   │       ├── aju-dana.tsx
+│   │       ├── kas-kelas.tsx
+│   │       └── tagihan-kas.tsx
+│   │
+│   └── routes/             # Route components
+│       ├── auth/           # Authentication routes
+│       │   └── sign-in.tsx
+│       ├── bendahara/      # Treasurer routes
+│       │   ├── dashboard.tsx
+│       │   ├── aju-dana.tsx
+│       │   ├── kas-kelas.tsx
+│       │   ├── rekap-kas.tsx  # Financial recap
+│       │   └── settings.tsx
+│       ├── user/           # Student routes
+│       │   ├── dashboard.tsx
+│       │   ├── aju-dana.tsx
+│       │   ├── kas-kelas.tsx
+│       │   ├── tagihan-kas.tsx # Bill payments
+│       │   └── settings.tsx
+│       ├── index.tsx       # Home route
+│
+├── public/                  # Static assets
+│   ├── logo.png            # Application logo
+│   ├── bg_gala.webp        # Background image
+│   └── ...                 # Other static files
+│
+├── types/                   # TypeScript type definitions
+│   ├── globals.d.ts        # Global type definitions
+│   └── eslint-plugin-import.d.ts
 │
 ├── .husky/                  # Git hooks configuration
 │   ├── _/                  # Husky core scripts
@@ -136,7 +213,8 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 │   ├── .lintstagedrc.json # Lint-staged config
 │   ├── tsconfig.json      # TypeScript config
 │   ├── vite.config.ts     # Vite bundler config
-│   └── components.json    # UI components config
+│   ├── components.json    # UI components config
+│   └── react-router.config.ts # React Router config
 │
 ├── Docker Files
 │   ├── Dockerfile         # Multi-stage build config
@@ -150,6 +228,23 @@ GalaCash is a full-stack application that enables treasurers to track and manage
     ├── .gitignore        # Git ignore patterns
     └── .gitattributes    # Git attributes
 ```
+
+### 🏗️ Architecture Overview
+
+**Role-Based Structure:**
+
+- **Auth**: Authentication-related pages and routes
+- **Shared**: Components and pages used across all roles (e.g., settings)
+- **Bendahara**: Treasurer-specific functionality (rekap kas, approvals)
+- **User**: Student-specific functionality (tagihan kas, submissions)
+
+**Component Organization:**
+
+- **UI Components**: Reusable design system components
+- **Shared Components**: Business logic components used across pages
+- **Icons**: Custom icon components
+- **Modals**: Modal dialog components
+- **Chart**: Data visualization components
 
 ## 🛠 Development Tools
 

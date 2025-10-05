@@ -13,7 +13,13 @@ import {
 } from '~/components/ui/dropdown-menu'
 import { cn } from '~/lib/utils'
 
-import { mockUser, navigation } from './navdata'
+import {
+  mockBendahara,
+  mockUser,
+  navigationBendahara,
+  navigationUser,
+  type NavigationItem,
+} from './navdata'
 
 export function BottomBar() {
   const location = useLocation()
@@ -26,10 +32,16 @@ export function BottomBar() {
     navigate('/sign-in')
   }
 
+  const navigation: NavigationItem[] = location.pathname.startsWith('/bendahara')
+    ? navigationBendahara
+    : navigationUser
+
+  const user = location.pathname.startsWith('/bendahara') ? mockBendahara : mockUser
+
   return (
     <div className="fixed bottom-0 z-50 block w-full border-t border-gray-200 bg-white md:hidden">
       <nav className="flex h-16 items-center justify-evenly">
-        {navigation.map((item) => {
+        {navigation.map((item: NavigationItem) => {
           const isActive = location.pathname === item.href
           return (
             <Link
@@ -48,12 +60,12 @@ export function BottomBar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="h-10 w-10">
-              <AvatarImage src={mockUser.avatar} />
+              <AvatarImage src={user.avatar} />
               <AvatarFallback>FK</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
-            <Link to="/user/settings">
+            <Link to={`/${user.role}/settings`}>
               <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
                 <Icons.Settings className="mr-2 text-gray-900" />
                 <span className="text-base font-normal text-gray-900">Pengaturan</span>
