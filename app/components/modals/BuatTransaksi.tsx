@@ -1,5 +1,6 @@
 'use client'
 
+import { Upload } from 'lucide-react'
 import { useState } from 'react'
 
 import { Icons } from '~/components/icons'
@@ -28,10 +29,18 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
     purpose: '',
     type: 'income' as 'income' | 'expense',
     amount: 0,
+    attachment: null as File | null,
   })
 
   // Keep a separate editable amount string to allow typing
   const [amountInput, setAmountInput] = useState('')
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setTransaction((prev) => ({ ...prev, attachment: file }))
+    }
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -41,18 +50,22 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
       >
         <DialogHeader className="flex-row items-center gap-4">
           <DialogTitle className="text-2xl font-semibold sm:text-3xl">Buat Transaksi</DialogTitle>
-          <SingleDatePicker
-            date={transaction.date ? new Date(transaction.date) : undefined}
-            onChange={(date) => {
-              setTransaction((prev) => ({
-                ...prev,
-                date: date?.toISOString() || prev.date,
-              }))
-            }}
-          />
         </DialogHeader>
 
         <div className="space-y-4">
+          <div className="space-y-1">
+            <Label className="text-lg font-normal sm:text-xl">Tanggal</Label>
+            <SingleDatePicker
+              className="w-full justify-start"
+              date={transaction.date ? new Date(transaction.date) : undefined}
+              onChange={(date) => {
+                setTransaction((prev) => ({
+                  ...prev,
+                  date: date?.toISOString() || prev.date,
+                }))
+              }}
+            />
+          </div>
           <div className="space-y-1">
             <Label className="text-lg font-normal sm:text-xl">Keperluan</Label>
             <Input
@@ -61,7 +74,6 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
               onChange={(e) => setTransaction((prev) => ({ ...prev, purpose: e.target.value }))}
             />
           </div>
-
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-1">
               <Label className="text-lg font-normal sm:text-xl">Tipe</Label>
@@ -110,6 +122,22 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
                   setAmountInput(transaction.amount ? String(transaction.amount) : '')
                 }}
               />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
+            <div className="relative">
+              <Input type="file" onChange={handleFileChange} className="hidden" id="attachment" />
+              <Label
+                htmlFor="attachment"
+                className="flex w-full cursor-pointer items-center justify-between rounded-md border-2 border-gray-500 px-3 py-2 text-base focus-within:border-gray-900 hover:bg-gray-50"
+              >
+                <span className={transaction.attachment ? 'text-gray-900' : 'text-gray-500'}>
+                  {transaction.attachment ? transaction.attachment.name : 'Upload File'}
+                </span>
+                <Upload className="h-6 w-6 text-gray-900" />
+              </Label>
             </div>
           </div>
 
