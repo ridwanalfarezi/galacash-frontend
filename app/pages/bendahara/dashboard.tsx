@@ -192,7 +192,7 @@ export default function DashboardPage() {
                 Riwayat Transaksi
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-8">
+            <CardContent className="h-full space-y-8">
               {groupedTransactions.length > 0 ? (
                 groupedTransactions.map((day, dayIndex) => (
                   <div key={dayIndex}>
@@ -244,7 +244,7 @@ export default function DashboardPage() {
                   </div>
                 ))
               ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className="flex h-full flex-col items-center justify-center py-8 text-center">
                   <div className="mb-4 text-gray-400">
                     <Clock className="mx-auto size-12" />
                   </div>
@@ -254,12 +254,12 @@ export default function DashboardPage() {
                   </p>
                 </div>
               )}
-              <div className="flex justify-center">
-                <Link to="/user/kas-kelas" className="hover:underline">
-                  View More
-                </Link>
-              </div>
             </CardContent>
+            <div className="flex justify-center">
+              <Link to="/bendahara/kas-kelas" className="hover:underline">
+                View More
+              </Link>
+            </div>
           </Card>
         </div>
 
@@ -268,7 +268,7 @@ export default function DashboardPage() {
           <Card className="rounded-4xl border-none">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-gray-900 md:text-2xl xl:text-3xl">
-                Pengajuan Anda
+                Pengajuan Transaksi
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -277,7 +277,7 @@ export default function DashboardPage() {
                 .map((submission) => (
                   <div
                     key={submission.id}
-                    className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-row items-center justify-between gap-2"
                   >
                     <div className="flex items-center space-x-3">
                       <div>
@@ -288,13 +288,15 @@ export default function DashboardPage() {
                         </h5>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <h3 className="text-base font-medium">{formatCurrency(submission.amount)}</h3>
-                      <div className="hidden items-center justify-center overflow-clip rounded-[8px] bg-yellow-300 md:flex">
-                        <Button className="rounded-none bg-red-700 hover:bg-red-700">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <h3 className="min-w-0 flex-1 truncate text-base font-medium">
+                        {formatCurrency(submission.amount)}
+                      </h3>
+                      <div className="flex shrink-0 items-center justify-center overflow-hidden rounded-[8px]">
+                        <Button className="rounded-none bg-red-700 hover:bg-red-500">
                           <Icons.X className="size-4 text-gray-100" />
                         </Button>
-                        <Button className="rounded-none bg-green-700 hover:bg-green-700">
+                        <Button className="rounded-none bg-green-700 hover:bg-green-500">
                           <Icons.Check className="size-4 text-gray-100" />
                         </Button>
                       </div>
@@ -303,7 +305,7 @@ export default function DashboardPage() {
                 ))}
             </CardContent>
             <div className="flex justify-center">
-              <Link to="/user/aju-dana" className="hover:underline">
+              <Link to="/bendahara/aju-dana" className="hover:underline">
                 View More
               </Link>
             </div>
