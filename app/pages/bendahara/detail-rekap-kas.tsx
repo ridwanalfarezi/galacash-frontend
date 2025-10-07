@@ -1,9 +1,9 @@
-import { ChevronDown, ChevronRight, ChevronUp, Filter, X } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router'
+import { Link, useLocation } from 'react-router'
 
 import { Icons } from '~/components/icons'
-import { DetailTagihanKas } from '~/components/modals/DetailTagihanKas'
+import { DetailTagihanKasBendahara } from '~/components/modals/DetailTagihanKasBendahara'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '~/components/ui/card'
@@ -12,6 +12,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover
 import { useIsMobile } from '~/hooks/use-mobile'
 import { formatCurrency } from '~/lib/utils'
 
+export function useNamaMahasiswa() {
+  const location = useLocation()
+  const nama = location.state?.nama || 'Mahasiswa'
+  return nama
+}
 interface Tagihan {
   id: string
   month: string
@@ -35,53 +40,6 @@ interface SortState {
   direction: 'asc' | 'desc'
 }
 
-const dataTagihan: Tagihan[] = [
-  {
-    id: '1',
-    month: 'Desember',
-    status: 'Belum Dibayar',
-    billId: 'INV-20241201-020-001',
-    name: 'Muhammad Naufal Aulia',
-    dueDate: '31 Desember 2024',
-    kasKelas: 15000,
-    biayaAdmin: 1000,
-    totalAmount: 16000,
-  },
-  {
-    id: '2',
-    month: 'November',
-    status: 'Menunggu Konfirmasi',
-    billId: 'INV-20241101-020-001',
-    name: 'Muhammad Naufal Aulia',
-    dueDate: '30 November 2024',
-    kasKelas: 15000,
-    biayaAdmin: 1000,
-    totalAmount: 16000,
-  },
-  {
-    id: '3',
-    month: 'Oktober',
-    status: 'Sudah Dibayar',
-    billId: 'INV-20241001-020-001',
-    name: 'Muhammad Naufal Aulia',
-    dueDate: '31 October 2024',
-    kasKelas: 15000,
-    biayaAdmin: 1000,
-    totalAmount: 16000,
-  },
-  {
-    id: '4',
-    month: 'September',
-    status: 'Sudah Dibayar',
-    billId: 'INV-20240901-020-001',
-    name: 'Muhammad Naufal Aulia',
-    dueDate: '30 September 2024',
-    kasKelas: 15000,
-    biayaAdmin: 1000,
-    totalAmount: 16000,
-  },
-]
-
 const statusColor: Record<Tagihan['status'], string> = {
   'Belum Dibayar': 'bg-red-100 text-red-700',
   'Menunggu Konfirmasi': 'bg-yellow-100 text-yellow-600',
@@ -92,8 +50,54 @@ export default function BendaharaDetailRekapKas() {
   const [isButtonsVisible, setIsButtonsVisible] = useState(true)
   const [selectedTagihan, setSelectedTagihan] = useState<Tagihan | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
-  const location = useLocation()
-  const nama = location.state?.nama || 'Mahasiswa'
+  const nama = useNamaMahasiswa()
+
+  const dataTagihan: Tagihan[] = [
+    {
+      id: '1',
+      month: 'Desember',
+      status: 'Belum Dibayar',
+      billId: 'INV-20241201-020-001',
+      name: nama,
+      dueDate: '31 Desember 2024',
+      kasKelas: 15000,
+      biayaAdmin: 1000,
+      totalAmount: 16000,
+    },
+    {
+      id: '2',
+      month: 'November',
+      status: 'Menunggu Konfirmasi',
+      billId: 'INV-20241101-020-001',
+      name: nama,
+      dueDate: '30 November 2024',
+      kasKelas: 15000,
+      biayaAdmin: 1000,
+      totalAmount: 16000,
+    },
+    {
+      id: '3',
+      month: 'Oktober',
+      status: 'Sudah Dibayar',
+      billId: 'INV-20241001-020-001',
+      name: nama,
+      dueDate: '31 October 2024',
+      kasKelas: 15000,
+      biayaAdmin: 1000,
+      totalAmount: 16000,
+    },
+    {
+      id: '4',
+      month: 'September',
+      status: 'Sudah Dibayar',
+      billId: 'INV-20240901-020-001',
+      name: nama,
+      dueDate: '30 September 2024',
+      kasKelas: 15000,
+      biayaAdmin: 1000,
+      totalAmount: 16000,
+    },
+  ]
 
   // Filter and Sort states
   const [filters, setFilters] = useState<FilterState>({
@@ -172,6 +176,13 @@ export default function BendaharaDetailRekapKas() {
       <Card className="mx-auto max-w-[1440px] rounded-4xl border-0">
         <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
           <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
+            <span>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to={`/bendahara/rekap-kas/`}>
+                  <ChevronLeft className="size-6 h-6 w-6" />
+                </Link>
+              </Button>
+            </span>
             <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
               Rekap Tagihan Kas - {nama}
             </CardTitle>
@@ -387,7 +398,9 @@ export default function BendaharaDetailRekapKas() {
                   <span>{tagihan.billId}</span>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
-                  <span className="font-bold text-blue-500">{tagihan.totalAmount}</span>
+                  <span className="font-bold text-blue-500">
+                    {formatCurrency(tagihan.totalAmount)}
+                  </span>
                   <Button variant="ghost" size="sm" onClick={() => handleViewDetail(tagihan)}>
                     <ChevronRight className="h-4 w-4" />
                   </Button>
@@ -400,7 +413,7 @@ export default function BendaharaDetailRekapKas() {
 
       {/* Detail Modal */}
       {selectedTagihan && (
-        <DetailTagihanKas
+        <DetailTagihanKasBendahara
           isOpen={isDetailModalOpen}
           onClose={handleCloseModal}
           tagihan={selectedTagihan}

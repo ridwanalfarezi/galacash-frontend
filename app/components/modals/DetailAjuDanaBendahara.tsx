@@ -74,14 +74,11 @@ export function DetailAjuDanaBendahara({ isOpen, onClose, application }: DetailA
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-4">
+          <div className="flex justify-end pt-4">
             <div className="flex gap-2">
-              <Button className="bg-red-100 text-red-900 hover:bg-red-200">Tolak</Button>
-              <Button className="bg-green-100 text-green-900 hover:bg-green-200">Terima</Button>
+              <Button className="bg-red-700 text-white hover:bg-red-800">Tolak</Button>
+              <Button className="bg-green-700 text-white hover:bg-green-800">Terima</Button>
             </div>
-            <Button onClick={onClose} className="px-10 py-2">
-              Tutup
-            </Button>
           </div>
         </div>
       </DialogContent>

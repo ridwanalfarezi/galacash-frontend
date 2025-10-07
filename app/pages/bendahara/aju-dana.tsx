@@ -190,7 +190,7 @@ export default function BendaharaAjuDana() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsButtonsBVisible(!isButtonsBVisible)}
-                className="p-1 transition-transform duration-200 hover:scale-110 sm:hidden"
+                className="p-1 transition-transform duration-200 hover:scale-110 md:hidden"
               >
                 <div className="transition-transform duration-300">
                   {isButtonsBVisible ? (
@@ -202,13 +202,13 @@ export default function BendaharaAjuDana() {
               </Button>
             </div>
             <div
-              className={`transition-all duration-300 ease-in-out sm:block sm:w-auto sm:translate-y-0 sm:opacity-100 ${
+              className={`transition-all duration-300 ease-in-out md:block md:w-auto md:translate-y-0 md:opacity-100 ${
                 !isButtonsBVisible
                   ? 'max-h-0 w-full translate-y-2 overflow-hidden opacity-0'
                   : 'max-h-96 w-full translate-y-0 overflow-visible opacity-100'
               }`}
             >
-              <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
+              <div className="flex w-full flex-wrap items-center justify-center gap-4 sm:w-auto sm:gap-2">
                 <FilterComponent
                   currentFilters={filtersB}
                   onFilterChange={setFiltersB}

@@ -254,7 +254,6 @@ export function FilterComponent({
         {trigger || (
           <Button
             variant={hasActiveFilters ? 'default' : 'secondary'}
-            size="sm"
             className={`${className} ${
               hasActiveFilters ? 'bg-blue-500 text-white hover:bg-blue-700' : ''
             } relative`}

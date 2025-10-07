@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 
 import { Icons } from '~/components/icons'
+import Export from '~/components/icons/export'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Popover, PopoverTrigger } from '~/components/ui/popover'
 import { useIsMobile } from '~/hooks/use-mobile'
+import { formatCurrency } from '~/lib/utils'
 
 interface Tagihan {
   nim: string
@@ -64,32 +66,23 @@ const dataTagihan: Tagihan[] = [
   },
 ]
 
-// 🔹 Hitung total belum bayar
+// Hitung total belum bayar
 function hitungTotalBelumBayar(tagihan: Tagihan, bulanList: string[]): number {
   const belumLunasCount = bulanList.filter((bulan) => !tagihan.status[bulan]).length
   return tagihan.biayaPerBulan * belumLunasCount
 }
 
-// 🔹 Cek apakah semua bulan sudah lunas
+// Cek apakah semua bulan sudah lunas
 function getStatusLunas(tagihan: Tagihan, bulanList: string[]): boolean {
   return hitungTotalBelumBayar(tagihan, bulanList) === 0
 }
 
-// 🔹 Format angka ke Rupiah
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(value)
-}
-
-// 🔹 Warna untuk badge status lunas / belum lunas
+// Warna untuk badge status lunas / belum lunas
 function getStatusColor(statusLunas: boolean): string {
   return statusLunas ? 'bg-green-100 text-green-500' : 'bg-red-100 text-red-500'
 }
 
-// 🔹 Warna icon untuk status bulan (✔️ atau ❌)
+// Warna icon untuk status bulan
 function getMonthStatusColor(isPaid: boolean): string {
   return isPaid ? 'text-green-500' : 'text-red-500'
 }
@@ -110,6 +103,7 @@ export default function BendaharaRekapkas() {
   useEffect(() => {
     if (isMobile) setIsButtonsVisible(false)
   }, [isMobile])
+
   return (
     <div className="p-6">
       <Card className="mx-auto max-w-[1440px] rounded-4xl border-0">
@@ -144,7 +138,10 @@ export default function BendaharaRekapkas() {
               {/* Filter Dropdown */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button className="relative w-full sm:w-auto">
+                  <Button
+                    variant="secondary"
+                    className="relative w-full bg-white text-black sm:w-auto"
+                  >
                     <Filter className="h-5 w-5" />
                     Filter
                   </Button>
@@ -153,12 +150,19 @@ export default function BendaharaRekapkas() {
 
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button className="w-full sm:w-auto">
+                  <Button
+                    variant="secondary"
+                    className="hover: w-full bg-white text-black sm:w-auto"
+                  >
                     <Icons.Sort className="h-5 w-5" />
                     Sort
                   </Button>
                 </PopoverTrigger>
               </Popover>
+              <Button className="w-full sm:w-auto">
+                <Export className="h-5 w-5" />
+                Export
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -197,15 +201,12 @@ export default function BendaharaRekapkas() {
                       ))}
 
                       <td className="px-4 py-3 font-bold text-blue-500">
-                        {formatRupiah(totalBelum)}
+                        {formatCurrency(totalBelum)}
                       </td>
 
                       <td className="px-4 py-3">
                         <Button variant="ghost" size="sm" asChild>
-                          <Link
-                            to={`/bendahara/rekap-kas/${item.nim}`}
-                            state={{ nama: item.nama }} // ✅ kirim nama ke halaman tujuan
-                          >
+                          <Link to={`/bendahara/rekap-kas/${item.nim}`} state={{ nama: item.nama }}>
                             <ChevronRight className="h-4 w-4" />
                           </Link>
                         </Button>
@@ -263,9 +264,12 @@ export default function BendaharaRekapkas() {
 
                   {/* Total dan tombol */}
                   <div className="mt-2 flex items-center justify-between">
-                    <span className="font-bold text-blue-500">{formatRupiah(totalBelum)}</span>
+                    <span className="font-bold text-blue-500">{formatCurrency(totalBelum)}</span>
                     <Button variant="ghost" size="sm" asChild>
-                      <Link to={`/bendahara/rekap-kas/${tagihan.nim}`}>
+                      <Link
+                        to={`/bendahara/rekap-kas/${tagihan.nim}`}
+                        state={{ nama: tagihan.nama }}
+                      >
                         <ChevronRight className="h-4 w-4" />
                       </Link>
                     </Button>
