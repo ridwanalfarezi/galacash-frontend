@@ -6,7 +6,7 @@
     ".react-router/types/**/*",
     "types/**/*"
   ],
-  "exclude": ["eslint.config.mjs"],
+  "exclude": ["eslint.config.mjs", "build", "node_modules"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["node", "vite/client"],
