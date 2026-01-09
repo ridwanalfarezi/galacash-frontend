@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronDown, ChevronRight, ChevronUp, Filter, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { Icons } from '~/components/icons'
 import { DetailTagihanKas } from '~/components/modals/DetailTagihanKas'
@@ -84,7 +84,10 @@ const mockTagihanKas: TagihanKas[] = [
 ]
 
 export default function TagihanKasPage() {
-  const [isButtonsVisible, setIsButtonsVisible] = useState(true)
+  const isMobile = useIsMobile()
+
+  // Toggle state for buttons - initialize based on isMobile
+  const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
   const [selectedTagihan, setSelectedTagihan] = useState<TagihanKas | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
@@ -226,12 +229,6 @@ export default function TagihanKasPage() {
   const hasActiveFilters =
     filters.status.length > 0 || filters.month.length > 0 || filters.amountRange !== 'all'
   const hasActiveSort = sortConfig.field !== 'date' || sortConfig.direction !== 'desc'
-
-  const isMobile = useIsMobile()
-
-  useEffect(() => {
-    if (isMobile) setIsButtonsVisible(false)
-  }, [isMobile])
 
   return (
     <div className="p-6">

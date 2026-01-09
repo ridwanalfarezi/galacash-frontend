@@ -2,7 +2,7 @@
 
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { ChevronDown, ChevronRight, ChevronUp, Filter } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { FinancialPieChart } from '~/components/chart/financial-pie-chart'
 import { Icons } from '~/components/icons'
@@ -65,8 +65,10 @@ export default function KasKelasPage() {
   const [detailModal, setDetailModal] = useState<HistoryTransaction | null>(null)
   const [isChartVisible, setIsChartVisible] = useState(true)
 
-  // Toggle state for buttons (mobile only)
-  const [isButtonsVisible, setIsButtonsVisible] = useState(true)
+  const isMobile = useIsMobile()
+
+  // Toggle state for buttons (mobile only) - initialize based on isMobile
+  const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
 
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all')
   const [sortBy, setSortBy] = useState<
@@ -178,12 +180,6 @@ export default function KasKelasPage() {
         return <Badge variant="secondary">{type}</Badge>
     }
   }
-
-  const isMobile = useIsMobile()
-
-  useEffect(() => {
-    if (isMobile) setIsButtonsVisible(false)
-  }, [isMobile])
 
   return (
     <>

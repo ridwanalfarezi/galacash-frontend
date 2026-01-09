@@ -1,13 +1,13 @@
 'use client'
 
-import { ChevronDown, ChevronUp, Filter, RotateCcw } from 'lucide-react'
+import { ChevronDown, ChevronUp, Filter } from 'lucide-react'
 import { useState } from 'react'
 
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Checkbox } from '~/components/ui/checkbox'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/collapsible'
+import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/ui/sheet'
@@ -35,6 +35,237 @@ const statusOptions = [
   { id: 'rejected', label: 'Ditolak', color: 'bg-red-50 text-red-700' },
   { id: 'pending', label: 'Pending', color: 'bg-yellow-300 text-yellow-700' },
 ]
+
+type ExpandedSections = {
+  status: boolean
+  applicants: boolean
+  categories: boolean
+  amount: boolean
+}
+
+interface FilterContentProps {
+  localFilters: FilterState
+  expandedSections: ExpandedSections
+  toggleSection: (section: keyof ExpandedSections) => void
+  handleStatusChange: (statusId: string, checked: boolean) => void
+  handleApplicantChange: (applicant: string, checked: boolean) => void
+  handleCategoryChange: (category: string, checked: boolean) => void
+  handleFilterChange: (key: keyof FilterState, value: FilterState[keyof FilterState]) => void
+  formatCurrency: (amount: number) => string
+  applicants: string[]
+  categories: string[]
+  maxAmount: number
+}
+
+function FilterContent({
+  localFilters,
+  expandedSections,
+  toggleSection,
+  handleStatusChange,
+  handleApplicantChange,
+  handleCategoryChange,
+  handleFilterChange,
+  formatCurrency,
+  applicants,
+  categories,
+  maxAmount,
+}: FilterContentProps) {
+  return (
+    <div className="space-y-6">
+      {/* Status Filter */}
+      <Card>
+        <CardHeader className="cursor-pointer" onClick={() => toggleSection('status')}>
+          <CardTitle className="flex items-center justify-between text-base">
+            <span>Status</span>
+            {expandedSections.status ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </CardTitle>
+        </CardHeader>
+        <Collapsible open={expandedSections.status}>
+          <CollapsibleContent>
+            <CardContent className="space-y-3">
+              {statusOptions.map((option) => (
+                <div key={option.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`status-${option.id}`}
+                    checked={localFilters.status.includes(option.id)}
+                    onCheckedChange={(checked) => handleStatusChange(option.id, checked as boolean)}
+                  />
+                  <Label
+                    htmlFor={`status-${option.id}`}
+                    className="flex flex-1 cursor-pointer items-center justify-between"
+                  >
+                    <span className="text-sm">{option.label}</span>
+                    <Badge variant="secondary" className={`${option.color} text-xs`}>
+                      {option.label}
+                    </Badge>
+                  </Label>
+                </div>
+              ))}
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
+
+      {/* Applicants Filter */}
+      <Card>
+        <CardHeader className="cursor-pointer" onClick={() => toggleSection('applicants')}>
+          <CardTitle className="flex items-center justify-between text-base">
+            <span>Pengaju</span>
+            {expandedSections.applicants ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </CardTitle>
+        </CardHeader>
+        <Collapsible open={expandedSections.applicants}>
+          <CollapsibleContent>
+            <CardContent>
+              <div className="max-h-48 space-y-3 overflow-y-auto">
+                {applicants.map((applicant) => (
+                  <div key={applicant} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`applicant-${applicant}`}
+                      checked={localFilters.applicants.includes(applicant)}
+                      onCheckedChange={(checked) =>
+                        handleApplicantChange(applicant, checked as boolean)
+                      }
+                    />
+                    <Label htmlFor={`applicant-${applicant}`} className="flex-1 cursor-pointer">
+                      <span className="text-sm">{applicant}</span>
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
+
+      {/* Categories Filter */}
+      <Card>
+        <CardHeader className="cursor-pointer" onClick={() => toggleSection('categories')}>
+          <CardTitle className="flex items-center justify-between text-base">
+            <span>Kategori</span>
+            {expandedSections.categories ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </CardTitle>
+        </CardHeader>
+        <Collapsible open={expandedSections.categories}>
+          <CollapsibleContent>
+            <CardContent>
+              <div className="max-h-48 space-y-3 overflow-y-auto">
+                {categories.map((category) => (
+                  <div key={category} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`category-${category}`}
+                      checked={localFilters.categories.includes(category)}
+                      onCheckedChange={(checked) =>
+                        handleCategoryChange(category, checked as boolean)
+                      }
+                    />
+                    <Label htmlFor={`category-${category}`} className="flex-1 cursor-pointer">
+                      <span className="text-sm">{category}</span>
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
+
+      {/* Amount Range Filter */}
+      <Card>
+        <CardHeader className="cursor-pointer" onClick={() => toggleSection('amount')}>
+          <CardTitle className="flex items-center justify-between text-base">
+            <span>Rentang Jumlah</span>
+            {expandedSections.amount ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </CardTitle>
+        </CardHeader>
+        <Collapsible open={expandedSections.amount}>
+          <CollapsibleContent>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span>Minimum</span>
+                  <span className="font-medium">
+                    Rp {formatCurrency(localFilters.amountRange[0])}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span>Maksimum</span>
+                  <span className="font-medium">
+                    Rp {formatCurrency(localFilters.amountRange[1])}
+                  </span>
+                </div>
+              </div>
+
+              <Slider
+                value={localFilters.amountRange}
+                onValueChange={(value) =>
+                  handleFilterChange('amountRange', value as [number, number])
+                }
+                min={0}
+                max={maxAmount}
+                step={1000}
+                className="w-full"
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="min-amount" className="text-xs">
+                    Min
+                  </Label>
+                  <Input
+                    id="min-amount"
+                    type="number"
+                    value={localFilters.amountRange[0]}
+                    onChange={(e) => {
+                      const value = Number(e.target.value)
+                      if (value >= 0 && value <= localFilters.amountRange[1]) {
+                        handleFilterChange('amountRange', [value, localFilters.amountRange[1]])
+                      }
+                    }}
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="max-amount" className="text-xs">
+                    Max
+                  </Label>
+                  <Input
+                    id="max-amount"
+                    type="number"
+                    value={localFilters.amountRange[1]}
+                    onChange={(e) => {
+                      const value = Number(e.target.value)
+                      if (value <= maxAmount && value >= localFilters.amountRange[0]) {
+                        handleFilterChange('amountRange', [localFilters.amountRange[0], value])
+                      }
+                    }}
+                    className="h-9"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
+    </div>
+  )
+}
 
 export function FilterComponent({
   currentFilters,
@@ -94,17 +325,6 @@ export function FilterComponent({
     handleFilterChange('categories', newCategories)
   }
 
-  const handleClearAllFilters = () => {
-    const clearedFilters = {
-      status: [],
-      applicants: [],
-      categories: [],
-      amountRange: [0, maxAmount] as [number, number],
-    }
-    setLocalFilters(clearedFilters)
-    onFilterChange(clearedFilters)
-  }
-
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }))
   }
@@ -112,141 +332,6 @@ export function FilterComponent({
   const formatCurrency = (amount: number) => {
     return amount.toLocaleString('id-ID')
   }
-
-  const FilterContent = () => (
-    <div className="space-y-6 pb-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">Filter Data</h3>
-          <p className="text-muted-foreground text-sm">
-            Saring data sesuai kriteria yang diinginkan
-          </p>
-        </div>
-        {hasActiveFilters && (
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleClearAllFilters}
-            className="border-destructive text-destructive hover:bg-destructive hover:text-white"
-          >
-            <RotateCcw className="h-4 w-4" />
-            Reset
-          </Button>
-        )}
-      </div>
-
-      {/* FILTER SECTIONS */}
-      <div className="space-y-4">
-        <FilterSection
-          title="Status"
-          expanded={expandedSections.status}
-          onToggle={() => toggleSection('status')}
-          badgeCount={localFilters.status.length > 0 ? localFilters.status.length : undefined}
-        >
-          {statusOptions.map((status) => (
-            <CheckboxRow
-              key={status.id}
-              id={status.id}
-              label={<Badge className={`${status.color} text-xs`}>{status.label}</Badge>}
-              checked={localFilters.status.includes(status.id)}
-              onChange={(checked) => handleStatusChange(status.id, checked)}
-            />
-          ))}
-        </FilterSection>
-
-        <FilterSection
-          title="Pengaju"
-          expanded={expandedSections.applicants}
-          onToggle={() => toggleSection('applicants')}
-          badgeCount={
-            localFilters.applicants.length > 0 ? localFilters.applicants.length : undefined
-          }
-        >
-          {applicants.map((applicant) => (
-            <CheckboxRow
-              key={applicant}
-              id={applicant}
-              label={applicant}
-              checked={localFilters.applicants.includes(applicant)}
-              onChange={(checked) => handleApplicantChange(applicant, checked)}
-            />
-          ))}
-        </FilterSection>
-
-        <FilterSection
-          title="Kategori"
-          expanded={expandedSections.categories}
-          onToggle={() => toggleSection('categories')}
-          badgeCount={
-            localFilters.categories.length > 0 ? localFilters.categories.length : undefined
-          }
-        >
-          {categories.map((category) => (
-            <CheckboxRow
-              key={category}
-              id={category}
-              label={category}
-              checked={localFilters.categories.includes(category)}
-              onChange={(checked) => handleCategoryChange(category, checked)}
-            />
-          ))}
-        </FilterSection>
-
-        <FilterSection
-          title="Rentang Nominal"
-          expanded={expandedSections.amount}
-          onToggle={() => toggleSection('amount')}
-          badgeCount={
-            localFilters.amountRange[0] > 0 || localFilters.amountRange[1] < maxAmount ? 1 : 0
-          }
-        >
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-muted-foreground text-xs">Minimum</Label>
-                <Input
-                  placeholder="Rp 0"
-                  value={`Rp ${formatCurrency(localFilters.amountRange[0])}`}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value.replace(/[^\d]/g, '')) || 0
-                    handleFilterChange('amountRange', [value, localFilters.amountRange[1]])
-                  }}
-                  className="text-sm"
-                />
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">Maksimum</Label>
-                <Input
-                  placeholder={`Rp ${formatCurrency(maxAmount)}`}
-                  value={`Rp ${formatCurrency(localFilters.amountRange[1])}`}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value.replace(/[^\d]/g, '')) || maxAmount
-                    handleFilterChange('amountRange', [localFilters.amountRange[0], value])
-                  }}
-                  className="text-sm"
-                />
-              </div>
-            </div>
-            <div className="px-1">
-              <Slider
-                value={localFilters.amountRange}
-                onValueChange={(value) =>
-                  handleFilterChange('amountRange', value as [number, number])
-                }
-                max={maxAmount}
-                min={0}
-                step={100000}
-              />
-              <div className="text-muted-foreground mt-1 flex justify-between text-xs">
-                <span>Rp 0</span>
-                <span>Rp {formatCurrency(maxAmount)}</span>
-              </div>
-            </div>
-          </div>
-        </FilterSection>
-      </div>
-    </div>
-  )
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -273,68 +358,20 @@ export function FilterComponent({
         <SheetHeader className="mb-4 p-0">
           <SheetTitle className="text-2xl">Filter Pengajuan Dana</SheetTitle>
         </SheetHeader>
-        <FilterContent />
+        <FilterContent
+          localFilters={localFilters}
+          expandedSections={expandedSections}
+          toggleSection={toggleSection}
+          handleStatusChange={handleStatusChange}
+          handleApplicantChange={handleApplicantChange}
+          handleCategoryChange={handleCategoryChange}
+          handleFilterChange={handleFilterChange}
+          formatCurrency={formatCurrency}
+          applicants={applicants}
+          categories={categories}
+          maxAmount={maxAmount}
+        />
       </SheetContent>
     </Sheet>
-  )
-}
-
-function FilterSection({
-  title,
-  expanded,
-  onToggle,
-  badgeCount,
-  children,
-}: {
-  title: string
-  expanded: boolean
-  onToggle: () => void
-  badgeCount?: number
-  children: React.ReactNode
-}) {
-  return (
-    <Card className="rounded-lg border shadow-sm">
-      <Collapsible open={expanded} onOpenChange={onToggle}>
-        <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer px-4 py-3 hover:bg-gray-50">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-base">
-                {title}
-                {badgeCount && badgeCount > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    {badgeCount}
-                  </Badge>
-                )}
-              </CardTitle>
-              {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </div>
-          </CardHeader>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <CardContent className="space-y-3 px-4 py-3">{children}</CardContent>
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
-  )
-}
-
-function CheckboxRow({
-  id,
-  label,
-  checked,
-  onChange,
-}: {
-  id: string
-  label: React.ReactNode
-  checked: boolean
-  onChange: (checked: boolean) => void
-}) {
-  return (
-    <div className="flex items-center space-x-3 py-1">
-      <Checkbox id={id} checked={checked} onCheckedChange={(value) => onChange(value as boolean)} />
-      <Label htmlFor={id} className="cursor-pointer text-sm font-normal">
-        {label}
-      </Label>
-    </div>
   )
 }

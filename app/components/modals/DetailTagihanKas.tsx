@@ -1,7 +1,7 @@
 'use client'
 
 import { Copy, Upload } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
@@ -31,16 +31,11 @@ interface DetailTagihanKasProps {
 }
 
 export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasProps) {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'ewallet' | 'bank' | 'cash'>()
-
-  // Auto-select bank payment method for "Menunggu Konfirmasi" status
-  useEffect(() => {
-    if (tagihan.status === 'Menunggu Konfirmasi') {
-      setSelectedPaymentMethod('bank')
-    } else {
-      setSelectedPaymentMethod(undefined)
-    }
-  }, [tagihan.status])
+  // Initialize payment method based on status - only auto-select for waiting confirmation
+  const initialMethod = tagihan.status === 'Menunggu Konfirmasi' ? ('bank' as const) : undefined
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    'ewallet' | 'bank' | 'cash' | undefined
+  >(initialMethod)
 
   const getStatusBadge = (status: TagihanKasDetail['status']) => {
     switch (status) {

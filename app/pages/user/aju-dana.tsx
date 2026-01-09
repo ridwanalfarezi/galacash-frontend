@@ -8,7 +8,7 @@ import {
   RotateCcw,
   XIcon,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import Export from '~/components/icons/export'
 import Plus from '~/components/icons/plus'
@@ -84,9 +84,11 @@ export default function AjuDanaPage() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
 
-  // Toggle states for buttons
-  const [isButtonsAVisible, setIsButtonsAVisible] = useState(true)
-  const [isButtonsBVisible, setIsButtonsBVisible] = useState(true)
+  const isMobile = useIsMobile()
+
+  // Toggle states for buttons - initialize based on isMobile
+  const [isButtonsAVisible, setIsButtonsAVisible] = useState(!isMobile)
+  const [isButtonsBVisible, setIsButtonsBVisible] = useState(!isMobile)
   const [currentSortA, setCurrentSortA] = useState<SortOption | null>(null)
   const maxAmountA = useMemo(() => Math.max(...mockApplications.map((app) => app.amount)), [])
   const [filtersA, setFiltersA] = useState<FilterState>({
@@ -249,15 +251,6 @@ export default function AjuDanaPage() {
     setSelectedApplication(app)
     setIsDetailModalOpen(true)
   }
-
-  const isMobile = useIsMobile()
-
-  useEffect(() => {
-    if (isMobile) {
-      setIsButtonsAVisible(false)
-      setIsButtonsBVisible(false)
-    }
-  }, [isMobile])
 
   return (
     <div className="p-6">
