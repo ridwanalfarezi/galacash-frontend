@@ -1,23 +1,8 @@
 # GalaCash
 
-A modern financial management application built with React Router and TypeScript, designed to make managing finances more efficient and accessible. └── routes/ # Route components
-├── auth/ # Authentication routes
-│ └── sign-in.tsx
-├── bendahara/ # Treasurer routes
-│ ├── dashboard.tsx
-│ ├── aju-dana.tsx
-│ ├── kas-kelas.tsx
-│ ├── rekap-kas.tsx # Financial recap
-│ └── settings.tsx
-├── user/ # Student routes
-│ ├── dashboard.tsx
-│ ├── aju-dana.tsx
-│ ├── kas-kelas.tsx
-│ ├── tagihan-kas.tsx # Bill payments
-│ └── settings.tsx
-└── index.tsx # Home routeverview
+A modern financial management application built with React Router and TypeScript, designed to make managing finances more efficient and accessible.
 
-GalaCash is a full-stack application that enables treasurers to track and manage both income and expenses while providing complete transparency on financial activities.
+GalaCash is a full-stack application that enables treasurers to track and manage both income and expenses while providing complete transparency on financial activities. Features include fund requests (Aju Dana), cash bill management (Tagihan Kas), and financial recaps.
 
 ## 🛠 Tech Stack
 
@@ -30,13 +15,15 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 - 🏗️ [Zustand](https://zustand-demo.pmnd.rs/) for state management
 - ✨ [Zod](https://zod.dev/) for schema validation
 - 📝 [React Hook Form](https://react-hook-form.com/) for form handling
+- 📊 [Recharts](https://recharts.org/) for data visualization
+- 🎨 [Lucide React](https://lucide.dev/) for icons
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js (LTS version) - specified in [.nvmrc](.nvmrc)
-- npm or pnpm
+- pnpm (package manager)
 - Git
 - VS Code (recommended)
 
@@ -44,37 +31,31 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 
 1. **Clone Repository**
 
-   ```powershell
+   ```bash
    git clone https://github.com/username/galacash.git
    cd galacash
    ```
 
 2. **Setup Node.js**
 
-   ```powershell
+   ```bash
    # Install and use correct Node.js version
-   nvm install lts/*
-   nvm use lts/*
+   nvm install $(cat .nvmrc)
+   nvm use
    ```
 
 3. **Install Dependencies**
 
-   ```powershell
-   # Install project dependencies
-   npm install
+   ```bash
+   # Install project dependencies (uses pnpm@10.27.0)
+   pnpm install
 
    # Setup Git hooks
-   npm run prepare
+   pnpm run prepare
    ```
 
-4. **Configure Environment**
+4. **VS Code Setup**
 
-   ```powershell
-   # Create local environment file
-   copy .env.example .env
-   ```
-
-5. **VS Code Setup**
    Install recommended extensions:
    - ESLint
    - Prettier
@@ -85,38 +66,44 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 
 1. **Start Development Server**
 
-   ```powershell
-   npm run dev
+   ```bash
+   pnpm dev
    ```
 
    Visit: http://localhost:5173
 
 2. **Run Quality Checks**
 
-   ```powershell
+   ```bash
    # Type checking
-   npm run typecheck
+   pnpm run typecheck
 
    # Lint code
-   npm run lint
+   pnpm lint
+
+   # Fix lint issues
+   pnpm lint:fix
 
    # Format code
-   npm run format
+   pnpm format
+
+   # Check formatting
+   pnpm format:check
    ```
 
 3. **Making Commits**
 
-   ```powershell
+   ```bash
    # Stage your changes
    git add .
 
    # Commit using conventional commits
-   npm run commit
+   pnpm commit
    ```
 
 ## 📦 Project Structure
 
-```text
+```
 .
 ├── app/                      # Application source code
 │   ├── app.css              # Global styles and Tailwind imports
@@ -185,7 +172,7 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 │       │   ├── kas-kelas.tsx
 │       │   ├── tagihan-kas.tsx # Bill payments
 │       │   └── settings.tsx
-│       ├── index.tsx       # Home route
+│       └── index.tsx       # Home route
 │
 ├── public/                  # Static assets
 │   ├── logo.png            # Application logo
@@ -218,7 +205,7 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 │
 ├── Docker Files
 │   ├── Dockerfile         # Multi-stage build config
-│   └── .dockerignore     # Docker ignore patterns
+│   └── .dockerignore      # Docker ignore patterns
 │
 ├── Environment
 │   ├── .nvmrc            # Node.js version
@@ -250,17 +237,17 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 
 ### Code Quality Tools
 
-- 🔍 ESLint with TypeScript and React plugins - [.eslintrc.json](d:\College\projects\galacash.eslintrc.json)
-- 💅 Prettier with TailwindCSS plugin - [.prettierrc](d:\College\projects\galacash.prettierrc)
+- 🔍 ESLint with TypeScript and React plugins - [.eslintrc.json](.eslintrc.json)
+- 💅 Prettier with TailwindCSS plugin - [.prettierrc](.prettierrc)
 - 🐶 Husky for Git hooks
-- 📝 Commitlint for conventional commits - [commitlint.config.js](d:\College\projects\galacash\commitlint.config.js)
+- 📝 Commitlint for conventional commits - [commitlint.config.js](commitlint.config.js)
 
 ## 🚀 Deployment
 
 ### Production Build
 
 ```bash
-npm run build
+pnpm build
 ```
 
 ### Docker Deployment
@@ -296,21 +283,21 @@ docs(readme): update deployment steps
 
 ## 📑 Scripts
 
-| Command        | Description                         |
-| -------------- | ----------------------------------- |
-| `dev`          | Start development server            |
-| `build`        | Create production build             |
-| `start`        | Start production server             |
-| `typecheck`    | Generate types and check TypeScript |
-| `lint`         | Run ESLint                          |
-| `lint:fix`     | Fix ESLint issues                   |
-| `format`       | Format code with Prettier           |
-| `format:check` | Check code formatting               |
-| `type-check`   | Run TypeScript type checking        |
-| `prepare`      | Setup Husky git hooks               |
-| `commit`       | Interactive conventional commit     |
-| `clean`        | Clean build directory               |
-| `lint-staged`  | Run linters on staged files         |
+| Command             | Description                         |
+| ------------------- | ----------------------------------- |
+| `pnpm dev`          | Start development server            |
+| `pnpm build`        | Create production build             |
+| `pnpm start`        | Start production server             |
+| `pnpm typecheck`    | Generate types and check TypeScript |
+| `pnpm lint`         | Run ESLint                          |
+| `pnpm lint:fix`     | Fix ESLint issues                   |
+| `pnpm format`       | Format code with Prettier           |
+| `pnpm format:check` | Check code formatting               |
+| `pnpm type-check`   | Run TypeScript type checking        |
+| `pnpm prepare`      | Setup Husky git hooks               |
+| `pnpm commit`       | Interactive conventional commit     |
+| `pnpm clean`        | Clean build directory               |
+| `pnpm lint-staged`  | Run linters on staged files         |
 
 ## License
 
