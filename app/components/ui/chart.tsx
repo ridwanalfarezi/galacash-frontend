@@ -1,5 +1,10 @@
 import * as React from 'react'
 import * as RechartsPrimitive from 'recharts'
+import type {
+  Payload as RechartsPayload,
+  NameType as RechartsNameType,
+  ValueType as RechartsValueType,
+} from 'recharts/types/component/DefaultTooltipContent'
 
 import { cn } from '~/lib/utils'
 
@@ -108,7 +113,7 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
-}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
+}: Omit<React.ComponentProps<typeof RechartsPrimitive.Tooltip>, 'payload'> &
   React.ComponentProps<'div'> & {
     hideLabel?: boolean
     hideIndicator?: boolean
@@ -116,13 +121,7 @@ function ChartTooltipContent({
     nameKey?: string
     labelKey?: string
     label?: React.ReactNode
-    payload?: Array<{
-      color?: string
-      dataKey?: string
-      name?: string
-      value?: string | number
-      payload?: Record<string, unknown>
-    }>
+    payload?: ReadonlyArray<RechartsPayload<RechartsValueType, RechartsNameType>>
   }) {
   const { config } = useChart()
 
@@ -174,14 +173,20 @@ function ChartTooltipContent({
 
           return (
             <div
-              key={item.dataKey}
+              key={String(item.dataKey ?? item.name ?? index)}
               className={cn(
                 '[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5',
                 indicator === 'dot' && 'items-center'
               )}
             >
               {formatter && item?.value !== undefined && item.name ? (
-                formatter(item.value, item.name, item, index, [])
+                formatter(
+                  item.value,
+                  item.name,
+                  item as RechartsPayload<RechartsValueType, RechartsNameType>,
+                  index,
+                  payload as ReadonlyArray<RechartsPayload<RechartsValueType, RechartsNameType>>
+                )
               ) : (
                 <>
                   {itemConfig?.icon ? (

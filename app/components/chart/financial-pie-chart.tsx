@@ -12,6 +12,7 @@ interface ChartDataItem {
   name: string
   value: number
   fill: string
+  [key: string]: string | number
 }
 
 interface FinancialPieChartProps {
