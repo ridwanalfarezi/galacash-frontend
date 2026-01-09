@@ -1,12 +1,12 @@
 'use client'
 
-import { CircleArrowDown, CircleArrowUp, Clock, Gift, Calendar as CalendarIcon } from 'lucide-react'
+import { Calendar as CalendarIcon, CircleArrowDown, CircleArrowUp, Clock, Gift } from 'lucide-react'
 import { useState } from 'react'
 import type { DateRange } from 'react-day-picker'
 import { Link } from 'react-router'
 
 import { Icons } from '~/components/icons'
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '~/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
 import { DatePicker } from '~/components/ui/date-picker'
 
 import {
@@ -355,7 +355,7 @@ export default function DashboardPage() {
                         </h5>
                       </div>
                     </div>
-                    <div className="hidden items-center justify-center space-x-2 rounded-[8px] bg-yellow-300 px-2 py-1 md:flex">
+                    <div className="hidden items-center justify-center space-x-2 rounded-xl bg-yellow-300 px-2 py-1 md:flex">
                       <Clock className="size-6 text-gray-900" />
                     </div>
                   </div>
