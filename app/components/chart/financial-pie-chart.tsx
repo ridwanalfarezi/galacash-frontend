@@ -47,7 +47,7 @@ export function FinancialPieChart({ data, title, className }: FinancialPieChartP
     <div className={className}>
       <ChartContainer
         config={chartConfig}
-        className="mx-auto aspect-square min-h-[200px] w-full max-w-[350px]"
+        className="mx-auto aspect-square min-h-50 w-full max-w-87.5"
       >
         <PieChart>
           <ChartTooltip
