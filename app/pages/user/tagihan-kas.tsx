@@ -232,7 +232,7 @@ export default function TagihanKasPage() {
 
   return (
     <div className="p-6">
-      <div className="mx-auto max-w-[1440px]">
+      <div className="mx-auto max-w-360">
         <Card className="rounded-4xl border-0">
           <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
             <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
@@ -396,7 +396,7 @@ export default function TagihanKasPage() {
           </CardHeader>
           <CardContent>
             <div className="hidden overflow-x-auto sm:block">
-              <table className="w-full max-w-[1440px]">
+              <table className="w-full max-w-360">
                 <thead>
                   <tr className="border-b border-gray-300">
                     <th className="px-4 py-3 text-left font-medium">Bulan</th>

@@ -347,7 +347,7 @@ export function FilterComponent({
             <Filter className="h-4 w-4" />
             Filter
             {activeFilterCount > 0 && (
-              <Badge className="ml-2 h-5 min-w-[1.25rem] bg-white px-1.5 py-0.5 text-xs text-blue-500">
+              <Badge className="ml-2 h-5 min-w-5 bg-white px-1.5 py-0.5 text-xs text-blue-500">
                 {activeFilterCount}
               </Badge>
             )}

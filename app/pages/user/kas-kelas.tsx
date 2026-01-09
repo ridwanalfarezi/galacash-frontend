@@ -184,7 +184,7 @@ export default function KasKelasPage() {
   return (
     <>
       <div className="p-6">
-        <div className="mx-auto max-w-[1440px] space-y-8">
+        <div className="mx-auto max-w-360 space-y-8">
           <Card className="relative rounded-4xl border-0">
             <CardHeader className="flex items-center justify-between space-y-0">
               <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
@@ -260,7 +260,7 @@ export default function KasKelasPage() {
                         {getFilterLabel()}
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
+                    <DropdownMenuContent align="end" className="w-auto sm:w-50">
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() => setFilterType('all')}
@@ -326,7 +326,7 @@ export default function KasKelasPage() {
             </CardHeader>
             <CardContent>
               <div className="hidden overflow-x-auto sm:block">
-                <table className="w-full max-w-[1440px]">
+                <table className="w-full max-w-360">
                   <thead>
                     <tr className="border-b border-gray-300">
                       <th className="px-4 py-3 text-left font-medium">Tanggal</th>
