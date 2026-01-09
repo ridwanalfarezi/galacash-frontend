@@ -9,15 +9,12 @@ import { Icons } from '~/components/icons'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '~/components/ui/card'
 import { DatePicker } from '~/components/ui/date-picker'
 
-import { formatCurrency, formatDate, groupTransactionsByDate } from '../../lib/utils'
-
-interface Transaction {
-  id: string
-  type: 'income' | 'expense'
-  description: string
-  amount: number
-  date: string
-}
+import {
+  formatCurrency,
+  formatDate,
+  groupTransactionsByDate,
+  type Transaction,
+} from '../../lib/utils'
 
 const mockTransactions: Transaction[] = [
   {

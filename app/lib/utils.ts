@@ -24,7 +24,15 @@ export const formatDate = (dateString: string): string => {
   })
 }
 
-export const groupTransactionsByDate = (transactions: any[]) => {
+export interface Transaction {
+  id: string
+  type: 'income' | 'expense'
+  description: string
+  amount: number
+  date: string
+}
+
+export const groupTransactionsByDate = (transactions: Transaction[]) => {
   const grouped = transactions.reduce(
     (acc, transaction) => {
       const date = transaction.date
@@ -34,7 +42,7 @@ export const groupTransactionsByDate = (transactions: any[]) => {
       acc[date].push(transaction)
       return acc
     },
-    {} as Record<string, any[]>
+    {} as Record<string, Transaction[]>
   )
 
   return Object.entries(grouped)

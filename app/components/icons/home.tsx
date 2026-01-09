@@ -1,4 +1,4 @@
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import type { ComponentProps } from 'react'
 
 const Home = (props: ComponentProps<'svg'>) => {
