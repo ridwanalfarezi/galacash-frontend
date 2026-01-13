@@ -60,7 +60,7 @@ export const cashBillService = {
     }
 
     const response = await uploadFile(`/cash-bills/${billId}/pay`, formData)
-    return response.data
+    return (response as Record<string, unknown>).data
   },
 
   /**

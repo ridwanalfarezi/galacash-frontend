@@ -79,6 +79,6 @@ export const fundApplicationService = {
     }
 
     const response = await uploadFile('/fund-applications', formData)
-    return response.data
+    return (response as Record<string, unknown>).data
   },
 }

@@ -45,21 +45,26 @@ export default function TagihanKasPage() {
   const { data: billsData } = useQuery(cashBillQueries.my())
   const mockTagihanKas: TagihanKas[] = useMemo(() => {
     if (!billsData) return []
-    return billsData.bills.map((bill: any) => ({
-      id: bill.id || '',
-      month: new Date(bill.month || '').toLocaleDateString('id-ID', { month: 'long' }),
-      status: (bill.status === 'paid'
-        ? 'Sudah Dibayar'
-        : bill.status === 'pending_payment'
-          ? 'Menunggu Konfirmasi'
-          : 'Belum Dibayar') as 'Belum Dibayar' | 'Menunggu Konfirmasi' | 'Sudah Dibayar',
-      billId: bill.billNumber || '',
-      dueDate: new Date(bill.dueDate || '').toLocaleDateString('id-ID'),
-      totalAmount: bill.totalAmount || 0,
-      name: bill.user?.name || '',
-      kasKelas: bill.amount || 0,
-      biayaAdmin: bill.adminFee || 0,
-    }))
+    return billsData.bills.map((bill: Record<string, unknown>) => {
+      const monthValue = (bill.month as string | undefined) || ''
+      const dueDateValue = (bill.dueDate as string | undefined) || ''
+      const user = bill.user as Record<string, unknown> | undefined
+      return {
+        id: String(bill.id || ''),
+        month: new Date(monthValue).toLocaleDateString('id-ID', { month: 'long' }),
+        status: (bill.status === 'paid'
+          ? 'Sudah Dibayar'
+          : bill.status === 'pending_payment'
+            ? 'Menunggu Konfirmasi'
+            : 'Belum Dibayar') as 'Belum Dibayar' | 'Menunggu Konfirmasi' | 'Sudah Dibayar',
+        billId: String(bill.billNumber || ''),
+        dueDate: new Date(dueDateValue).toLocaleDateString('id-ID'),
+        totalAmount: Number(bill.totalAmount || 0),
+        name: String(user?.name || ''),
+        kasKelas: Number(bill.amount || 0),
+        biayaAdmin: Number(bill.adminFee || 0),
+      }
+    })
   }, [billsData])
 
   // Pay bill mutation - TODO: use when API is ready

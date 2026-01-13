@@ -16,10 +16,14 @@ export const queryClient = new QueryClient({
       staleTime: 30 * 1000, // 30 seconds default
       gcTime: 5 * 60 * 1000, // 5 minutes
       refetchOnWindowFocus: false,
-      retry: (failureCount, error: any) => {
+      retry: (failureCount, error: unknown) => {
         // Don't retry on 4xx errors except 401
-        if (error?.response?.status >= 400 && error?.response?.status < 500) {
-          if (error?.response?.status === 401) {
+        const axiosError = error as Record<string, unknown>
+        const status = (axiosError?.response as Record<string, unknown>)?.status as
+          | number
+          | undefined
+        if (status !== undefined && status >= 400 && status < 500) {
+          if (status === 401) {
             return failureCount < 2
           }
           return false

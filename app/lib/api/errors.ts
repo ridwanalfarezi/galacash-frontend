@@ -4,9 +4,9 @@
 export class APIError extends Error {
   public code: string
   public statusCode?: number
-  public details?: any
+  public details?: unknown
 
-  constructor(message: string, code: string = 'API_ERROR', statusCode?: number, details?: any) {
+  constructor(message: string, code: string = 'API_ERROR', statusCode?: number, details?: unknown) {
     super(message)
     this.name = 'APIError'
     this.code = code
@@ -22,19 +22,22 @@ export class APIError extends Error {
   /**
    * Create APIError from axios error response
    */
-  static fromResponse(error: any): APIError {
-    const response = error.response
+  static fromResponse(error: unknown): APIError {
+    const axiosError = error as Record<string, unknown>
+    const response = axiosError?.response as Record<string, unknown> | undefined
 
     if (!response) {
-      return new APIError(error.message || 'Network error', 'NETWORK_ERROR', 0, error)
+      const message = (error as Record<string, unknown>)?.message || 'Network error'
+      return new APIError(String(message), 'NETWORK_ERROR', 0, error)
     }
 
-    const data = response.data
-    const message = data?.error?.message || data?.message || 'An error occurred'
-    const code = data?.error?.code || 'API_ERROR'
-    const details = data?.error?.details || data?.details
+    const data = response?.data as Record<string, unknown> | undefined
+    const message =
+      (data?.error as Record<string, unknown>)?.message || data?.message || 'An error occurred'
+    const code = (data?.error as Record<string, unknown>)?.code || 'API_ERROR'
+    const details = (data?.error as Record<string, unknown>)?.details || data?.details
 
-    return new APIError(message, code, response.status, details)
+    return new APIError(String(message), String(code), response?.status as number, details)
   }
 
   /**

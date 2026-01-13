@@ -18,11 +18,11 @@ export const apiClient = axios.create({
  */
 let isRefreshing = false
 let failedQueue: Array<{
-  resolve: (value?: any) => void
-  reject: (reason?: any) => void
+  resolve: (value?: unknown) => void
+  reject: (reason?: unknown) => void
 }> = []
 
-const processQueue = (error: any = null) => {
+const processQueue = (error: unknown = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error)
@@ -64,17 +64,18 @@ apiClient.interceptors.response.use(
     }
     return response
   },
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
+  async (error: unknown) => {
+    const axiosError = error as AxiosError
+    const originalRequest = axiosError.config as InternalAxiosRequestConfig & {
       _retry?: boolean
     }
 
     if (!originalRequest) {
-      return Promise.reject(APIError.fromResponse(error))
+      return Promise.reject(APIError.fromResponse(axiosError))
     }
 
     // Convert to APIError
-    const apiError = APIError.fromResponse(error)
+    const apiError = APIError.fromResponse(axiosError)
 
     if (import.meta.env.DEV) {
       console.error('[API Error]', {
@@ -143,7 +144,7 @@ apiClient.interceptors.response.use(
 /**
  * Helper function to handle file uploads
  */
-export const uploadFile = async (endpoint: string, formData: FormData): Promise<any> => {
+export const uploadFile = async (endpoint: string, formData: FormData): Promise<unknown> => {
   const response = await apiClient.post(endpoint, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
