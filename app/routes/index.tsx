@@ -1,6 +1,6 @@
 import { redirect } from 'react-router'
 
-export function loader() {
+export function clientLoader() {
   // Redirect all requests to the root path to /user/dashboard
   return redirect('/user/dashboard')
 }

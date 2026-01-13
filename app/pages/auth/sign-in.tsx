@@ -1,7 +1,13 @@
+import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
+import { toast } from 'sonner'
 
 import Eye from '~/components/icons/eye'
 import EyeOff from '~/components/icons/eye-off'
+import { APIError } from '~/lib/api/errors'
+import { queryClient } from '~/lib/query-client'
+import { authService } from '~/lib/services/auth.service'
 
 function FormHeader() {
   return (
@@ -89,6 +95,7 @@ function SignInForm({
   errors,
   setErrors,
   onSubmit,
+  isSubmitting,
 }: {
   nim: string
   setNim: (v: string) => void
@@ -99,6 +106,7 @@ function SignInForm({
   errors: { nim?: string; password?: string }
   setErrors: (v: { nim?: string; password?: string }) => void
   onSubmit: (e: React.FormEvent) => void
+  isSubmitting: boolean
 }) {
   const handleNimChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNim(e.target.value)
@@ -112,7 +120,7 @@ function SignInForm({
 
   return (
     <form
-      className="z-10 flex w-full max-w-[600px] flex-col items-center justify-between gap-8 rounded-4xl bg-gray-100 p-8 font-sans shadow-md"
+      className="z-10 flex w-full max-w-150 flex-col items-center justify-between gap-8 rounded-4xl bg-gray-100 p-8 font-sans shadow-md"
       onSubmit={onSubmit}
     >
       <FormHeader />
@@ -128,19 +136,51 @@ function SignInForm({
       </div>
       <button
         type="submit"
-        className="self-stretch rounded-2xl border bg-blue-700 px-4 py-3 text-xl font-semibold text-gray-300 hover:bg-blue-500 active:ring-2 active:ring-blue-700"
+        disabled={isSubmitting}
+        className="self-stretch rounded-2xl border bg-blue-700 px-4 py-3 text-xl font-semibold text-gray-300 hover:bg-blue-500 active:ring-2 active:ring-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Masuk
+        {isSubmitting ? 'Memproses...' : 'Masuk'}
       </button>
     </form>
   )
 }
 
 function SignInPage() {
+  const navigate = useNavigate()
   const [nim, setNim] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [errors, setErrors] = useState<{ nim?: string; password?: string }>({})
+
+  // Login mutation
+  const loginMutation = useMutation({
+    mutationFn: (credentials: { nim: string; password: string }) => authService.login(credentials),
+    onSuccess: (user) => {
+      // Invalidate auth queries to refetch user data
+      queryClient.invalidateQueries({ queryKey: ['auth'] })
+
+      // Show success toast
+      toast.success('Login berhasil!')
+
+      // Redirect based on role
+      if (user.role === 'bendahara') {
+        navigate('/bendahara/dashboard')
+      } else {
+        navigate('/user/dashboard')
+      }
+    },
+    onError: (error) => {
+      if (error instanceof APIError) {
+        if (error.code === 'INVALID_CREDENTIALS') {
+          setErrors({ password: 'NIM atau password salah' })
+        } else {
+          toast.error(error.message || 'Terjadi kesalahan saat login')
+        }
+      } else {
+        toast.error('Terjadi kesalahan saat login')
+      }
+    },
+  })
 
   const validateForm = () => {
     const newErrors: { nim?: string; password?: string } = {}
@@ -157,9 +197,7 @@ function SignInPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (validateForm()) {
-      console.log('Form valid, kirim data:', { nim, password })
-    } else {
-      console.log('Form tidak valid')
+      loginMutation.mutate({ nim, password })
     }
   }
 
@@ -176,6 +214,7 @@ function SignInPage() {
         errors={errors}
         setErrors={setErrors}
         onSubmit={handleSubmit}
+        isSubmitting={loginMutation.isPending}
       />
     </div>
   )

@@ -1,5 +1,6 @@
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import { Calendar as CalendarIcon, CircleArrowDown, CircleArrowUp, Clock, Gift } from 'lucide-react'
 import { useState } from 'react'
 import type { DateRange } from 'react-day-picker'
@@ -8,6 +9,9 @@ import { Link } from 'react-router'
 import { Icons } from '~/components/icons'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
 import { DatePicker } from '~/components/ui/date-picker'
+import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
+import { dashboardQueries } from '~/lib/queries/dashboard.queries'
+import { transactionQueries } from '~/lib/queries/transaction.queries'
 
 import {
   formatCurrency,
@@ -16,50 +20,50 @@ import {
   type Transaction,
 } from '../../lib/utils'
 
-const mockTransactions: Transaction[] = [
-  {
-    id: '1',
-    type: 'expense',
-    description: 'Pembelian ATK',
-    amount: 150000,
-    date: '2025-07-01',
-  },
-  {
-    id: '2',
-    type: 'income',
-    description: 'Iuran Kas',
-    amount: 500000,
-    date: '2025-07-01',
-  },
-  {
-    id: '3',
-    type: 'expense',
-    description: 'Snack Rapat',
-    amount: 75000,
-    date: '2025-07-02',
-  },
-  {
-    id: '4',
-    type: 'income',
-    description: 'Iuran Kas',
-    amount: 500000,
-    date: '2025-07-02',
-  },
-  {
-    id: '5',
-    type: 'expense',
-    description: 'Konsumsi Meeting',
-    amount: 125000,
-    date: '2025-07-03',
-  },
-  {
-    id: '6',
-    type: 'income',
-    description: 'Dana Kegiatan',
-    amount: 300000,
-    date: '2025-07-03',
-  },
-]
+// const mockTransactions: Transaction[] = [
+//   {
+//     id: '1',
+//     type: 'expense',
+//     description: 'Pembelian ATK',
+//     amount: 150000,
+//     date: '2025-07-01',
+//   },
+//   {
+//     id: '2',
+//     type: 'income',
+//     description: 'Iuran Kas',
+//     amount: 500000,
+//     date: '2025-07-01',
+//   },
+//   {
+//     id: '3',
+//     type: 'expense',
+//     description: 'Snack Rapat',
+//     amount: 75000,
+//     date: '2025-07-02',
+//   },
+//   {
+//     id: '4',
+//     type: 'income',
+//     description: 'Iuran Kas',
+//     amount: 500000,
+//     date: '2025-07-02',
+//   },
+//   {
+//     id: '5',
+//     type: 'expense',
+//     description: 'Konsumsi Meeting',
+//     amount: 125000,
+//     date: '2025-07-03',
+//   },
+//   {
+//     id: '6',
+//     type: 'income',
+//     description: 'Dana Kegiatan',
+//     amount: 300000,
+//     date: '2025-07-03',
+//   },
+// ]
 
 const mockSubmissions = [
   {
@@ -82,26 +86,26 @@ const mockSubmissions = [
   },
 ]
 
-const mockSummary = {
-  totalBalance: 1573428.69,
-  totalIncome: 1573428.69,
-  totalExpense: 1573428.69,
-}
+// const mockSummary = {
+//   totalBalance: 1573428.69,
+//   totalIncome: 1573428.69,
+//   totalExpense: 1573428.69,
+// }
 
-const mockBills = [
-  {
-    id: '1',
-    amount: 30000,
-    date: '2025-06-01',
-    dueDate: '2025-06-30',
-  },
-  {
-    id: '2',
-    amount: 30000,
-    date: '2025-07-01',
-    dueDate: '2025-07-31',
-  },
-]
+// const mockBills = [
+//   {
+//     id: '1',
+//     amount: 30000,
+//     date: '2025-06-01',
+//     dueDate: '2025-06-30',
+//   },
+//   {
+//     id: '2',
+//     amount: 30000,
+//     date: '2025-07-01',
+//     dueDate: '2025-07-31',
+//   },
+// ]
 
 export default function DashboardPage() {
   const [date, setDate] = useState<DateRange | undefined>({
@@ -109,30 +113,48 @@ export default function DashboardPage() {
     to: new Date(),
   })
 
-  const filteredTransactions = mockTransactions.filter((transaction) => {
-    if (!date?.from || !date?.to) return true
-    const transactionDate = new Date(transaction.date)
-    return transactionDate >= date.from && transactionDate <= date.to
-  })
+  // Fetch dashboard data using React Query
+  const { data: summary } = useQuery(
+    dashboardQueries.summary({
+      startDate: date?.from?.toISOString().split('T')[0],
+      endDate: date?.to?.toISOString().split('T')[0],
+    })
+  )
 
+  const { data: transactionsData } = useQuery(transactionQueries.recent(5))
+
+  const { data: billsData } = useQuery(
+    cashBillQueries.my({
+      status: 'belum_dibayar',
+      limit: 5,
+    })
+  )
+
+  // Convert API transactions to local Transaction type
+  const filteredTransactions: Transaction[] = (transactionsData?.transactions || []).map((t) => ({
+    id: t.id || '',
+    type: (t.type || 'income') as 'income' | 'expense',
+    description: t.description || '',
+    amount: t.amount || 0,
+    date: t.date || new Date().toISOString().split('T')[0],
+  }))
   const groupedTransactions = groupTransactionsByDate(filteredTransactions)
 
   const filteredSummary = {
-    totalBalance: mockSummary.totalBalance,
-    totalIncome: filteredTransactions
-      .filter((t) => t.type === 'income')
-      .reduce((sum, t) => sum + t.amount, 0),
-    totalExpense: filteredTransactions
-      .filter((t) => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0),
+    totalBalance: summary?.totalBalance || 0,
+    totalIncome: summary?.totalIncome || 0,
+    totalExpense: summary?.totalExpense || 0,
   }
 
-  const totalBills = mockBills.reduce(
+  const totalBills = billsData?.bills?.reduce(
     (totalBill, bill) => {
-      totalBill.amount += bill.amount
-      totalBill.date = new Date(Math.min(totalBill.date.getTime(), new Date(bill.date).getTime()))
+      totalBill.amount += bill.totalAmount || 0
+      const billMonth = bill.month || '2025-01'
+      totalBill.date = new Date(
+        Math.min(totalBill.date.getTime(), new Date(billMonth + '-01').getTime())
+      )
       totalBill.dueDate = new Date(
-        Math.max(totalBill.dueDate.getTime(), new Date(bill.dueDate).getTime())
+        Math.max(totalBill.dueDate.getTime(), new Date(bill.dueDate || billMonth + '-31').getTime())
       )
       return totalBill
     },
@@ -214,27 +236,27 @@ export default function DashboardPage() {
             <CardContent className="flex flex-col">
               <div className="flex items-center gap-2 text-sm">
                 <CalendarIcon className="size-4" />
-                {totalBills.date.toLocaleDateString('id', {
+                {totalBills?.date.toLocaleDateString('id', {
                   year: 'numeric',
                   month: 'short',
                   day: 'numeric',
                 })}{' '}
                 -{' '}
-                {totalBills.dueDate.toLocaleDateString('id', {
+                {totalBills?.dueDate.toLocaleDateString('id', {
                   year: 'numeric',
                   month: 'short',
                   day: 'numeric',
                 })}
               </div>
               <div className="text-xl font-bold md:text-3xl xl:text-[40px]">
-                {formatCurrency(totalBills.amount)}
+                {formatCurrency(totalBills?.amount || 0)}
               </div>
             </CardContent>
             <CardFooter className="flex justify-between gap-2">
               <div className="hidden md:block">
                 Harap bayar tagihan anda sebelum{' '}
                 <span className="font-semibold">
-                  {totalBills.dueDate.toLocaleDateString('id', {
+                  {totalBills?.dueDate.toLocaleDateString('id', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',

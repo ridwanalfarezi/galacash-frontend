@@ -187,7 +187,7 @@ export function SortDropdown({
       <DropdownMenuTrigger asChild className={className}>
         {trigger || defaultTrigger}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={align} className="w-[32rem] p-2">
+      <DropdownMenuContent align={align} className="w-lg p-2">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Urutkan Data</span>
           {currentSort && (

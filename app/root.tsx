@@ -1,7 +1,10 @@
+import { QueryClientProvider } from '@tanstack/react-query'
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
+import { Toaster } from 'sonner'
 
 import type { Route } from './+types/root'
 import './app.css'
+import { queryClient } from './lib/query-client'
 
 export const links: Route.LinksFunction = () => [
   { rel: 'icon', href: '/logo.png', type: 'image/png' },
@@ -27,7 +30,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <QueryClientProvider client={queryClient}>
+          {children}
+          <Toaster position="top-right" richColors />
+        </QueryClientProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

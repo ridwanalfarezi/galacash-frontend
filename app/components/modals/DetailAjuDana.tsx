@@ -34,7 +34,7 @@ export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDa
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-h-[90vh] overflow-y-auto rounded-3xl sm:max-w-[600px]"
+        className="max-h-[90vh] overflow-y-auto rounded-3xl sm:max-w-150"
         style={{ scrollbarWidth: 'none' }}
       >
         <DialogHeader>

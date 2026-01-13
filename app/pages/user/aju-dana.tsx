@@ -1,4 +1,5 @@
 'use client'
+import { useQuery } from '@tanstack/react-query'
 import {
   CheckIcon,
   ChevronDown,
@@ -21,6 +22,7 @@ import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { useIsMobile } from '~/hooks/use-mobile'
+import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 
 interface Application {
   id: string
@@ -34,51 +36,6 @@ interface Application {
   attachment?: string
 }
 
-const mockApplications: Application[] = [
-  {
-    id: '1',
-    date: '28 September 2023',
-    purpose: 'Lorem ipsum dolor sit amet',
-    category: 'Lorem ipsum',
-    status: 'pending',
-    amount: 99999999,
-    applicant: 'Anda',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    attachment: 'Photo_17082023_143209.png',
-  },
-]
-
-const mockFundApplications: Application[] = [
-  {
-    id: '2',
-    date: '28 September 2023',
-    purpose: 'Lorem ipsum dolor sit amet',
-    category: 'Transport',
-    status: 'rejected',
-    amount: 99999999,
-    applicant: 'Raisa',
-  },
-  {
-    id: '3',
-    date: '28 September 2023',
-    purpose: 'Lorem ipsum dolor sit amet',
-    category: 'Makanan',
-    status: 'approved',
-    amount: 99999999,
-    applicant: 'Ridwan',
-  },
-  {
-    id: '4',
-    date: '28 September 2023',
-    purpose: 'Lorem ipsum dolor sit amet',
-    category: 'Transport',
-    status: 'pending',
-    amount: 99999999,
-    applicant: 'Raisa',
-  },
-]
-
 export default function AjuDanaPage() {
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -86,11 +43,48 @@ export default function AjuDanaPage() {
 
   const isMobile = useIsMobile()
 
+  // Fetch my fund applications
+  const { data: myApplicationsData } = useQuery(fundApplicationQueries.my())
+  const mockApplications: Application[] = useMemo(() => {
+    if (!myApplicationsData?.applications) return []
+    return myApplicationsData.applications.map((app) => ({
+      id: app.id || '',
+      date: app.date || '',
+      purpose: app.purpose || '',
+      category: app.category || '',
+      status: (app.status || 'pending') as 'pending' | 'approved' | 'rejected',
+      amount: app.amount || 0,
+      applicant: 'Anda',
+    }))
+  }, [myApplicationsData])
+
+  // Create fund application mutation - TODO: use when API is ready
+  // const createApplicationMutation = useMutation({
+  //   mutationFn: (data: {
+  //     purpose: string
+  //     category: 'education' | 'health' | 'emergency' | 'equipment'
+  //     amount: number
+  //     description?: string
+  //     attachment?: File
+  //   }) => fundApplicationService.createApplication(data),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: fundApplicationQueries.my().queryKey })
+  //     toast.success('Pengajuan dana berhasil dibuat')
+  //     setIsApplicationModalOpen(false)
+  //   },
+  //   onError: () => {
+  //     toast.error('Gagal membuat pengajuan dana')
+  //   },
+  // })
+
   // Toggle states for buttons - initialize based on isMobile
   const [isButtonsAVisible, setIsButtonsAVisible] = useState(!isMobile)
   const [isButtonsBVisible, setIsButtonsBVisible] = useState(!isMobile)
   const [currentSortA, setCurrentSortA] = useState<SortOption | null>(null)
-  const maxAmountA = useMemo(() => Math.max(...mockApplications.map((app) => app.amount)), [])
+  const maxAmountA = useMemo(() => {
+    if (mockApplications.length === 0) return 0
+    return Math.max(...mockApplications.map((app) => app.amount))
+  }, [mockApplications])
   const [filtersA, setFiltersA] = useState<FilterState>({
     status: [],
     applicants: [],
@@ -150,10 +144,13 @@ export default function AjuDanaPage() {
     }
 
     return filtered
-  }, [filtersA, currentSortA])
+  }, [filtersA, currentSortA, mockApplications])
 
   const [currentSortB, setCurrentSortB] = useState<SortOption | null>(null)
-  const maxAmountB = useMemo(() => Math.max(...mockFundApplications.map((app) => app.amount)), [])
+  const maxAmountB = useMemo(
+    () => Math.max(...mockApplications.map((app) => app.amount)),
+    [mockApplications]
+  )
   const [filtersB, setFiltersB] = useState<FilterState>({
     status: [],
     applicants: [],
@@ -177,7 +174,7 @@ export default function AjuDanaPage() {
     })
   }
   const filteredAndSortedApplicationsB = useMemo(() => {
-    let filtered = [...mockFundApplications]
+    let filtered = [...mockApplications]
 
     if (filtersB.status.length > 0) {
       filtered = filtered.filter((app) => filtersB.status.includes(app.status))
@@ -213,7 +210,7 @@ export default function AjuDanaPage() {
     }
 
     return filtered
-  }, [filtersB, currentSortB])
+  }, [filtersB, currentSortB, mockApplications])
 
   const formatCurrency = (amount: number) => {
     return `Rp ${amount.toLocaleString('id-ID')}`
@@ -258,7 +255,7 @@ export default function AjuDanaPage() {
         <Card className="rounded-4xl border-0">
           <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
             <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
-              <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
+              <CardTitle className="xl:text-3.75 text-xl font-semibold md:text-2xl">
                 Rekap Pengajuan Anda
               </CardTitle>
               <Button
@@ -410,7 +407,7 @@ export default function AjuDanaPage() {
         <Card className="rounded-4xl border-0">
           <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
             <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
-              <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
+              <CardTitle className="xl:text-3.75 text-xl font-semibold md:text-2xl">
                 Rekap Pengajuan Dana
               </CardTitle>
               <Button

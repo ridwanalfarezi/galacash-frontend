@@ -83,7 +83,7 @@ export function Sidebar() {
         <nav className="flex-1 p-4">
           <div className="space-y-4">
             {navigation.map((item: NavigationItem) => {
-              const isActive = location.pathname === item.href
+              const isActive = location.pathname.includes(item.href)
               return (
                 <Link key={item.name} to={item.href} className="block">
                   {sidebarCollapsed ? (

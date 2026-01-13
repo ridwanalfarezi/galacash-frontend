@@ -1,7 +1,8 @@
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, ChevronUp, Filter, X } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { Icons } from '~/components/icons'
 import { DetailTagihanKas } from '~/components/modals/DetailTagihanKas'
@@ -11,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Checkbox } from '~/components/ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
 import { useIsMobile } from '~/hooks/use-mobile'
+import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { formatCurrency } from '~/lib/utils'
 
 interface TagihanKas {
@@ -36,55 +38,43 @@ interface SortState {
   direction: 'asc' | 'desc'
 }
 
-const mockTagihanKas: TagihanKas[] = [
-  {
-    id: '1',
-    month: 'Desember',
-    status: 'Belum Dibayar',
-    billId: 'INV-20241201-020-001',
-    dueDate: '31 Desember 2024',
-    totalAmount: 31000,
-    name: 'Ridwan Alfarezi',
-    kasKelas: 30000,
-    biayaAdmin: 1000,
-  },
-  {
-    id: '2',
-    month: 'November',
-    status: 'Menunggu Konfirmasi',
-    billId: 'INV-20241101-020-001',
-    dueDate: '30 November 2024',
-    totalAmount: 31000,
-    name: 'Ridwan Alfarezi',
-    kasKelas: 30000,
-    biayaAdmin: 1000,
-  },
-  {
-    id: '3',
-    month: 'Oktober',
-    status: 'Sudah Dibayar',
-    billId: 'INV-20241001-020-001',
-    dueDate: '31 Oktober 2024',
-    totalAmount: 31000,
-    name: 'Ridwan Alfarezi',
-    kasKelas: 30000,
-    biayaAdmin: 1000,
-  },
-  {
-    id: '4',
-    month: 'September',
-    status: 'Sudah Dibayar',
-    billId: 'INV-20240901-020-001',
-    dueDate: '30 September 2024',
-    totalAmount: 31000,
-    name: 'Ridwan Alfarezi',
-    kasKelas: 30000,
-    biayaAdmin: 1000,
-  },
-]
-
 export default function TagihanKasPage() {
   const isMobile = useIsMobile()
+
+  // Fetch cash bills
+  const { data: billsData } = useQuery(cashBillQueries.my())
+  const mockTagihanKas: TagihanKas[] = useMemo(() => {
+    if (!billsData) return []
+    return billsData.bills.map((bill: any) => ({
+      id: bill.id || '',
+      month: new Date(bill.month || '').toLocaleDateString('id-ID', { month: 'long' }),
+      status: (bill.status === 'paid'
+        ? 'Sudah Dibayar'
+        : bill.status === 'pending_payment'
+          ? 'Menunggu Konfirmasi'
+          : 'Belum Dibayar') as 'Belum Dibayar' | 'Menunggu Konfirmasi' | 'Sudah Dibayar',
+      billId: bill.billNumber || '',
+      dueDate: new Date(bill.dueDate || '').toLocaleDateString('id-ID'),
+      totalAmount: bill.totalAmount || 0,
+      name: bill.user?.name || '',
+      kasKelas: bill.amount || 0,
+      biayaAdmin: bill.adminFee || 0,
+    }))
+  }, [billsData])
+
+  // Pay bill mutation - TODO: use when API is ready
+  // const payBillMutation = useMutation({
+  //   mutationFn: ({ billId, data }: { billId: string; data: PayBillData }) =>
+  //     cashBillService.payBill(billId, data),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: cashBillQueries.my().queryKey })
+  //     toast.success('Pembayaran berhasil diupload')
+  //     handleCloseModal()
+  //   },
+  //   onError: () => {
+  //     toast.error('Gagal mengupload pembayaran')
+  //   },
+  // })
 
   // Toggle state for buttons - initialize based on isMobile
   const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
@@ -236,7 +226,7 @@ export default function TagihanKasPage() {
         <Card className="rounded-4xl border-0">
           <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
             <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
-              <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
+              <CardTitle className="xl:text-3.75 text-xl font-semibold md:text-2xl">
                 Rekap Tagihan Kas
               </CardTitle>
               <Button

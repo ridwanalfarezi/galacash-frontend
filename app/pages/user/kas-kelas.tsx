@@ -1,6 +1,7 @@
 'use client'
 
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
+import { useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, ChevronUp, Filter } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
@@ -14,6 +15,7 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
+import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { formatCurrency } from '~/lib/utils'
 
 interface HistoryTransaction {
@@ -24,52 +26,9 @@ interface HistoryTransaction {
   amount: number
 }
 
-const historyTransaction: HistoryTransaction[] = [
-  {
-    id: '1',
-    date: '28 September 2098',
-    purpose: 'Pembayaran SPP',
-    type: 'income',
-    amount: 500000,
-  },
-  {
-    id: '2',
-    date: '28 September 2098',
-    purpose: 'Pembelian Buku',
-    type: 'expense',
-    amount: 150000,
-  },
-  {
-    id: '3',
-    date: '28 September 2098',
-    purpose: 'Donasi Kegiatan Sekolah',
-    type: 'income',
-    amount: 200000,
-  },
-]
-
-const incomeData = [
-  { name: 'Pembayaran SPP', value: 500000, fill: '#50b89a' },
-  { name: 'Donasi Kegiatan', value: 200000, fill: '#8cd9a7' },
-  { name: 'Infaq Bulanan', value: 300000, fill: '#34a0a4' },
-]
-
-// Sample expense data
-const expenseData = [
-  { name: 'Pembelian Buku', value: 150000, fill: '#920c22' },
-  { name: 'Konsumsi Rapat', value: 75000, fill: '#af2038' },
-  { name: 'ATK Kelas', value: 125000, fill: '#800016' },
-]
-
 export default function KasKelasPage() {
   const [detailModal, setDetailModal] = useState<HistoryTransaction | null>(null)
   const [isChartVisible, setIsChartVisible] = useState(true)
-
-  const isMobile = useIsMobile()
-
-  // Toggle state for buttons (mobile only) - initialize based on isMobile
-  const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
-
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all')
   const [sortBy, setSortBy] = useState<
     | 'date-newest'
@@ -81,6 +40,22 @@ export default function KasKelasPage() {
     | 'type-az'
     | 'type-za'
   >('date-newest')
+
+  const isMobile = useIsMobile()
+  const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
+
+  // Fetch transactions with filters
+  const { data: transactionsData } = useQuery(
+    transactionQueries.list({
+      page: 1,
+      limit: 20,
+      type: filterType === 'all' ? undefined : filterType,
+    })
+  )
+
+  // Fetch chart data
+  const { data: chartData } = useQuery(transactionQueries.chartData({}))
+
   const isDetailModalOpen = detailModal !== null
 
   const openDetailModal = (transaction: HistoryTransaction) => {
@@ -90,16 +65,86 @@ export default function KasKelasPage() {
     setDetailModal(null)
   }
 
-  // Filter and sort functionality
-  const filteredAndSortedTransactions = useMemo(() => {
-    let filtered = historyTransaction
+  // Convert API transactions to local format and apply client-side sorting
+  const historyTransaction: HistoryTransaction[] = useMemo(() => {
+    if (!transactionsData?.transactions) return []
 
-    // Apply filter
-    if (filterType !== 'all') {
-      filtered = filtered.filter((transaction) => transaction.type === filterType)
+    return transactionsData.transactions.map((t) => ({
+      id: t.id || '',
+      date: t.date || '',
+      purpose: t.description || '',
+      type: (t.type || 'income') as 'income' | 'expense',
+      amount: t.amount || 0,
+    }))
+  }, [transactionsData])
+
+  // Calculate chart data from transactions
+  const { incomeData, expenseData } = useMemo(() => {
+    if (!chartData) {
+      return {
+        incomeData: [],
+        expenseData: [],
+      }
     }
 
-    // Apply sort
+    // Group by description for pie charts
+    const incomeMap = new Map<string, number>()
+    const expenseMap = new Map<string, number>()
+
+    historyTransaction.forEach((t) => {
+      if (t.type === 'income') {
+        incomeMap.set(t.purpose, (incomeMap.get(t.purpose) || 0) + t.amount)
+      } else {
+        expenseMap.set(t.purpose, (expenseMap.get(t.purpose) || 0) + t.amount)
+      }
+    })
+
+    const colors = {
+      income: ['#50b89a', '#8cd9a7', '#34a0a4', '#2d7a8e', '#1c5f6f'],
+      expense: ['#920c22', '#af2038', '#800016', '#c92a3f', '#e04855'],
+    }
+
+    return {
+      incomeData: Array.from(incomeMap.entries()).map(([name, value], i) => ({
+        name,
+        value,
+        fill: colors.income[i % colors.income.length],
+      })),
+      expenseData: Array.from(expenseMap.entries()).map(([name, value], i) => ({
+        name,
+        value,
+        fill: colors.expense[i % colors.expense.length],
+      })),
+    }
+  }, [historyTransaction, chartData])
+
+  // Handle export - TODO: use when API is ready
+  // const handleExport = async () => {
+  //   try {
+  //     const blob = await transactionService.exportTransactions({
+  //       type: filterType === 'all' ? undefined : filterType,
+  //     })
+
+  //     const url = window.URL.createObjectURL(blob)
+  //     const a = document.createElement('a')
+  //     a.href = url
+  //     a.download = `transactions-${new Date().toISOString().split('T')[0]}.xlsx`
+  //     document.body.appendChild(a)
+  //     a.click()
+  //     window.URL.revokeObjectURL(url)
+  //     document.body.removeChild(a)
+
+  //     toast.success('Transaksi berhasil diekspor')
+  //   } catch {
+  //     toast.error('Gagal mengekspor transaksi')
+  //   }
+  // }
+
+  // Filter and sort functionality
+  const filteredAndSortedTransactions = useMemo(() => {
+    const filtered = historyTransaction
+
+    // Apply client-side sort (API doesn't support all sort options)
     const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
         case 'date-newest':
@@ -124,7 +169,7 @@ export default function KasKelasPage() {
     })
 
     return sorted
-  }, [filterType, sortBy])
+  }, [historyTransaction, sortBy])
 
   const getSortLabel = () => {
     switch (sortBy) {
@@ -187,7 +232,7 @@ export default function KasKelasPage() {
         <div className="mx-auto max-w-360 space-y-8">
           <Card className="relative rounded-4xl border-0">
             <CardHeader className="flex items-center justify-between space-y-0">
-              <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
+              <CardTitle className="xl:text-3.75 text-xl font-semibold md:text-2xl">
                 Rekap Keuangan Kas
               </CardTitle>
               <Button
@@ -227,7 +272,7 @@ export default function KasKelasPage() {
           <Card className="rounded-4xl border-0">
             <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
               <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start">
-                <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
+                <CardTitle className="xl:text-3.75 text-xl font-semibold md:text-2xl">
                   Riwayat Transaksi
                 </CardTitle>
                 <Button
