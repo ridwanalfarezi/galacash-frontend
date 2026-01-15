@@ -104,7 +104,7 @@ export default function BendaharaRekapkas() {
       <Card className="mx-auto max-w-360 rounded-4xl border-0">
         <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
           <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
-            <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
+            <CardTitle className="text-xl font-semibold md:text-2xl xl:text-3xl">
               Rekap Tagihan Kas
             </CardTitle>
             <Button

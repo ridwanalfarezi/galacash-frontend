@@ -179,7 +179,7 @@ export default function BendaharaDetailRekapKas() {
                 </Link>
               </Button>
             </span>
-            <CardTitle className="text-xl font-semibold md:text-2xl xl:text-[30px]">
+            <CardTitle className="text-xl font-semibold md:text-2xl xl:text-3xl">
               Rekap Tagihan Kas - {nama}
             </CardTitle>
             <Button

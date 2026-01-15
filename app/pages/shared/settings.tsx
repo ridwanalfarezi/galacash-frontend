@@ -119,7 +119,7 @@ const SettingsPage = () => {
   return (
     <div className="p-8">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-[32px] font-semibold text-gray-900">Pengaturan</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Pengaturan</h1>
         <div className="flex items-center gap-2"></div>
       </div>
 

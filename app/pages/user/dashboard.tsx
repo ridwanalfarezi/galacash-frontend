@@ -89,7 +89,7 @@ export default function DashboardPage() {
   return (
     <div className="p-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-[32px] font-semibold text-gray-900">Saldo Kas</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Saldo Kas</h1>
         <div className="flex items-center gap-2">
           <DatePicker date={date} onChange={setDate} />
         </div>
@@ -105,7 +105,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="mb-1 text-base font-semibold">Saldo Efektif</div>
-            <div className="text-xl font-bold text-blue-600 md:text-3xl xl:text-[40px]">
+            <div className="text-xl font-bold text-blue-600 md:text-3xl xl:text-4xl">
               {formatCurrency(filteredSummary.totalBalance)}
             </div>
           </CardContent>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="mb-1 text-base font-semibold">Saldo Pemasukan</div>
-            <div className="text-xl font-bold text-green-600 md:text-3xl xl:text-[40px]">
+            <div className="text-xl font-bold text-green-600 md:text-3xl xl:text-4xl">
               {formatCurrency(filteredSummary.totalIncome)}
             </div>
           </CardContent>
@@ -135,7 +135,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="mb-1 text-base font-semibold">Saldo Pengeluaran</div>
-            <div className="text-xl font-bold text-red-600 md:text-3xl xl:text-[40px]">
+            <div className="text-xl font-bold text-red-600 md:text-3xl xl:text-4xl">
               -{formatCurrency(filteredSummary.totalExpense)}
             </div>
           </CardContent>
@@ -169,7 +169,7 @@ export default function DashboardPage() {
                   day: 'numeric',
                 })}
               </div>
-              <div className="text-xl font-bold md:text-3xl xl:text-[40px]">
+              <div className="text-xl font-bold md:text-3xl xl:text-4xl">
                 {formatCurrency(totalBills?.amount || 0)}
               </div>
             </CardContent>

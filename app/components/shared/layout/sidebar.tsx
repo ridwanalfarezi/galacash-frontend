@@ -137,7 +137,7 @@ export function Sidebar() {
                       </div>
                     </div>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
+                  <DropdownMenuContent align="end" className="w-auto sm:w-50">
                     <Link to={`/${user?.role}/settings`}>
                       <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
                         <Icons.Settings className="mr-2 h-5 w-5 text-gray-900" />
@@ -175,7 +175,7 @@ export function Sidebar() {
                   </div>
                 </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
+              <DropdownMenuContent align="end" className="w-auto sm:w-50">
                 <Link to={`/${user?.role}/settings`}>
                   <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
                     <Icons.Settings className="mr-2 text-gray-900" />
