@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { ChevronDown, ChevronRight, ChevronUp, Filter, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronUp, Filter, Receipt, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { Icons } from '~/components/icons'
@@ -44,7 +44,7 @@ export default function TagihanKasPage() {
   // Fetch cash bills
   const { data: billsData } = useQuery(cashBillQueries.my())
   const mockTagihanKas: TagihanKas[] = useMemo(() => {
-    if (!billsData) return []
+    if (!billsData?.bills) return []
     return billsData.bills.map((bill: Record<string, unknown>) => {
       const monthValue = (bill.month as string | undefined) || ''
       const dueDateValue = (bill.dueDate as string | undefined) || ''
@@ -403,50 +403,84 @@ export default function TagihanKasPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredAndSortedData.map((tagihan) => (
-                    <tr key={tagihan.id} className="border-b border-gray-300 hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm font-medium">{tagihan.month}</td>
-                      <td className="px-4 py-3">{getStatusBadge(tagihan.status)}</td>
-                      <td className="px-4 py-3 text-sm">{tagihan.billId}</td>
-                      <td className="px-4 py-3 text-sm">{tagihan.dueDate}</td>
-                      <td className="px-4 py-3 text-sm font-bold text-blue-500">
-                        {formatCurrency(tagihan.totalAmount)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Button variant="ghost" size="sm" onClick={() => handleViewDetail(tagihan)}>
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
+                  {filteredAndSortedData.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-12">
+                        <div className="flex flex-col items-center justify-center text-center">
+                          <div className="mb-4 text-gray-400">
+                            <Receipt className="mx-auto size-12" />
+                          </div>
+                          <h3 className="mb-2 text-lg font-medium text-gray-900">
+                            Tidak ada tagihan
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Belum ada data yang sesuai dengan filter yang dipilih
+                          </p>
+                        </div>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredAndSortedData.map((tagihan) => (
+                      <tr key={tagihan.id} className="border-b border-gray-300 hover:bg-gray-50">
+                        <td className="px-4 py-3 text-sm font-medium">{tagihan.month}</td>
+                        <td className="px-4 py-3">{getStatusBadge(tagihan.status)}</td>
+                        <td className="px-4 py-3 text-sm">{tagihan.billId}</td>
+                        <td className="px-4 py-3 text-sm">{tagihan.dueDate}</td>
+                        <td className="px-4 py-3 text-sm font-bold text-blue-500">
+                          {formatCurrency(tagihan.totalAmount)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewDetail(tagihan)}
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
 
             <div className="space-y-4 sm:hidden">
-              {filteredAndSortedData.map((tagihan) => (
-                <div
-                  key={tagihan.id}
-                  className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">{tagihan.dueDate}</span>
-                    {getStatusBadge(tagihan.status)}
+              {filteredAndSortedData.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="mb-4 text-gray-400">
+                    <Receipt className="mx-auto size-12" />
                   </div>
-                  <div className="font-semibold">{tagihan.month}</div>
-                  <div className="text-xs text-gray-700">
-                    <span>{tagihan.billId}</span>
-                  </div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="font-bold text-blue-500">
-                      {formatCurrency(tagihan.totalAmount)}
-                    </span>
-                    <Button variant="ghost" size="sm" onClick={() => handleViewDetail(tagihan)}>
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <h3 className="mb-2 text-lg font-medium text-gray-900">Tidak ada tagihan</h3>
+                  <p className="text-sm text-gray-500">
+                    Belum ada data yang sesuai dengan filter yang dipilih
+                  </p>
                 </div>
-              ))}
+              ) : (
+                filteredAndSortedData.map((tagihan) => (
+                  <div
+                    key={tagihan.id}
+                    className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500">{tagihan.dueDate}</span>
+                      {getStatusBadge(tagihan.status)}
+                    </div>
+                    <div className="font-semibold">{tagihan.month}</div>
+                    <div className="text-xs text-gray-700">
+                      <span>{tagihan.billId}</span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="font-bold text-blue-500">
+                        {formatCurrency(tagihan.totalAmount)}
+                      </span>
+                      <Button variant="ghost" size="sm" onClick={() => handleViewDetail(tagihan)}>
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>

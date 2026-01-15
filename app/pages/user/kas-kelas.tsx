@@ -2,7 +2,7 @@
 
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronDown, ChevronRight, ChevronUp, Filter } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronUp, Filter, Wallet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { FinancialPieChart } from '~/components/chart/financial-pie-chart'
@@ -378,32 +378,56 @@ export default function KasKelasPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredAndSortedTransactions.map((app) => (
-                      <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm">{app.date}</td>
-                        <td className="px-4 py-3 text-sm">{app.purpose}</td>
-                        <td className="px-4 py-3">{getTypeBadge(app.type)}</td>
-                        <td
-                          className={`px-4 py-3 text-sm font-medium ${app.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
-                        >
-                          {app.type === 'income' ? '+' : '-'}
-                          {formatCurrency(app.amount)}
-                        </td>
-                        <td className="px-4 py-3" onClick={() => openDetailModal(app)}>
-                          <Button variant="ghost" size="sm">
-                            <ChevronRight className="h-4 w-4" />
-                          </Button>
+                    {filteredAndSortedTransactions.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-12">
+                          <div className="flex flex-col items-center justify-center text-center">
+                            <div className="mb-4 text-gray-400">
+                              <Wallet className="mx-auto size-12" />
+                            </div>
+                            <h3 className="mb-2 text-lg font-medium text-gray-900">
+                              Tidak ada transaksi
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                              Belum ada data yang sesuai dengan filter yang dipilih
+                            </p>
+                          </div>
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      filteredAndSortedTransactions.map((app) => (
+                        <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
+                          <td className="px-4 py-3 text-sm">{app.date}</td>
+                          <td className="px-4 py-3 text-sm">{app.purpose}</td>
+                          <td className="px-4 py-3">{getTypeBadge(app.type)}</td>
+                          <td
+                            className={`px-4 py-3 text-sm font-medium ${app.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
+                          >
+                            {app.type === 'income' ? '+' : '-'}
+                            {formatCurrency(app.amount)}
+                          </td>
+                          <td className="px-4 py-3" onClick={() => openDetailModal(app)}>
+                            <Button variant="ghost" size="sm">
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
 
               <div className="space-y-4 sm:hidden">
                 {filteredAndSortedTransactions.length === 0 ? (
-                  <div className="py-8 text-center text-gray-500">
-                    Tidak ada data yang sesuai dengan filter yang dipilih
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="mb-4 text-gray-400">
+                      <Wallet className="mx-auto size-12" />
+                    </div>
+                    <h3 className="mb-2 text-lg font-medium text-gray-900">Tidak ada transaksi</h3>
+                    <p className="text-sm text-gray-500">
+                      Belum ada data yang sesuai dengan filter yang dipilih
+                    </p>
                   </div>
                 ) : (
                   filteredAndSortedTransactions.map((app) => (

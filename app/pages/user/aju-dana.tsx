@@ -6,6 +6,7 @@ import {
   ChevronRight,
   ChevronUp,
   Clock,
+  HandCoins,
   RotateCcw,
   XIcon,
 } from 'lucide-react'
@@ -350,31 +351,57 @@ export default function AjuDanaPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredAndSortedApplicationsA.map((app) => (
-                    <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm">{app.date}</td>
-                      <td className="px-4 py-3 text-sm">{app.purpose}</td>
-                      <td className="px-4 py-3 text-sm">🎯 {app.category}</td>
-                      <td className="px-4 py-3">{getStatusBadge(app.status)}</td>
-                      <td className="px-4 py-3 text-sm font-medium">
-                        {formatCurrency(app.amount)}
-                      </td>
-                      <td className="px-4 py-3 text-sm">{app.applicant}</td>
-                      <td className="px-4 py-3">
-                        <Button variant="ghost" size="sm" onClick={() => handleViewDetail(app)}>
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
+                  {filteredAndSortedApplicationsA.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="py-12">
+                        <div className="flex flex-col items-center justify-center text-center">
+                          <div className="mb-4 text-gray-400">
+                            <HandCoins className="mx-auto size-12" />
+                          </div>
+                          <h3 className="mb-2 text-lg font-medium text-gray-900">
+                            Tidak ada pengajuan dana
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Belum ada data yang sesuai dengan filter yang dipilih
+                          </p>
+                        </div>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredAndSortedApplicationsA.map((app) => (
+                      <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
+                        <td className="px-4 py-3 text-sm">{app.date}</td>
+                        <td className="px-4 py-3 text-sm">{app.purpose}</td>
+                        <td className="px-4 py-3 text-sm">🎯 {app.category}</td>
+                        <td className="px-4 py-3">{getStatusBadge(app.status)}</td>
+                        <td className="px-4 py-3 text-sm font-medium">
+                          {formatCurrency(app.amount)}
+                        </td>
+                        <td className="px-4 py-3 text-sm">{app.applicant}</td>
+                        <td className="px-4 py-3">
+                          <Button variant="ghost" size="sm" onClick={() => handleViewDetail(app)}>
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
 
             <div className="space-y-4 sm:hidden">
               {filteredAndSortedApplicationsA.length === 0 ? (
-                <div className="py-8 text-center text-gray-500">
-                  Tidak ada data yang sesuai dengan filter yang dipilih
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="mb-4 text-gray-400">
+                    <HandCoins className="mx-auto size-12" />
+                  </div>
+                  <h3 className="mb-2 text-lg font-medium text-gray-900">
+                    Tidak ada pengajuan dana
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Belum ada data yang sesuai dengan filter yang dipilih
+                  </p>
                 </div>
               ) : (
                 filteredAndSortedApplicationsA.map((app) => (
@@ -494,8 +521,18 @@ export default function AjuDanaPage() {
                 <tbody>
                   {filteredAndSortedApplicationsB.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-8 text-center text-gray-500">
-                        Tidak ada data yang sesuai dengan filter yang dipilih
+                      <td colSpan={7} className="py-12">
+                        <div className="flex flex-col items-center justify-center text-center">
+                          <div className="mb-4 text-gray-400">
+                            <HandCoins className="mx-auto size-12" />
+                          </div>
+                          <h3 className="mb-2 text-lg font-medium text-gray-900">
+                            Tidak ada pengajuan dana
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Belum ada data yang sesuai dengan filter yang dipilih
+                          </p>
+                        </div>
                       </td>
                     </tr>
                   ) : (
@@ -523,8 +560,16 @@ export default function AjuDanaPage() {
 
             <div className="space-y-4 sm:hidden">
               {filteredAndSortedApplicationsB.length === 0 ? (
-                <div className="py-8 text-center text-gray-500">
-                  Tidak ada data yang sesuai dengan filter yang dipilih
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="mb-4 text-gray-400">
+                    <HandCoins className="mx-auto size-12" />
+                  </div>
+                  <h3 className="mb-2 text-lg font-medium text-gray-900">
+                    Tidak ada pengajuan dana
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Belum ada data yang sesuai dengan filter yang dipilih
+                  </p>
                 </div>
               ) : (
                 filteredAndSortedApplicationsB.map((app) => (
