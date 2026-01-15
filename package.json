@@ -1,5 +1,5 @@
 {
-  "name": "galacash",
+  "name": "galacash-frontend",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.28.0",
