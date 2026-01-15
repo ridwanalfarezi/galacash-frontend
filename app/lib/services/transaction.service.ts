@@ -63,14 +63,13 @@ export const transactionService = {
    * Export transactions to Excel/CSV
    */
   async exportTransactions(filters?: TransactionFilters): Promise<Blob> {
-    const response = await apiClient.post(
-      '/transactions/export',
-      {},
-      {
-        params: filters,
-        responseType: 'blob',
-      }
-    )
+    const response = await apiClient.get('/transactions/export', {
+      params: {
+        format: 'excel',
+        ...filters,
+      },
+      responseType: 'blob',
+    })
     return response.data
   },
 }

@@ -4,6 +4,7 @@ import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, ChevronUp, Filter, Wallet } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 import { FinancialPieChart } from '~/components/chart/financial-pie-chart'
 import { Icons } from '~/components/icons'
@@ -16,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
+import { transactionService } from '~/lib/services/transaction.service'
 import { formatCurrency } from '~/lib/utils'
 
 interface HistoryTransaction {
@@ -29,6 +31,7 @@ interface HistoryTransaction {
 export default function KasKelasPage() {
   const [detailModal, setDetailModal] = useState<HistoryTransaction | null>(null)
   const [isChartVisible, setIsChartVisible] = useState(true)
+  const [isExporting, setIsExporting] = useState(false)
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all')
   const [sortBy, setSortBy] = useState<
     | 'date-newest'
@@ -108,27 +111,30 @@ export default function KasKelasPage() {
     }
   }, [historyTransaction])
 
-  // Handle export - TODO: use when API is ready
-  // const handleExport = async () => {
-  //   try {
-  //     const blob = await transactionService.exportTransactions({
-  //       type: filterType === 'all' ? undefined : filterType,
-  //     })
+  // Handle export
+  const handleExport = async () => {
+    try {
+      setIsExporting(true)
+      const blob = await transactionService.exportTransactions({
+        type: filterType === 'all' ? undefined : filterType,
+      })
 
-  //     const url = window.URL.createObjectURL(blob)
-  //     const a = document.createElement('a')
-  //     a.href = url
-  //     a.download = `transactions-${new Date().toISOString().split('T')[0]}.xlsx`
-  //     document.body.appendChild(a)
-  //     a.click()
-  //     window.URL.revokeObjectURL(url)
-  //     document.body.removeChild(a)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `transactions-${new Date().toISOString().split('T')[0]}.xlsx`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
 
-  //     toast.success('Transaksi berhasil diekspor')
-  //   } catch {
-  //     toast.error('Gagal mengekspor transaksi')
-  //   }
-  // }
+      toast.success('Transaksi berhasil diekspor')
+    } catch {
+      toast.error('Gagal mengekspor transaksi')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   // Filter and sort functionality
   const filteredAndSortedTransactions = useMemo(() => {
@@ -352,9 +358,13 @@ export default function KasKelasPage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <Button className="w-full sm:w-auto">
+                  <Button
+                    className="w-full sm:w-auto"
+                    onClick={handleExport}
+                    disabled={isExporting}
+                  >
                     <Export className="h-5 w-5" />
-                    Export
+                    {isExporting ? 'Mengekspor...' : 'Export'}
                   </Button>
                 </div>
               </div>

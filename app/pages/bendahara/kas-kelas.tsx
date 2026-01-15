@@ -3,6 +3,7 @@
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { ChevronDown, ChevronRight, ChevronUp, Filter } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 import { FinancialPieChart } from '~/components/chart/financial-pie-chart'
 import { Icons } from '~/components/icons'
@@ -15,6 +16,7 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
+import { transactionService } from '~/lib/services/transaction.service'
 import { formatCurrency } from '~/lib/utils'
 
 interface HistoryTransaction {
@@ -66,6 +68,7 @@ export default function BendaharaKasKelas() {
   const [detailModal, setDetailModal] = useState<HistoryTransaction | null>(null)
   const [BuatTransaksiModal, setBuatTransaksiModal] = useState(false)
   const [isChartVisible, setIsChartVisible] = useState(true)
+  const [isExporting, setIsExporting] = useState(false)
 
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all')
   const [sortBy, setSortBy] = useState<
@@ -92,6 +95,31 @@ export default function BendaharaKasKelas() {
   }
   const closeBuatTransaksiModal = () => {
     setBuatTransaksiModal(false)
+  }
+
+  // Handle export
+  const handleExport = async () => {
+    try {
+      setIsExporting(true)
+      const blob = await transactionService.exportTransactions({
+        type: filterType === 'all' ? undefined : filterType,
+      })
+
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `transactions-${new Date().toISOString().split('T')[0]}.xlsx`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      toast.success('Transaksi berhasil diekspor')
+    } catch {
+      toast.error('Gagal mengekspor transaksi')
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   // Filter and sort functionality
@@ -324,9 +352,13 @@ export default function BendaharaKasKelas() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <Button className="w-full sm:w-auto">
+                  <Button
+                    className="w-full sm:w-auto"
+                    onClick={handleExport}
+                    disabled={isExporting}
+                  >
                     <Export className="h-5 w-5" />
-                    Export
+                    {isExporting ? 'Mengekspor...' : 'Export'}
                   </Button>
                   <Button className="w-full sm:w-auto" onClick={openBuatTransaksiModal}>
                     <Icons.Plus className="size-6" />
