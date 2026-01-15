@@ -15,8 +15,13 @@ export function meta() {
 export async function clientLoader(_: Route.ClientLoaderArgs) {
   await requireAuth()
 
-  // Prefetch cash bills
-  await queryClient.prefetchQuery(cashBillQueries.my())
+  // Prefetch cash bills with error handling
+  try {
+    await queryClient.prefetchQuery(cashBillQueries.my())
+  } catch (error) {
+    // Silently catch prefetch errors - the page will refetch on mount
+    console.debug('Cash bills prefetch failed:', error)
+  }
 
   return { dehydratedState: dehydrate(queryClient) }
 }

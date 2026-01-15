@@ -15,8 +15,13 @@ export function meta() {
 export async function clientLoader(_: Route.ClientLoaderArgs) {
   await requireAuth()
 
-  // Prefetch fund applications
-  await queryClient.prefetchQuery(fundApplicationQueries.my())
+  // Prefetch fund applications with error handling
+  try {
+    await queryClient.prefetchQuery(fundApplicationQueries.my())
+  } catch (error) {
+    // Silently catch prefetch errors - the page will refetch on mount
+    console.debug('Fund applications prefetch failed:', error)
+  }
 
   return { dehydratedState: dehydrate(queryClient) }
 }

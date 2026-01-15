@@ -15,11 +15,18 @@ export function meta() {
 export async function clientLoader() {
   await requireAuth()
 
-  // Prefetch cash bills (pending payments)
-  await Promise.all([
-    queryClient.prefetchQuery(bendaharaQueries.cashBills({ status: 'pending_payment', limit: 10 })),
-    queryClient.prefetchQuery(transactionQueries.list({ limit: 10 })),
-  ])
+  // Prefetch with error handling
+  try {
+    await Promise.all([
+      queryClient.prefetchQuery(
+        bendaharaQueries.cashBills({ status: 'pending_payment', limit: 10 })
+      ),
+      queryClient.prefetchQuery(transactionQueries.list({ limit: 10 })),
+    ])
+  } catch (error) {
+    // Silently catch prefetch errors - the page will refetch on mount
+    console.debug('Kas kelas prefetch failed:', error)
+  }
 
   return {
     dehydratedState: dehydrate(queryClient),

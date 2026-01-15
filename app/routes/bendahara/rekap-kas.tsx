@@ -14,8 +14,13 @@ export function meta() {
 export async function clientLoader() {
   await requireAuth()
 
-  // Prefetch students for rekap kas
-  await queryClient.prefetchQuery(bendaharaQueries.students({ limit: 50 }))
+  // Prefetch with error handling
+  try {
+    await queryClient.prefetchQuery(bendaharaQueries.students({ limit: 50 }))
+  } catch (error) {
+    // Silently catch prefetch errors - the page will refetch on mount
+    console.debug('Rekap kas prefetch failed:', error)
+  }
 
   return {
     dehydratedState: dehydrate(queryClient),
