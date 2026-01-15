@@ -1,4 +1,4 @@
-import { Eye, EyeClosed } from 'lucide-react'
+import { Eye, EyeClosed, Upload } from 'lucide-react'
 import React, { useState } from 'react'
 import { useLocation } from 'react-router'
 import { toast } from 'sonner'
@@ -145,10 +145,18 @@ const SettingsPage = () => {
                   </div>
                 )}
               </div>
-              <Button>
-                <label htmlFor="photo" className="cursor-pointer">
-                  Ubah Foto Profil
-                </label>
+              <Button disabled={uploadAvatarMutation.isPending}>
+                {uploadAvatarMutation.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                    <span>Mengunggah...</span>
+                  </div>
+                ) : (
+                  <label htmlFor="photo" className="flex cursor-pointer items-center gap-2">
+                    <Upload size={18} />
+                    Ubah Foto Profil
+                  </label>
+                )}
               </Button>
               <input
                 type="file"
