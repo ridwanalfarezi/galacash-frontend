@@ -18,7 +18,8 @@ export async function clientLoader() {
   // Prefetch initial transaction data and chart data
   await Promise.all([
     queryClient.prefetchQuery(transactionQueries.list({ page: 1, limit: 20 })),
-    queryClient.prefetchQuery(transactionQueries.chartData({})),
+    queryClient.prefetchQuery(transactionQueries.chartData({ type: 'income' })),
+    queryClient.prefetchQuery(transactionQueries.chartData({ type: 'expense' })),
   ])
 
   return {

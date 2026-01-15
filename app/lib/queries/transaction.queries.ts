@@ -45,7 +45,7 @@ export const transactionQueries = {
    * Get chart data
    * staleTime: 120s
    */
-  chartData: (params: { startDate?: string; endDate?: string }) =>
+  chartData: (params: { type: 'income' | 'expense'; startDate?: string; endDate?: string }) =>
     queryOptions({
       queryKey: ['transactions', 'chart', params],
       queryFn: () => transactionService.getChartData(params),

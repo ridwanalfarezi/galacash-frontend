@@ -49,12 +49,13 @@ export const transactionService = {
 
   /**
    * Get chart data for transactions
+   * Requires type parameter (income or expense)
    */
-  async getChartData(params: { startDate?: string; endDate?: string }) {
+  async getChartData(params: { type: 'income' | 'expense'; startDate?: string; endDate?: string }) {
     const response = await apiClient.get<{
       success: boolean
-      data: Array<{ date: string; income: number; expense: number }>
-    }>('/transactions/chart', { params })
+      data: Array<{ date: string; amount: number }>
+    }>('/transactions/chart-data', { params })
     return response.data.data
   },
 

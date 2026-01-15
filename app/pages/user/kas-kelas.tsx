@@ -53,8 +53,11 @@ export default function KasKelasPage() {
     })
   )
 
-  // Fetch chart data
-  const { data: chartData } = useQuery(transactionQueries.chartData({}))
+  // Fetch chart data for income
+  const { data: incomeChartData } = useQuery(transactionQueries.chartData({ type: 'income' }))
+
+  // Fetch chart data for expense
+  const { data: expenseChartData } = useQuery(transactionQueries.chartData({ type: 'expense' }))
 
   const isDetailModalOpen = detailModal !== null
 
@@ -80,13 +83,6 @@ export default function KasKelasPage() {
 
   // Calculate chart data from transactions
   const { incomeData, expenseData } = useMemo(() => {
-    if (!chartData) {
-      return {
-        incomeData: [],
-        expenseData: [],
-      }
-    }
-
     // Group by description for pie charts
     const incomeMap = new Map<string, number>()
     const expenseMap = new Map<string, number>()
@@ -116,7 +112,7 @@ export default function KasKelasPage() {
         fill: colors.expense[i % colors.expense.length],
       })),
     }
-  }, [historyTransaction, chartData])
+  }, [historyTransaction, incomeChartData, expenseChartData])
 
   // Handle export - TODO: use when API is ready
   // const handleExport = async () => {
