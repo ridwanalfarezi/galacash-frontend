@@ -15,15 +15,20 @@ export async function requireAuth(retryCount = 0) {
     const user = await authService.getCurrentUser()
     return { user }
   } catch {
-    // Retry once after a small delay on first failure
+    // Retry up to 2 times with increasing delays on failure
     // This helps handle cases where cookies aren't immediately available on page refresh
-    if (retryCount === 0) {
-      await new Promise((resolve) => setTimeout(resolve, 100))
+    if (retryCount < 2) {
+      const delay = retryCount === 0 ? 200 : 500
+      await new Promise((resolve) => setTimeout(resolve, delay))
       try {
         const user = await authService.getCurrentUser()
         return { user }
       } catch {
-        // Retry failed, redirect to sign-in
+        // Try one more time if this was the first retry
+        if (retryCount === 0) {
+          return requireAuth(retryCount + 1)
+        }
+        // All retries failed, redirect to sign-in
         throw redirect('/sign-in')
       }
     }

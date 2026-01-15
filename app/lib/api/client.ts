@@ -126,13 +126,16 @@ apiClient.interceptors.response.use(
 
           return Promise.reject(APIError.fromResponse(refreshError))
         }
-      } else {
-        // Invalid token or unauthorized - redirect to sign-in
-        if (apiError.code === 'INVALID_TOKEN' || apiError.code === 'UNAUTHORIZED') {
-          // Don't redirect if already on sign-in page
-          if (!window.location.pathname.includes('/sign-in')) {
-            window.location.href = '/sign-in'
-          }
+      } else if (apiError.code === 'INVALID_TOKEN' || apiError.code === 'UNAUTHORIZED') {
+        // For /auth/me endpoint, don't redirect immediately - let the retry logic in requireAuth handle it
+        if (originalRequest.url?.includes('/auth/me')) {
+          // Just reject the error, requireAuth will handle retry
+          return Promise.reject(apiError)
+        }
+
+        // For other endpoints, redirect to sign-in
+        if (!window.location.pathname.includes('/sign-in')) {
+          window.location.href = '/sign-in'
         }
       }
     }

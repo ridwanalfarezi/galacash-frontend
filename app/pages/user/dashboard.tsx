@@ -11,6 +11,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/componen
 import { DatePicker } from '~/components/ui/date-picker'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { dashboardQueries } from '~/lib/queries/dashboard.queries'
+import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
 
 import {
@@ -19,93 +20,6 @@ import {
   groupTransactionsByDate,
   type Transaction,
 } from '../../lib/utils'
-
-// const mockTransactions: Transaction[] = [
-//   {
-//     id: '1',
-//     type: 'expense',
-//     description: 'Pembelian ATK',
-//     amount: 150000,
-//     date: '2025-07-01',
-//   },
-//   {
-//     id: '2',
-//     type: 'income',
-//     description: 'Iuran Kas',
-//     amount: 500000,
-//     date: '2025-07-01',
-//   },
-//   {
-//     id: '3',
-//     type: 'expense',
-//     description: 'Snack Rapat',
-//     amount: 75000,
-//     date: '2025-07-02',
-//   },
-//   {
-//     id: '4',
-//     type: 'income',
-//     description: 'Iuran Kas',
-//     amount: 500000,
-//     date: '2025-07-02',
-//   },
-//   {
-//     id: '5',
-//     type: 'expense',
-//     description: 'Konsumsi Meeting',
-//     amount: 125000,
-//     date: '2025-07-03',
-//   },
-//   {
-//     id: '6',
-//     type: 'income',
-//     description: 'Dana Kegiatan',
-//     amount: 300000,
-//     date: '2025-07-03',
-//   },
-// ]
-
-const mockSubmissions = [
-  {
-    id: '1',
-    userId: '1',
-    name: 'Ridwan Alfarezi',
-    description: 'Pembelian ATK',
-    amount: 150000,
-    status: 'pending',
-    createdAt: '2024-03-20',
-  },
-  {
-    id: '2',
-    userId: '1',
-    name: 'Ridwan Alfarezi',
-    description: 'Snack Rapat',
-    amount: 75000,
-    status: 'pending',
-    createdAt: '2024-03-19',
-  },
-]
-
-// const mockSummary = {
-//   totalBalance: 1573428.69,
-//   totalIncome: 1573428.69,
-//   totalExpense: 1573428.69,
-// }
-
-// const mockBills = [
-//   {
-//     id: '1',
-//     amount: 30000,
-//     date: '2025-06-01',
-//     dueDate: '2025-06-30',
-//   },
-//   {
-//     id: '2',
-//     amount: 30000,
-//     date: '2025-07-01',
-//     dueDate: '2025-07-31',
-//   },
-// ]
 
 export default function DashboardPage() {
   const [date, setDate] = useState<DateRange | undefined>({
@@ -126,6 +40,13 @@ export default function DashboardPage() {
   const { data: billsData } = useQuery(
     cashBillQueries.my({
       status: 'belum_dibayar',
+      limit: 5,
+    })
+  )
+
+  const { data: fundApplicationsData } = useQuery(
+    fundApplicationQueries.my({
+      status: 'pending',
       limit: 5,
     })
   )
@@ -356,32 +277,47 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {mockSubmissions
-                .filter((s) => s.status === 'pending')
-                .map((submission) => (
-                  <div
-                    key={submission.id}
-                    className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center justify-center rounded-full bg-gray-300 p-2">
-                        <Gift className="size-8 text-gray-900" />
+              {fundApplicationsData?.applications &&
+              fundApplicationsData.applications.length > 0 ? (
+                fundApplicationsData.applications
+                  .filter((app) => app.status === 'pending')
+                  .map((application) => (
+                    <div
+                      key={application.id}
+                      className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="flex items-center justify-center rounded-full bg-gray-300 p-2">
+                          <Gift className="size-8 text-gray-900" />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-medium">
+                            {formatCurrency(application.amount || 0)}
+                          </h3>
+                          <h4 className="text-sm text-gray-500">{application.purpose}</h4>
+                          <h5 className="block text-xs text-yellow-500 capitalize md:hidden">
+                            {application.status}
+                          </h5>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-base font-medium">
-                          {formatCurrency(submission.amount)}
-                        </h3>
-                        <h4 className="text-sm text-gray-500">{submission.description}</h4>
-                        <h5 className="block text-xs text-yellow-500 capitalize md:hidden">
-                          {submission.status}
-                        </h5>
+                      <div className="hidden items-center justify-center space-x-2 rounded-xl bg-yellow-300 px-2 py-1 md:flex">
+                        <Clock className="size-6 text-gray-900" />
                       </div>
                     </div>
-                    <div className="hidden items-center justify-center space-x-2 rounded-xl bg-yellow-300 px-2 py-1 md:flex">
-                      <Clock className="size-6 text-gray-900" />
-                    </div>
+                  ))
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="mb-4 text-gray-400">
+                    <Gift className="mx-auto size-12" />
                   </div>
-                ))}
+                  <h3 className="mb-2 text-lg font-medium text-gray-900">
+                    Tidak ada pengajuan pending
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Anda belum memiliki pengajuan dana yang sedang diproses
+                  </p>
+                </div>
+              )}
             </CardContent>
             <div className="flex justify-center">
               <Link to="/user/aju-dana" className="hover:underline">
