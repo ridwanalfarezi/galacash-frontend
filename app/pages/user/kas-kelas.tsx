@@ -53,12 +53,6 @@ export default function KasKelasPage() {
     })
   )
 
-  // Fetch chart data for income
-  const { data: incomeChartData } = useQuery(transactionQueries.chartData({ type: 'income' }))
-
-  // Fetch chart data for expense
-  const { data: expenseChartData } = useQuery(transactionQueries.chartData({ type: 'expense' }))
-
   const isDetailModalOpen = detailModal !== null
 
   const openDetailModal = (transaction: HistoryTransaction) => {
@@ -112,7 +106,7 @@ export default function KasKelasPage() {
         fill: colors.expense[i % colors.expense.length],
       })),
     }
-  }, [historyTransaction, incomeChartData, expenseChartData])
+  }, [historyTransaction])
 
   // Handle export - TODO: use when API is ready
   // const handleExport = async () => {
