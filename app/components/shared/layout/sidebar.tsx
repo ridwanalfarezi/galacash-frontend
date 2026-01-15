@@ -15,19 +15,15 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
+import { useUserProfile } from '~/lib/queries/user.queries'
 
-import {
-  mockBendahara,
-  mockUser,
-  navigationBendahara,
-  navigationUser,
-  type NavigationItem,
-} from './navdata'
+import { navigationBendahara, navigationUser, type NavigationItem } from './navdata'
 
 export function Sidebar() {
   const location = useLocation()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const navigate = useNavigate()
+  const { data: user } = useUserProfile()
 
   const signOut = () => {
     // Implement sign out logic here
@@ -39,7 +35,13 @@ export function Sidebar() {
     ? navigationBendahara
     : navigationUser
 
-  const user = location.pathname.startsWith('/bendahara') ? mockBendahara : mockUser
+  const userInitials =
+    user?.name
+      ?.split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) || 'U'
 
   return (
     <TooltipProvider>
@@ -129,14 +131,14 @@ export function Sidebar() {
                     <div className="h-auto w-full cursor-pointer p-0">
                       <div className="flex items-center justify-center gap-2">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={user.avatar} />
-                          <AvatarFallback>FK</AvatarFallback>
+                          <AvatarImage src={user?.avatarUrl} />
+                          <AvatarFallback>{userInitials}</AvatarFallback>
                         </Avatar>
                       </div>
                     </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
-                    <Link to={`/${user.role}/settings`}>
+                    <Link to={`/${user?.role}/settings`}>
                       <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
                         <Icons.Settings className="mr-2 h-5 w-5 text-gray-900" />
                         <span className="text-base font-normal text-gray-900">Pengaturan</span>
@@ -151,7 +153,7 @@ export function Sidebar() {
                 </DropdownMenu>
               </TooltipTrigger>
               <TooltipContent side="right">
-                <p>{user.name}</p>
+                <p>{user?.name}</p>
               </TooltipContent>
             </Tooltip>
           ) : (
@@ -160,19 +162,13 @@ export function Sidebar() {
                 <div className="h-auto w-full cursor-pointer p-0">
                   <div className="flex items-center justify-between gap-2">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={user.avatar} />
-                      <AvatarFallback>FK</AvatarFallback>
+                      <AvatarImage src={user?.avatarUrl} />
+                      <AvatarFallback>{userInitials}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-1 flex-col text-left">
-                      <span className="text-sm font-medium">{user.name}</span>
+                      <span className="text-sm font-medium">{user?.name}</span>
                       <span className="text-xs text-gray-700">
-                        {user.role === 'bendahara'
-                          ? 'email' in user
-                            ? user.email
-                            : ''
-                          : 'nim' in user
-                            ? user.nim
-                            : ''}
+                        {user?.role === 'bendahara' ? user?.email : user?.nim}
                       </span>
                     </div>
                     <ChevronUp size={20} />
@@ -180,7 +176,7 @@ export function Sidebar() {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
-                <Link to={`/${user.role}/settings`}>
+                <Link to={`/${user?.role}/settings`}>
                   <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
                     <Icons.Settings className="mr-2 text-gray-900" />
                     <span className="text-base font-normal text-gray-900">Pengaturan</span>

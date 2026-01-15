@@ -11,20 +11,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
+import { useUserProfile } from '~/lib/queries/user.queries'
 import { cn } from '~/lib/utils'
 
-import {
-  mockBendahara,
-  mockUser,
-  navigationBendahara,
-  navigationUser,
-  type NavigationItem,
-} from './navdata'
+import { navigationBendahara, navigationUser, type NavigationItem } from './navdata'
 
 export function BottomBar() {
   const location = useLocation()
-
   const navigate = useNavigate()
+  const { data: user } = useUserProfile()
 
   const signOut = () => {
     // Implement sign out logic here
@@ -36,7 +31,13 @@ export function BottomBar() {
     ? navigationBendahara
     : navigationUser
 
-  const user = location.pathname.startsWith('/bendahara') ? mockBendahara : mockUser
+  const userInitials =
+    user?.name
+      ?.split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) || 'U'
 
   return (
     <div className="fixed bottom-0 z-50 block w-full border-t border-gray-200 bg-white md:hidden">
@@ -60,12 +61,12 @@ export function BottomBar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="h-10 w-10">
-              <AvatarImage src={user.avatar} />
-              <AvatarFallback>FK</AvatarFallback>
+              <AvatarImage src={user?.avatarUrl} />
+              <AvatarFallback>{userInitials}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-auto sm:w-[200px]">
-            <Link to={`/${user.role}/settings`}>
+          <DropdownMenuContent align="end" className="w-auto sm:w-50">
+            <Link to={`/${user?.role}/settings`}>
               <DropdownMenuItem className="cursor-pointer hover:bg-gray-200">
                 <Icons.Settings className="mr-2 text-gray-900" />
                 <span className="text-base font-normal text-gray-900">Pengaturan</span>
