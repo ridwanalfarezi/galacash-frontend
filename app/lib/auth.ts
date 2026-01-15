@@ -6,12 +6,27 @@ import { authService } from './services/auth.service'
  * Check if user is authenticated
  * Calls GET /auth/me to verify session
  * Throws redirect if not authenticated
+ *
+ * Includes retry logic for better reliability on page refresh
+ * when httpOnly cookies might not be immediately available
  */
-export async function requireAuth() {
+export async function requireAuth(retryCount = 0) {
   try {
     const user = await authService.getCurrentUser()
     return { user }
   } catch {
+    // Retry once after a small delay on first failure
+    // This helps handle cases where cookies aren't immediately available on page refresh
+    if (retryCount === 0) {
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      try {
+        const user = await authService.getCurrentUser()
+        return { user }
+      } catch {
+        // Retry failed, redirect to sign-in
+        throw redirect('/sign-in')
+      }
+    }
     throw redirect('/sign-in')
   }
 }
