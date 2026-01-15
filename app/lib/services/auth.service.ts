@@ -35,7 +35,7 @@ export const authService = {
    * Get current authenticated user
    */
   async getCurrentUser(): Promise<User> {
-    const response = await apiClient.get<{ success: boolean; data: User }>('/auth/me')
+    const response = await apiClient.get<{ success: boolean; data: User }>('/users/profile')
     return response.data.data
   },
 

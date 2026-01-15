@@ -4,7 +4,7 @@ import { authService } from './services/auth.service'
 
 /**
  * Check if user is authenticated
- * Calls GET /auth/me to verify session
+ * Calls GET /users/profile to verify session
  * Throws redirect if not authenticated
  *
  * Includes retry logic for better reliability on page refresh
