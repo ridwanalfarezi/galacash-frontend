@@ -22,6 +22,7 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { useIsMobile } from '~/hooks/use-mobile'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
+import type { components } from '~/types/api'
 
 interface Application {
   id: string
@@ -33,6 +34,13 @@ interface Application {
   applicant: string
   description?: string
   attachment?: string
+}
+
+type FundApplicationAPI = components['schemas']['FundApplication'] & {
+  user?: { name?: string }
+  attachmentUrl?: string
+  createdAt?: string
+  description?: string
 }
 
 export default function BendaharaAjuDana() {
@@ -49,7 +57,7 @@ export default function BendaharaAjuDana() {
   // Map API data to Application interface
   const applications: Application[] = useMemo(() => {
     if (!fundApplicationsData?.applications) return []
-    return fundApplicationsData.applications.map((app: any) => ({
+    return fundApplicationsData.applications.map((app: FundApplicationAPI) => ({
       id: app?.id ?? '',
       date: app?.createdAt
         ? new Date(app.createdAt).toLocaleDateString('id-ID', {
