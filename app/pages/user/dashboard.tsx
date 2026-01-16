@@ -1,7 +1,13 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { Calendar as CalendarIcon, CircleArrowDown, CircleArrowUp, Clock, Gift } from 'lucide-react'
+import {
+  Calendar as CalendarIcon,
+  CircleArrowDown,
+  CircleArrowUp,
+  Clock,
+  HandCoins,
+} from 'lucide-react'
 import { useState } from 'react'
 import type { DateRange } from 'react-day-picker'
 import { Link } from 'react-router'
@@ -288,7 +294,7 @@ export default function DashboardPage() {
                     >
                       <div className="flex items-center space-x-3">
                         <div className="flex items-center justify-center rounded-full bg-gray-300 p-2">
-                          <Gift className="size-8 text-gray-900" />
+                          <HandCoins className="size-8 text-gray-900" />
                         </div>
                         <div>
                           <h3 className="text-base font-medium">
@@ -308,7 +314,7 @@ export default function DashboardPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
                   <div className="mb-4 text-gray-400">
-                    <Gift className="mx-auto size-12" />
+                    <HandCoins className="mx-auto size-12" />
                   </div>
                   <h3 className="mb-2 text-lg font-medium text-gray-900">
                     Tidak ada pengajuan pending
