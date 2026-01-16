@@ -1,6 +1,6 @@
 'use client'
 
-import { Upload } from 'lucide-react'
+import { Upload, X } from 'lucide-react'
 import { useState } from 'react'
 
 import { Icons } from '~/components/icons'
@@ -17,7 +17,6 @@ import {
 } from '~/components/ui/select'
 import { SingleDatePicker } from '~/components/ui/single-date-picker'
 import { useCreateTransaction } from '~/lib/queries/bendahara.queries'
-import { formatCurrency } from '~/lib/utils'
 
 interface BuatTransaksiProps {
   isOpen: boolean
@@ -31,18 +30,24 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
     type: 'income' as 'income' | 'expense',
     amount: 0,
     attachment: null as File | null,
+    attachmentPreview: '' as string,
   })
-
-  // Keep a separate editable amount string to allow typing
-  const [amountInput, setAmountInput] = useState('')
 
   const createTransaction = useCreateTransaction()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setTransaction((prev) => ({ ...prev, attachment: file }))
+      const previewUrl = file.type.startsWith('image') ? URL.createObjectURL(file) : ''
+      setTransaction((prev) => ({ ...prev, attachment: file, attachmentPreview: previewUrl }))
     }
+  }
+
+  const clearAttachment = () => {
+    if (transaction.attachmentPreview) {
+      URL.revokeObjectURL(transaction.attachmentPreview)
+    }
+    setTransaction((prev) => ({ ...prev, attachment: null, attachmentPreview: '' }))
   }
 
   const handleSubmit = async () => {
@@ -66,15 +71,15 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
       type: 'income',
       amount: 0,
       attachment: null,
+      attachmentPreview: '',
     })
-    setAmountInput('')
     onClose()
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-h-96 overflow-y-auto rounded-3xl sm:max-w-150"
+        className="max-h-[90vh] overflow-y-auto rounded-3xl border-0 sm:max-w-150"
         style={{ scrollbarWidth: 'none' }}
       >
         <DialogHeader className="flex-row items-center gap-4">
@@ -130,54 +135,91 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
 
             <div className="space-y-1">
               <Label className="text-lg font-normal sm:text-xl">Nominal</Label>
-              <Input
-                inputMode="numeric"
-                placeholder="0"
-                value={amountInput}
-                onChange={(e) => {
-                  const raw = e.target.value.replace(/[^\d]/g, '')
-                  setAmountInput(raw)
-                  setTransaction((prev) => ({
-                    ...prev,
-                    amount: Number(raw || 0),
-                  }))
-                }}
-                onBlur={() => {
-                  // Show formatted when leaving field
-                  setAmountInput(transaction.amount ? formatCurrency(transaction.amount) : '')
-                }}
-                onFocus={() => {
-                  // Show raw number when focusing
-                  setAmountInput(transaction.amount ? String(transaction.amount) : '')
-                }}
-              />
+              <div className="relative">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Rp 99.999.999"
+                  value={
+                    transaction.amount ? `Rp ${transaction.amount.toLocaleString('id-ID')}` : ''
+                  }
+                  onChange={(e) => {
+                    const numeric = e.target.value.replace(/[^0-9]/g, '')
+                    setTransaction((prev) => ({
+                      ...prev,
+                      amount: numeric === '' ? 0 : Number(numeric),
+                    }))
+                  }}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
-            <div className="relative">
-              <Input type="file" onChange={handleFileChange} className="hidden" id="attachment" />
-              <Label
-                htmlFor="attachment"
-                className="flex w-full cursor-pointer items-center justify-between rounded-md border-2 border-gray-500 px-3 py-2 text-base focus-within:border-gray-900 hover:bg-gray-50"
+          <div className="space-y-2">
+            <div className="space-y-1">
+              <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
+              <div className="relative">
+                <Input type="file" onChange={handleFileChange} className="hidden" id="attachment" />
+                <Label
+                  htmlFor="attachment"
+                  className="flex w-full cursor-pointer items-center justify-between rounded-md border-2 border-gray-500 px-3 py-2 text-base focus-within:border-gray-900 hover:bg-gray-50"
+                >
+                  <span className={transaction.attachment ? 'text-gray-900' : 'text-gray-500'}>
+                    {transaction.attachment ? transaction.attachment.name : 'Upload File'}
+                  </span>
+                  <Upload className="h-6 w-6 text-gray-900" />
+                </Label>
+              </div>
+            </div>
+            {transaction.attachment && (
+              <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3">
+                <div className="flex items-center gap-3">
+                  {transaction.attachmentPreview ? (
+                    <img
+                      src={transaction.attachmentPreview}
+                      alt="Lampiran"
+                      className="h-12 w-12 rounded-md object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-md bg-white text-sm text-gray-600">
+                      File
+                    </div>
+                  )}
+                  <div className="space-y-0.5 text-sm">
+                    <p className="font-medium text-gray-900">{transaction.attachment.name}</p>
+                    <p className="text-gray-500">
+                      {(transaction.attachment.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" onClick={clearAttachment}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex w-full border-t pt-6 sm:justify-end">
+            <div className="flex w-full gap-2 sm:w-fit">
+              <Button
+                type="button"
+                variant="secondary"
+                className="sm:flex-1 sm:px-10"
+                onClick={onClose}
+                disabled={createTransaction.isPending}
               >
-                <span className={transaction.attachment ? 'text-gray-900' : 'text-gray-500'}>
-                  {transaction.attachment ? transaction.attachment.name : 'Upload File'}
-                </span>
-                <Upload className="h-6 w-6 text-gray-900" />
-              </Label>
+                Batal
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={
+                  !transaction.purpose || !transaction.amount || createTransaction.isPending
+                }
+                className="sm:flex-1 sm:px-10"
+              >
+                {createTransaction.isPending ? 'Menambahkan...' : 'Tambahkan'}
+              </Button>
             </div>
-          </div>
-
-          <div className="flex justify-end pt-4">
-            <Button
-              onClick={handleSubmit}
-              disabled={!transaction.purpose || !transaction.amount || createTransaction.isPending}
-              className="px-10 py-2"
-            >
-              {createTransaction.isPending ? 'Menambahkan...' : 'Tambahkan'}
-            </Button>
           </div>
         </div>
       </DialogContent>

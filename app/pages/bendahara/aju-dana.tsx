@@ -1,4 +1,5 @@
 'use client'
+import { useQuery } from '@tanstack/react-query'
 import {
   CheckIcon,
   ChevronDown,
@@ -20,6 +21,7 @@ import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { useIsMobile } from '~/hooks/use-mobile'
+import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 
 interface Application {
   id: string
@@ -33,36 +35,6 @@ interface Application {
   attachment?: string
 }
 
-const mockFundApplications: Application[] = [
-  {
-    id: '2',
-    date: '28 September 2023',
-    purpose: 'Lorem ipsum dolor sit amet',
-    category: 'Transport',
-    status: 'rejected',
-    amount: 99999999,
-    applicant: 'Raisa',
-  },
-  {
-    id: '3',
-    date: '28 September 2023',
-    purpose: 'Lorem ipsum dolor sit amet',
-    category: 'Makanan',
-    status: 'approved',
-    amount: 99999999,
-    applicant: 'Ridwan',
-  },
-  {
-    id: '4',
-    date: '28 September 2023',
-    purpose: 'Lorem ipsum dolor sit amet',
-    category: 'Transport',
-    status: 'pending',
-    amount: 99999999,
-    applicant: 'Raisa',
-  },
-]
-
 export default function BendaharaAjuDana() {
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -70,13 +42,45 @@ export default function BendaharaAjuDana() {
   const isMobile = useIsMobile()
   const [isButtonsBVisible, setIsButtonsBVisible] = useState(!isMobile)
   const [currentSortB, setCurrentSortB] = useState<SortOption | null>(null)
-  const maxAmountB = useMemo(() => Math.max(...mockFundApplications.map((app) => app.amount)), [])
+
+  // Fetch fund applications from API
+  const { data: fundApplicationsData, isLoading } = useQuery(bendaharaQueries.fundApplications())
+
+  // Map API data to Application interface
+  const applications: Application[] = useMemo(() => {
+    if (!fundApplicationsData?.applications) return []
+    return fundApplicationsData.applications.map((app: any) => ({
+      id: app?.id ?? '',
+      date: app?.createdAt
+        ? new Date(app.createdAt).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })
+        : '',
+      purpose: app?.purpose ?? '',
+      category: app?.category ?? 'Lainnya',
+      status: (app?.status as 'pending' | 'approved' | 'rejected') ?? 'pending',
+      amount: app?.amount ?? 0,
+      applicant: app?.user?.name ?? 'Unknown',
+      description: app?.description,
+      attachment: app?.attachmentUrl,
+    }))
+  }, [fundApplicationsData])
+
+  const maxAmountB = useMemo(
+    () =>
+      applications.length > 0 ? Math.max(...applications.map((app) => app.amount)) : 100000000,
+    [applications]
+  )
+
   const [filtersB, setFiltersB] = useState<FilterState>({
     status: [],
     applicants: [],
     categories: [],
     amountRange: [0, maxAmountB],
   })
+
   const isFilterActiveB =
     filtersB.status.length > 0 ||
     filtersB.applicants.length > 0 ||
@@ -94,7 +98,7 @@ export default function BendaharaAjuDana() {
     })
   }
   const filteredAndSortedApplicationsB = useMemo(() => {
-    let filtered = [...mockFundApplications]
+    let filtered = [...applications]
 
     if (filtersB.status.length > 0) {
       filtered = filtered.filter((app) => filtersB.status.includes(app.status))
@@ -130,7 +134,17 @@ export default function BendaharaAjuDana() {
     }
 
     return filtered
-  }, [filtersB, currentSortB])
+  }, [filtersB, currentSortB, applications])
+
+  // Get unique applicants and categories from actual data
+  const uniqueApplicants = useMemo(
+    () => [...new Set(applications.map((app) => app.applicant))],
+    [applications]
+  )
+  const uniqueCategories = useMemo(
+    () => [...new Set(applications.map((app) => app.category))],
+    [applications]
+  )
 
   const formatCurrency = (amount: number) => {
     return `Rp ${amount.toLocaleString('id-ID')}`
@@ -204,8 +218,8 @@ export default function BendaharaAjuDana() {
                 <FilterComponent
                   currentFilters={filtersB}
                   onFilterChange={setFiltersB}
-                  applicants={['Ridwan', 'Raisa']}
-                  categories={['Transport', 'Makanan']}
+                  applicants={uniqueApplicants}
+                  categories={uniqueCategories}
                   maxAmount={maxAmountB}
                   className="w-full sm:w-auto"
                 />
@@ -260,7 +274,13 @@ export default function BendaharaAjuDana() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredAndSortedApplicationsB.length === 0 ? (
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={7} className="py-8 text-center text-gray-500">
+                        Memuat data...
+                      </td>
+                    </tr>
+                  ) : filteredAndSortedApplicationsB.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="py-8 text-center text-gray-500">
                         Tidak ada data yang sesuai dengan filter yang dipilih
@@ -290,7 +310,9 @@ export default function BendaharaAjuDana() {
             </div>
 
             <div className="space-y-4 sm:hidden">
-              {filteredAndSortedApplicationsB.length === 0 ? (
+              {isLoading ? (
+                <div className="py-8 text-center text-gray-500">Memuat data...</div>
+              ) : filteredAndSortedApplicationsB.length === 0 ? (
                 <div className="py-8 text-center text-gray-500">
                   Tidak ada data yang sesuai dengan filter yang dipilih
                 </div>

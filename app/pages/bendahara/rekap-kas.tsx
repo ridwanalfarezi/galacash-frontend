@@ -1,15 +1,13 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { Check, ChevronDown, ChevronRight, ChevronUp, Filter, Receipt, X } from 'lucide-react'
+import { Check, ChevronDown, ChevronRight, ChevronUp, Receipt, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 
-import { Icons } from '~/components/icons'
 import Export from '~/components/icons/export'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { Popover, PopoverTrigger } from '~/components/ui/popover'
 import { useIsMobile } from '~/hooks/use-mobile'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { formatCurrency } from '~/lib/utils'
@@ -131,30 +129,18 @@ export default function BendaharaRekapkas() {
             }`}
           >
             <div className="flex w-full flex-wrap items-center justify-center gap-4 sm:w-auto sm:gap-2">
-              {/* Filter Dropdown */}
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    className="relative w-full bg-white text-black sm:w-auto"
-                  >
-                    <Filter className="h-5 w-5" />
-                    Filter
-                  </Button>
-                </PopoverTrigger>
-              </Popover>
+              {/* TODO: Implement filter functionality */}
+              {/* <Button variant="secondary" className="w-full sm:w-auto">
+                <Icons.Filter className="h-5 w-5" />
+                Filter
+              </Button> */}
 
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    className="hover: w-full bg-white text-black sm:w-auto"
-                  >
-                    <Icons.Sort className="h-5 w-5" />
-                    Sort
-                  </Button>
-                </PopoverTrigger>
-              </Popover>
+              {/* TODO: Implement sort functionality */}
+              {/* <Button variant="secondary" className="w-full sm:w-auto">
+                <Icons.Sort className="h-5 w-5" />
+                Sort
+              </Button> */}
+
               <Button className="w-full sm:w-auto">
                 <Export className="h-5 w-5" />
                 Export
