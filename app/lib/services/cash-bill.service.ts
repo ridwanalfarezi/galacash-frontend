@@ -10,6 +10,8 @@ export interface CashBillFilters {
   status?: 'belum_dibayar' | 'menunggu_konfirmasi' | 'sudah_dibayar'
   month?: number
   year?: number
+  sortBy?: 'createdAt' | 'amount' | 'month'
+  sortOrder?: 'asc' | 'desc'
 }
 
 export interface PayBillData {

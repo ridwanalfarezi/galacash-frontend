@@ -6,8 +6,8 @@ import {
   ChevronRight,
   ChevronUp,
   Clock,
+  Filter,
   HandCoins,
-  RotateCcw,
   XIcon,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -17,11 +17,15 @@ import Plus from '~/components/icons/plus'
 import Sort from '~/components/icons/sort'
 import { BuatAjuDanaModal } from '~/components/modals/BuatAjuDana'
 import { DetailAjuDanaModal } from '~/components/modals/DetailAjuDana'
-import { FilterComponent, type FilterState } from '~/components/shared/filter-component'
-import { SortDropdown, type SortOption } from '~/components/shared/sort-dropdown'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 
@@ -44,11 +48,38 @@ export default function AjuDanaPage() {
 
   const isMobile = useIsMobile()
 
-  // Fetch my fund applications
-  const { data: myApplicationsData } = useQuery(fundApplicationQueries.my())
-  const mockApplications: Application[] = useMemo(() => {
-    if (!myApplicationsData?.applications) return []
-    return myApplicationsData.applications.map((app) => ({
+  // Section A: Your Applications - filters and state
+  const [statusFilterA, setStatusFilterA] = useState<string | undefined>()
+  const [sortByA, setSortByA] = useState<'createdAt' | 'amount'>('createdAt')
+  const [sortOrderA, setSortOrderA] = useState<'asc' | 'desc'>('desc')
+
+  // Section B: All Fund Applications - filters and state
+  const [statusFilterB, setStatusFilterB] = useState<string | undefined>()
+  const [sortByB, setSortByB] = useState<'createdAt' | 'amount'>('createdAt')
+  const [sortOrderB, setSortOrderB] = useState<'asc' | 'desc'>('desc')
+
+  // Fetch applications for Section A
+  const { data: myApplicationsDataA, isLoading: isLoadingA } = useQuery(
+    fundApplicationQueries.my({
+      status: statusFilterA as 'pending' | 'approved' | 'rejected' | undefined,
+      sortBy: sortByA,
+      sortOrder: sortOrderA,
+    })
+  )
+
+  // Fetch applications for Section B
+  const { data: myApplicationsDataB, isLoading: isLoadingB } = useQuery(
+    fundApplicationQueries.my({
+      status: statusFilterB as 'pending' | 'approved' | 'rejected' | undefined,
+      sortBy: sortByB,
+      sortOrder: sortOrderB,
+    })
+  )
+
+  // Map API data for Section A
+  const applicationsA: Application[] = useMemo(() => {
+    if (!myApplicationsDataA?.applications) return []
+    return myApplicationsDataA.applications.map((app) => ({
       id: app.id || '',
       date: app.date || '',
       purpose: app.purpose || '',
@@ -57,161 +88,46 @@ export default function AjuDanaPage() {
       amount: app.amount || 0,
       applicant: 'Anda',
     }))
-  }, [myApplicationsData])
+  }, [myApplicationsDataA])
 
-  // Create fund application mutation - TODO: use when API is ready
-  // const createApplicationMutation = useMutation({
-  //   mutationFn: (data: {
-  //     purpose: string
-  //     category: 'education' | 'health' | 'emergency' | 'equipment'
-  //     amount: number
-  //     description?: string
-  //     attachment?: File
-  //   }) => fundApplicationService.createApplication(data),
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({ queryKey: fundApplicationQueries.my().queryKey })
-  //     toast.success('Pengajuan dana berhasil dibuat')
-  //     setIsApplicationModalOpen(false)
-  //   },
-  //   onError: () => {
-  //     toast.error('Gagal membuat pengajuan dana')
-  //   },
-  // })
+  // Map API data for Section B
+  const applicationsB: Application[] = useMemo(() => {
+    if (!myApplicationsDataB?.applications) return []
+    return myApplicationsDataB.applications.map((app) => ({
+      id: app.id || '',
+      date: app.date || '',
+      purpose: app.purpose || '',
+      category: app.category || '',
+      status: (app.status || 'pending') as 'pending' | 'approved' | 'rejected',
+      amount: app.amount || 0,
+      applicant: 'Anda',
+    }))
+  }, [myApplicationsDataB])
 
   // Toggle states for buttons - initialize based on isMobile
   const [isButtonsAVisible, setIsButtonsAVisible] = useState(!isMobile)
   const [isButtonsBVisible, setIsButtonsBVisible] = useState(!isMobile)
-  const [currentSortA, setCurrentSortA] = useState<SortOption | null>(null)
-  const maxAmountA = useMemo(() => {
-    if (mockApplications.length === 0) return 0
-    return Math.max(...mockApplications.map((app) => app.amount))
-  }, [mockApplications])
-  const [filtersA, setFiltersA] = useState<FilterState>({
-    status: [],
-    applicants: [],
-    categories: [],
-    amountRange: [0, maxAmountA],
-  })
-  const isFilterActiveA =
-    filtersA.status.length > 0 ||
-    filtersA.applicants.length > 0 ||
-    filtersA.categories.length > 0 ||
-    filtersA.amountRange[0] > 0 ||
-    filtersA.amountRange[1] < maxAmountA
-  const isSortActiveA = currentSortA !== null
-  const clearAllFiltersA = () => {
-    setCurrentSortA(null)
-    setFiltersA({
-      status: [],
-      applicants: [],
-      categories: [],
-      amountRange: [0, maxAmountA],
-    })
+
+  // Helper functions
+  const getSortLabel = (sortBy: string, sortOrder: string) => {
+    if (sortBy === 'createdAt') {
+      return sortOrder === 'desc' ? 'Terbaru' : 'Terlama'
+    }
+    return sortOrder === 'desc' ? 'Nominal Tertinggi' : 'Nominal Terendah'
   }
-  const filteredAndSortedApplicationsA = useMemo(() => {
-    let filtered = [...mockApplications]
 
-    if (filtersA.status.length > 0) {
-      filtered = filtered.filter((app) => filtersA.status.includes(app.status))
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Menunggu'
+      case 'approved':
+        return 'Disetujui'
+      case 'rejected':
+        return 'Ditolak'
+      default:
+        return status
     }
-
-    if (filtersA.applicants.length > 0) {
-      filtered = filtered.filter((app) => filtersA.applicants.includes(app.applicant))
-    }
-
-    if (filtersA.categories.length > 0) {
-      filtered = filtered.filter((app) => filtersA.categories.includes(app.category))
-    }
-
-    filtered = filtered.filter(
-      (app) => app.amount >= filtersA.amountRange[0] && app.amount <= filtersA.amountRange[1]
-    )
-
-    if (currentSortA) {
-      filtered.sort((a, b) => {
-        let aVal: string | number = a[currentSortA.field as keyof Application] as string | number
-        let bVal: string | number = b[currentSortA.field as keyof Application] as string | number
-
-        if (currentSortA.field === 'date') {
-          aVal = new Date(aVal as string).getTime()
-          bVal = new Date(bVal as string).getTime()
-        } else if (typeof aVal === 'string') {
-          aVal = aVal.toLowerCase()
-          bVal = (bVal as string).toLowerCase()
-        }
-
-        return currentSortA.direction === 'asc' ? (aVal > bVal ? 1 : -1) : aVal < bVal ? 1 : -1
-      })
-    }
-
-    return filtered
-  }, [filtersA, currentSortA, mockApplications])
-
-  const [currentSortB, setCurrentSortB] = useState<SortOption | null>(null)
-  const maxAmountB = useMemo(
-    () => Math.max(...mockApplications.map((app) => app.amount)),
-    [mockApplications]
-  )
-  const [filtersB, setFiltersB] = useState<FilterState>({
-    status: [],
-    applicants: [],
-    categories: [],
-    amountRange: [0, maxAmountB],
-  })
-  const isFilterActiveB =
-    filtersB.status.length > 0 ||
-    filtersB.applicants.length > 0 ||
-    filtersB.categories.length > 0 ||
-    filtersB.amountRange[0] > 0 ||
-    filtersB.amountRange[1] < maxAmountB
-  const isSortActiveB = currentSortB !== null
-  const clearAllFiltersB = () => {
-    setCurrentSortB(null)
-    setFiltersB({
-      status: [],
-      applicants: [],
-      categories: [],
-      amountRange: [0, maxAmountB],
-    })
   }
-  const filteredAndSortedApplicationsB = useMemo(() => {
-    let filtered = [...mockApplications]
-
-    if (filtersB.status.length > 0) {
-      filtered = filtered.filter((app) => filtersB.status.includes(app.status))
-    }
-
-    if (filtersB.applicants.length > 0) {
-      filtered = filtered.filter((app) => filtersB.applicants.includes(app.applicant))
-    }
-
-    if (filtersB.categories.length > 0) {
-      filtered = filtered.filter((app) => filtersB.categories.includes(app.category))
-    }
-
-    filtered = filtered.filter(
-      (app) => app.amount >= filtersB.amountRange[0] && app.amount <= filtersB.amountRange[1]
-    )
-
-    if (currentSortB) {
-      filtered.sort((a, b) => {
-        let aVal: string | number = a[currentSortB.field as keyof Application] as string | number
-        let bVal: string | number = b[currentSortB.field as keyof Application] as string | number
-
-        if (currentSortB.field === 'date') {
-          aVal = new Date(aVal as string).getTime()
-          bVal = new Date(bVal as string).getTime()
-        } else if (typeof aVal === 'string') {
-          aVal = aVal.toLowerCase()
-          bVal = (bVal as string).toLowerCase()
-        }
-
-        return currentSortB.direction === 'asc' ? (aVal > bVal ? 1 : -1) : aVal < bVal ? 1 : -1
-      })
-    }
-
-    return filtered
-  }, [filtersB, currentSortB, mockApplications])
 
   const formatCurrency = (amount: number) => {
     return `Rp ${amount.toLocaleString('id-ID')}`
@@ -282,46 +198,73 @@ export default function AjuDanaPage() {
               }`}
             >
               <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
-                <FilterComponent
-                  currentFilters={filtersA}
-                  onFilterChange={setFiltersA}
-                  applicants={['Ridwan', 'Raisa']}
-                  categories={['Transport', 'Makanan']}
-                  maxAmount={maxAmountA}
-                  className="w-full sm:w-auto"
-                />
-
-                <SortDropdown
-                  currentSort={currentSortA}
-                  onSortChange={setCurrentSortA}
-                  align="end"
-                  trigger={
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button
-                      variant={isSortActiveA ? 'default' : 'secondary'}
-                      className={`w-full sm:w-auto ${isSortActiveA ? 'bg-blue-500 text-white hover:bg-blue-700' : ''}`}
+                      variant={statusFilterA ? 'default' : 'secondary'}
+                      className="w-full sm:w-auto"
                     >
-                      <Sort className="h-5 w-5" />
-                      Sort
-                      {isSortActiveA && (
-                        <Badge className="ml-1 h-5 bg-white px-1.5 py-0.5 text-xs text-blue-500">
-                          1
-                        </Badge>
-                      )}
+                      <Filter className="h-5 w-5" />
+                      {statusFilterA ? getStatusLabel(statusFilterA) : 'Filter'}
                     </Button>
-                  }
-                />
-
-                {(isFilterActiveA || isSortActiveA) && (
-                  <Button
-                    variant="secondary"
-                    onClick={clearAllFiltersA}
-                    className="text-destructive hover:bg-destructive border-destructive w-full hover:text-white sm:w-auto"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                    Reset
-                  </Button>
-                )}
-
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem onClick={() => setStatusFilterA(undefined)}>
+                      Semua Status
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilterA('pending')}>
+                      Menunggu
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilterA('approved')}>
+                      Disetujui
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilterA('rejected')}>
+                      Ditolak
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" className="w-full sm:w-auto">
+                      <Sort className="h-5 w-5" />
+                      {getSortLabel(sortByA, sortOrderA)}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortByA('createdAt')
+                        setSortOrderA('desc')
+                      }}
+                    >
+                      Terbaru
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortByA('createdAt')
+                        setSortOrderA('asc')
+                      }}
+                    >
+                      Terlama
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortByA('amount')
+                        setSortOrderA('desc')
+                      }}
+                    >
+                      Nominal Tertinggi
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortByA('amount')
+                        setSortOrderA('asc')
+                      }}
+                    >
+                      Nominal Terendah
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Button className="w-full sm:w-auto">
                   <Export className="h-5 w-5" />
                   Export
@@ -351,7 +294,13 @@ export default function AjuDanaPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredAndSortedApplicationsA.length === 0 ? (
+                  {isLoadingA ? (
+                    <tr>
+                      <td colSpan={7} className="py-8 text-center text-gray-500">
+                        Memuat data...
+                      </td>
+                    </tr>
+                  ) : applicationsA.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="py-12">
                         <div className="flex flex-col items-center justify-center text-center">
@@ -368,7 +317,7 @@ export default function AjuDanaPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredAndSortedApplicationsA.map((app) => (
+                    applicationsA.map((app) => (
                       <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm">{app.date}</td>
                         <td className="px-4 py-3 text-sm">{app.purpose}</td>
@@ -391,7 +340,9 @@ export default function AjuDanaPage() {
             </div>
 
             <div className="space-y-4 sm:hidden">
-              {filteredAndSortedApplicationsA.length === 0 ? (
+              {isLoadingA ? (
+                <div className="py-8 text-center text-gray-500">Memuat data...</div>
+              ) : applicationsA.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <div className="mb-4 text-gray-400">
                     <HandCoins className="mx-auto size-12" />
@@ -404,7 +355,7 @@ export default function AjuDanaPage() {
                   </p>
                 </div>
               ) : (
-                filteredAndSortedApplicationsA.map((app) => (
+                applicationsA.map((app) => (
                   <div
                     key={app.id}
                     className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
@@ -460,43 +411,73 @@ export default function AjuDanaPage() {
               }`}
             >
               <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
-                <FilterComponent
-                  currentFilters={filtersB}
-                  onFilterChange={setFiltersB}
-                  applicants={['Ridwan', 'Raisa']}
-                  categories={['Transport', 'Makanan']}
-                  maxAmount={maxAmountB}
-                  className="w-full sm:w-auto"
-                />
-                <SortDropdown
-                  currentSort={currentSortB}
-                  onSortChange={setCurrentSortB}
-                  align="end"
-                  trigger={
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button
-                      variant={isSortActiveB ? 'default' : 'secondary'}
-                      className={`w-full sm:w-auto ${isSortActiveB ? 'bg-blue-500 text-white hover:bg-blue-700' : ''}`}
+                      variant={statusFilterB ? 'default' : 'secondary'}
+                      className="w-full sm:w-auto"
                     >
-                      <Sort className="h-5 w-5" />
-                      Sort
-                      {isSortActiveB && (
-                        <Badge className="ml-1 h-5 bg-white px-1.5 py-0.5 text-xs text-blue-500">
-                          1
-                        </Badge>
-                      )}
+                      <Filter className="h-5 w-5" />
+                      {statusFilterB ? getStatusLabel(statusFilterB) : 'Filter'}
                     </Button>
-                  }
-                />
-                {(isFilterActiveB || isSortActiveB) && (
-                  <Button
-                    variant="secondary"
-                    onClick={clearAllFiltersB}
-                    className="text-destructive hover:bg-destructive border-destructive w-full hover:text-white sm:w-auto"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                    Reset
-                  </Button>
-                )}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem onClick={() => setStatusFilterB(undefined)}>
+                      Semua Status
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilterB('pending')}>
+                      Menunggu
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilterB('approved')}>
+                      Disetujui
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilterB('rejected')}>
+                      Ditolak
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" className="w-full sm:w-auto">
+                      <Sort className="h-5 w-5" />
+                      {getSortLabel(sortByB, sortOrderB)}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortByB('createdAt')
+                        setSortOrderB('desc')
+                      }}
+                    >
+                      Terbaru
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortByB('createdAt')
+                        setSortOrderB('asc')
+                      }}
+                    >
+                      Terlama
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortByB('amount')
+                        setSortOrderB('desc')
+                      }}
+                    >
+                      Nominal Tertinggi
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortByB('amount')
+                        setSortOrderB('asc')
+                      }}
+                    >
+                      Nominal Terendah
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Button className="w-full sm:w-auto">
                   <Export className="h-5 w-5" />
                   Export
@@ -519,7 +500,13 @@ export default function AjuDanaPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredAndSortedApplicationsB.length === 0 ? (
+                  {isLoadingB ? (
+                    <tr>
+                      <td colSpan={7} className="py-8 text-center text-gray-500">
+                        Memuat data...
+                      </td>
+                    </tr>
+                  ) : applicationsB.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="py-12">
                         <div className="flex flex-col items-center justify-center text-center">
@@ -536,7 +523,7 @@ export default function AjuDanaPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredAndSortedApplicationsB.map((app) => (
+                    applicationsB.map((app) => (
                       <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm">{app.date}</td>
                         <td className="px-4 py-3 text-sm">{app.purpose}</td>
@@ -559,7 +546,9 @@ export default function AjuDanaPage() {
             </div>
 
             <div className="space-y-4 sm:hidden">
-              {filteredAndSortedApplicationsB.length === 0 ? (
+              {isLoadingB ? (
+                <div className="py-8 text-center text-gray-500">Memuat data...</div>
+              ) : applicationsB.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <div className="mb-4 text-gray-400">
                     <HandCoins className="mx-auto size-12" />
@@ -572,7 +561,7 @@ export default function AjuDanaPage() {
                   </p>
                 </div>
               ) : (
-                filteredAndSortedApplicationsB.map((app) => (
+                applicationsB.map((app) => (
                   <div
                     key={app.id}
                     className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"

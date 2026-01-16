@@ -1,17 +1,14 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, Receipt, X } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, Receipt } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 
 import { Icons } from '~/components/icons'
 import { DetailTagihanKasBendahara } from '~/components/modals/DetailTagihanKasBendahara'
-import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { Checkbox } from '~/components/ui/checkbox'
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
 import { useIsMobile } from '~/hooks/use-mobile'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { formatCurrency } from '~/lib/utils'
@@ -34,17 +31,6 @@ interface Tagihan {
   totalAmount: number
 }
 
-interface FilterState {
-  status: string[]
-  month: string[]
-  amountRange: 'all' | 'under25k' | '25k-50k' | 'above50k'
-}
-
-interface SortState {
-  field: 'date' | 'amount' | 'status' | 'month'
-  direction: 'asc' | 'desc'
-}
-
 const statusColor: Record<Tagihan['status'], string> = {
   'Belum Dibayar': 'bg-red-100 text-red-700',
   'Menunggu Konfirmasi': 'bg-yellow-100 text-yellow-600',
@@ -58,7 +44,18 @@ export default function BendaharaDetailRekapKas() {
   const { userId } = useParams()
 
   // Fetch cash bills for specific user from API
-  const { data: billsData } = useQuery(bendaharaQueries.cashBills({ userId: userId || '' }))
+  const [statusFilter, setStatusFilter] = useState<string | undefined>()
+  const [sortBy, setSortBy] = useState<'createdAt' | 'amount' | 'status'>('createdAt')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+
+  const { data: billsData } = useQuery(
+    bendaharaQueries.cashBills({
+      userId: userId || '',
+      status: statusFilter,
+      sortBy,
+      sortOrder,
+    })
+  )
 
   // Map API data to local Tagihan format
   const dataTagihan: Tagihan[] = useMemo(() => {
@@ -96,19 +93,6 @@ export default function BendaharaDetailRekapKas() {
     })
   }, [billsData, nama])
 
-  // Filter and Sort states
-  const [filters, setFilters] = useState<FilterState>({
-    status: [],
-    month: [],
-    amountRange: 'all',
-  })
-  const [sortConfig, setSortConfig] = useState<SortState>({
-    field: 'date',
-    direction: 'desc',
-  })
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [isSortOpen, setIsSortOpen] = useState(false)
-
   const handleViewDetail = (tagihan: Tagihan) => {
     setSelectedTagihan(tagihan)
     setIsDetailModalOpen(true)
@@ -119,87 +103,19 @@ export default function BendaharaDetailRekapKas() {
     setSelectedTagihan(null)
   }
 
-  // Filter and Sort functions
-  const handleStatusFilter = (status: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      status: prev.status.includes(status)
-        ? prev.status.filter((s) => s !== status)
-        : [...prev.status, status],
-    }))
+  const isMobile = useIsMobile()
+
+  const formatStatusLabel = (s?: string) => {
+    if (!s) return 'Filter Status'
+    const spaced = s.replace(/_/g, ' ')
+    return spaced.replace(/\b\w/g, (ch) => ch.toUpperCase())
   }
 
-  const handleMonthFilter = (month: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      month: prev.month.includes(month)
-        ? prev.month.filter((m) => m !== month)
-        : [...prev.month, month],
-    }))
-  }
-
-  const handleSort = (field: SortState['field']) => {
-    setSortConfig((prev) => ({
-      field,
-      direction: prev.field === field && prev.direction === 'desc' ? 'asc' : 'desc',
-    }))
-  }
-
-  const clearAllFilters = () => {
-    setFilters({
-      status: [],
-      month: [],
-      amountRange: 'all',
-    })
-    setSortConfig({
-      field: 'date',
-      direction: 'desc',
-    })
-  }
-
-  // Apply filters and sorting
-  const filteredAndSortedData = useMemo(() => {
-    let filtered = [...dataTagihan]
-
-    // Apply status filter
-    if (filters.status.length > 0) {
-      filtered = filtered.filter((t) => filters.status.includes(t.status))
-    }
-
-    // Apply month filter
-    if (filters.month.length > 0) {
-      filtered = filtered.filter((t) => filters.month.includes(t.month))
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      const direction = sortConfig.direction === 'asc' ? 1 : -1
-      switch (sortConfig.field) {
-        case 'amount':
-          return (a.totalAmount - b.totalAmount) * direction
-        case 'status':
-          return a.status.localeCompare(b.status) * direction
-        case 'month':
-          return a.month.localeCompare(b.month) * direction
-        default:
-          return 0
-      }
-    })
-
-    return filtered
-  }, [dataTagihan, filters, sortConfig])
-
-  // Get unique months from data
-  const uniqueMonths = useMemo(() => {
+  // Get unique months from data (memoized for potential future use)
+  useMemo(() => {
     return [...new Set(dataTagihan.map((t) => t.month))]
   }, [dataTagihan])
 
-  // Check if any filters are active
-  const hasActiveFilters =
-    filters.status.length > 0 || filters.month.length > 0 || filters.amountRange !== 'all'
-  const hasActiveSort = sortConfig.field !== 'date' || sortConfig.direction !== 'desc'
-
-  const isMobile = useIsMobile()
   const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
 
   return (
@@ -240,133 +156,41 @@ export default function BendaharaDetailRekapKas() {
             }`}
           >
             <div className="flex w-full flex-wrap items-center justify-center gap-4 sm:w-auto sm:gap-2">
-              {/* Filter Dropdown */}
-              <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={hasActiveFilters ? 'default' : 'secondary'}
-                    className="relative w-full sm:w-auto"
-                  >
-                    <Filter className="h-5 w-5" />
-                    Filter
-                    {hasActiveFilters && (
-                      <Badge className="ml-1 h-5 bg-white px-1.5 py-0.5 text-xs text-blue-500">
-                        {filters.status.length +
-                          filters.month.length +
-                          (filters.amountRange !== 'all' ? 1 : 0)}
-                      </Badge>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 p-4" align="start">
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Filter Options</h4>
-
-                    {/* Status Filter */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Status</label>
-                      <div className="space-y-2">
-                        {['Belum Dibayar', 'Menunggu Konfirmasi', 'Sudah Dibayar'].map((status) => (
-                          <div key={status} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={status}
-                              checked={filters.status.includes(status)}
-                              onCheckedChange={() => handleStatusFilter(status)}
-                              className="data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500"
-                            />
-                            <label htmlFor={status} className="cursor-pointer text-sm">
-                              {status}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Month Filter */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Month</label>
-                      <div className="space-y-2">
-                        {uniqueMonths.map((month) => (
-                          <div key={month} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={month}
-                              checked={filters.month.includes(month)}
-                              onCheckedChange={() => handleMonthFilter(month)}
-                              className="data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500"
-                            />
-                            <label htmlFor={month} className="cursor-pointer text-sm">
-                              {month}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-
-              {/* Sort Dropdown */}
-              <Popover open={isSortOpen} onOpenChange={setIsSortOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={hasActiveSort ? 'default' : 'secondary'}
-                    className="w-full sm:w-auto"
-                  >
-                    <Icons.Sort className="h-5 w-5" />
-                    Sort
-                    {hasActiveSort && (
-                      <Badge className="ml-1 h-5 bg-white px-1.5 py-0.5 text-xs text-blue-500">
-                        1
-                      </Badge>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-64 p-4" align="start">
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Sort Options</h4>
-
-                    <div className="space-y-2">
-                      {[
-                        { field: 'date', label: 'Date' },
-                        { field: 'amount', label: 'Amount' },
-                        { field: 'status', label: 'Status' },
-                        { field: 'month', label: 'Month' },
-                      ].map((option) => (
-                        <button
-                          key={option.field}
-                          onClick={() => handleSort(option.field as SortState['field'])}
-                          className={`w-full rounded-md px-3 py-2 text-left transition-colors ${
-                            sortConfig.field === option.field
-                              ? 'bg-blue-50 text-blue-600'
-                              : 'hover:bg-gray-50'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">{option.label}</span>
-                            {sortConfig.field === option.field && (
-                              <span className="text-xs">
-                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                              </span>
-                            )}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-
-              {/* Clear Filters Button */}
-              {(hasActiveFilters || hasActiveSort) && (
-                <Button
-                  variant="outline"
-                  onClick={clearAllFilters}
-                  className="w-full border-red-300 text-red-600 hover:bg-red-50 sm:w-auto"
-                >
-                  <X className="h-4 w-4" />
-                  Clear All
-                </Button>
-              )}
+              <Button
+                variant={statusFilter ? 'default' : 'secondary'}
+                onClick={() => {
+                  const statuses = ['belum_dibayar', 'menunggu_konfirmasi', 'sudah_dibayar']
+                  const currentIndex = statuses.indexOf(statusFilter || '')
+                  const nextIndex = (currentIndex + 1) % (statuses.length + 1)
+                  setStatusFilter(nextIndex === statuses.length ? undefined : statuses[nextIndex])
+                }}
+                className="w-full sm:w-auto"
+              >
+                <Filter className="h-5 w-5" />
+                {formatStatusLabel(statusFilter)}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  if (sortBy === 'createdAt') {
+                    setSortBy('amount')
+                  } else if (sortBy === 'amount') {
+                    setSortBy('status')
+                  } else {
+                    setSortBy('createdAt')
+                  }
+                  setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')
+                }}
+                className="w-full sm:w-auto"
+              >
+                <Icons.Sort className="h-5 w-5" />
+                {sortBy === 'createdAt'
+                  ? 'Tanggal'
+                  : sortBy === 'amount'
+                    ? 'Nominal'
+                    : 'Status'}{' '}
+                {sortOrder === 'desc' ? '↓' : '↑'}
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -384,7 +208,7 @@ export default function BendaharaDetailRekapKas() {
                 </tr>
               </thead>
               <tbody>
-                {filteredAndSortedData.length === 0 ? (
+                {dataTagihan.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-12">
                       <div className="flex flex-col items-center justify-center text-center">
@@ -401,7 +225,7 @@ export default function BendaharaDetailRekapKas() {
                     </td>
                   </tr>
                 ) : (
-                  filteredAndSortedData.map((tagihan) => (
+                  dataTagihan.map((tagihan) => (
                     <tr key={tagihan.billId} className="border-b transition hover:bg-gray-50">
                       <td className="px-4 py-3 font-medium">{tagihan.month}</td>
                       <td className="px-4 py-3">
@@ -429,7 +253,7 @@ export default function BendaharaDetailRekapKas() {
           </div>
 
           <div className="space-y-4 sm:hidden">
-            {filteredAndSortedData.length === 0 ? (
+            {dataTagihan.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="mb-4 text-gray-400">
                   <Receipt className="mx-auto size-12" />
@@ -438,7 +262,7 @@ export default function BendaharaDetailRekapKas() {
                 <p className="text-sm text-gray-500">Belum ada data tagihan untuk mahasiswa ini</p>
               </div>
             ) : (
-              filteredAndSortedData.map((tagihan) => (
+              dataTagihan.map((tagihan) => (
                 <div
                   key={tagihan.billId}
                   className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"

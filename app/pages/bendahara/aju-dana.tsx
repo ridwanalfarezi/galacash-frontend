@@ -6,8 +6,8 @@ import {
   ChevronRight,
   ChevronUp,
   Clock,
+  Filter,
   HandCoins,
-  RotateCcw,
   XIcon,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -16,11 +16,15 @@ import Export from '~/components/icons/export'
 import Sort from '~/components/icons/sort'
 import { BuatAjuDanaModal } from '~/components/modals/BuatAjuDana'
 import { DetailAjuDanaBendahara } from '~/components/modals/DetailAjuDanaBendahara'
-import { FilterComponent, type FilterState } from '~/components/shared/filter-component'
-import { SortDropdown, type SortOption } from '~/components/shared/sort-dropdown'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import type { components } from '~/types/api'
@@ -50,10 +54,18 @@ export default function BendaharaAjuDana() {
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
   const isMobile = useIsMobile()
   const [isButtonsBVisible, setIsButtonsBVisible] = useState(!isMobile)
-  const [currentSortB, setCurrentSortB] = useState<SortOption | null>(null)
+  const [statusFilter, setStatusFilter] = useState<string | undefined>()
+  const [sortBy, setSortBy] = useState<'createdAt' | 'amount'>('createdAt')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   // Fetch fund applications from API
-  const { data: fundApplicationsData, isLoading } = useQuery(bendaharaQueries.fundApplications())
+  const { data: fundApplicationsData, isLoading } = useQuery(
+    bendaharaQueries.fundApplications({
+      status: statusFilter,
+      sortBy,
+      sortOrder,
+    })
+  )
 
   // Map API data to Application interface
   const applications: Application[] = useMemo(() => {
@@ -77,83 +89,26 @@ export default function BendaharaAjuDana() {
     }))
   }, [fundApplicationsData])
 
-  const maxAmountB = useMemo(
-    () =>
-      applications.length > 0 ? Math.max(...applications.map((app) => app.amount)) : 100000000,
-    [applications]
-  )
-
-  const [filtersB, setFiltersB] = useState<FilterState>({
-    status: [],
-    applicants: [],
-    categories: [],
-    amountRange: [0, maxAmountB],
-  })
-
-  const isFilterActiveB =
-    filtersB.status.length > 0 ||
-    filtersB.applicants.length > 0 ||
-    filtersB.categories.length > 0 ||
-    filtersB.amountRange[0] > 0 ||
-    filtersB.amountRange[1] < maxAmountB
-  const isSortActiveB = currentSortB !== null
-  const clearAllFiltersB = () => {
-    setCurrentSortB(null)
-    setFiltersB({
-      status: [],
-      applicants: [],
-      categories: [],
-      amountRange: [0, maxAmountB],
-    })
+  // Helper functions
+  const getSortLabel = () => {
+    if (sortBy === 'createdAt') {
+      return sortOrder === 'desc' ? 'Terbaru' : 'Terlama'
+    }
+    return sortOrder === 'desc' ? 'Nominal Tertinggi' : 'Nominal Terendah'
   }
-  const filteredAndSortedApplicationsB = useMemo(() => {
-    let filtered = [...applications]
 
-    if (filtersB.status.length > 0) {
-      filtered = filtered.filter((app) => filtersB.status.includes(app.status))
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Menunggu'
+      case 'approved':
+        return 'Disetujui'
+      case 'rejected':
+        return 'Ditolak'
+      default:
+        return status
     }
-
-    if (filtersB.applicants.length > 0) {
-      filtered = filtered.filter((app) => filtersB.applicants.includes(app.applicant))
-    }
-
-    if (filtersB.categories.length > 0) {
-      filtered = filtered.filter((app) => filtersB.categories.includes(app.category))
-    }
-
-    filtered = filtered.filter(
-      (app) => app.amount >= filtersB.amountRange[0] && app.amount <= filtersB.amountRange[1]
-    )
-
-    if (currentSortB) {
-      filtered.sort((a, b) => {
-        let aVal: string | number = a[currentSortB.field as keyof Application] as string | number
-        let bVal: string | number = b[currentSortB.field as keyof Application] as string | number
-
-        if (currentSortB.field === 'date') {
-          aVal = new Date(aVal as string).getTime()
-          bVal = new Date(bVal as string).getTime()
-        } else if (typeof aVal === 'string') {
-          aVal = aVal.toLowerCase()
-          bVal = (bVal as string).toLowerCase()
-        }
-
-        return currentSortB.direction === 'asc' ? (aVal > bVal ? 1 : -1) : aVal < bVal ? 1 : -1
-      })
-    }
-
-    return filtered
-  }, [filtersB, currentSortB, applications])
-
-  // Get unique applicants and categories from actual data
-  const uniqueApplicants = useMemo(
-    () => [...new Set(applications.map((app) => app.applicant))],
-    [applications]
-  )
-  const uniqueCategories = useMemo(
-    () => [...new Set(applications.map((app) => app.category))],
-    [applications]
-  )
+  }
 
   const formatCurrency = (amount: number) => {
     return `Rp ${amount.toLocaleString('id-ID')}`
@@ -224,43 +179,73 @@ export default function BendaharaAjuDana() {
               }`}
             >
               <div className="flex w-full flex-wrap items-center justify-center gap-4 sm:w-auto sm:gap-2">
-                <FilterComponent
-                  currentFilters={filtersB}
-                  onFilterChange={setFiltersB}
-                  applicants={uniqueApplicants}
-                  categories={uniqueCategories}
-                  maxAmount={maxAmountB}
-                  className="w-full sm:w-auto"
-                />
-                <SortDropdown
-                  currentSort={currentSortB}
-                  onSortChange={setCurrentSortB}
-                  align="end"
-                  trigger={
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button
-                      variant={isSortActiveB ? 'default' : 'secondary'}
-                      className={`w-full sm:w-auto ${isSortActiveB ? 'bg-blue-500 text-white hover:bg-blue-700' : ''}`}
+                      variant={statusFilter ? 'default' : 'secondary'}
+                      className="w-full sm:w-auto"
                     >
-                      <Sort className="h-5 w-5" />
-                      Sort
-                      {isSortActiveB && (
-                        <Badge className="ml-1 h-5 bg-white px-1.5 py-0.5 text-xs text-blue-500">
-                          1
-                        </Badge>
-                      )}
+                      <Filter className="h-5 w-5" />
+                      {statusFilter ? getStatusLabel(statusFilter) : 'Filter'}
                     </Button>
-                  }
-                />
-                {(isFilterActiveB || isSortActiveB) && (
-                  <Button
-                    variant="secondary"
-                    onClick={clearAllFiltersB}
-                    className="text-destructive hover:bg-destructive border-destructive w-full hover:text-white sm:w-auto"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                    Reset
-                  </Button>
-                )}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem onClick={() => setStatusFilter(undefined)}>
+                      Semua Status
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter('pending')}>
+                      Menunggu
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter('approved')}>
+                      Disetujui
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter('rejected')}>
+                      Ditolak
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" className="w-full sm:w-auto">
+                      <Sort className="h-5 w-5" />
+                      {getSortLabel()}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortBy('createdAt')
+                        setSortOrder('desc')
+                      }}
+                    >
+                      Terbaru
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortBy('createdAt')
+                        setSortOrder('asc')
+                      }}
+                    >
+                      Terlama
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortBy('amount')
+                        setSortOrder('desc')
+                      }}
+                    >
+                      Nominal Tertinggi
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortBy('amount')
+                        setSortOrder('asc')
+                      }}
+                    >
+                      Nominal Terendah
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Button className="w-full sm:w-auto">
                   <Export className="h-5 w-5" />
                   Export
@@ -289,7 +274,7 @@ export default function BendaharaAjuDana() {
                         Memuat data...
                       </td>
                     </tr>
-                  ) : filteredAndSortedApplicationsB.length === 0 ? (
+                  ) : applications.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="py-12">
                         <div className="flex flex-col items-center justify-center text-center">
@@ -306,7 +291,7 @@ export default function BendaharaAjuDana() {
                       </td>
                     </tr>
                   ) : (
-                    filteredAndSortedApplicationsB.map((app) => (
+                    applications.map((app) => (
                       <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm">{app.date}</td>
                         <td className="px-4 py-3 text-sm">{app.purpose}</td>
@@ -331,7 +316,7 @@ export default function BendaharaAjuDana() {
             <div className="space-y-4 sm:hidden">
               {isLoading ? (
                 <div className="py-8 text-center text-gray-500">Memuat data...</div>
-              ) : filteredAndSortedApplicationsB.length === 0 ? (
+              ) : applications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <div className="mb-4 text-gray-400">
                     <HandCoins className="mx-auto size-12" />
@@ -342,7 +327,7 @@ export default function BendaharaAjuDana() {
                   </p>
                 </div>
               ) : (
-                filteredAndSortedApplicationsB.map((app) => (
+                applications.map((app) => (
                   <div
                     key={app.id}
                     className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"

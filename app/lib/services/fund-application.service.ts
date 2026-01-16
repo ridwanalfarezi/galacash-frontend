@@ -9,6 +9,8 @@ export interface FundApplicationFilters {
   limit?: number
   status?: 'pending' | 'approved' | 'rejected'
   category?: 'education' | 'health' | 'emergency' | 'equipment'
+  sortBy?: 'createdAt' | 'amount' | 'status'
+  sortOrder?: 'asc' | 'desc'
 }
 
 export interface CreateFundApplicationData {

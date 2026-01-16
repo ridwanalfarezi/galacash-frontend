@@ -22,11 +22,15 @@ export interface BendaharaFilters {
   page?: number
   limit?: number
   status?: string
+  month?: string
   search?: string
   startDate?: string
   endDate?: string
   groupBy?: 'day' | 'week' | 'month' | 'year'
   userId?: string // Filter by specific user ID for student-specific queries
+  sortBy?: 'createdAt' | 'amount' | 'status'
+  sortOrder?: 'asc' | 'desc'
+  category?: string
 }
 
 export interface CreateTransactionData {
