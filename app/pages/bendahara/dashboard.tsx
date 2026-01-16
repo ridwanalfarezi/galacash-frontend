@@ -1,7 +1,8 @@
 'use client'
 
-import { CircleArrowDown, CircleArrowUp, Clock } from 'lucide-react'
-import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { CircleArrowDown, CircleArrowUp, Clock, HandCoins } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import type { DateRange } from 'react-day-picker'
 import { Link } from 'react-router'
 
@@ -9,6 +10,11 @@ import { Icons } from '~/components/icons'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DatePicker } from '~/components/ui/date-picker'
+import {
+  bendaharaQueries,
+  useApproveFundApplication,
+  useRejectFundApplication,
+} from '~/lib/queries/bendahara.queries'
 
 import { formatCurrency, formatDate, groupTransactionsByDate } from '../../lib/utils'
 
@@ -20,109 +26,71 @@ interface Transaction {
   date: string
 }
 
-const mockTransactions: Transaction[] = [
-  {
-    id: '1',
-    type: 'expense',
-    description: 'Pembelian ATK',
-    amount: 150000,
-    date: '2025-07-01',
-  },
-  {
-    id: '2',
-    type: 'income',
-    description: 'Iuran Kas',
-    amount: 500000,
-    date: '2025-07-01',
-  },
-  {
-    id: '3',
-    type: 'expense',
-    description: 'Snack Rapat',
-    amount: 75000,
-    date: '2025-07-02',
-  },
-  {
-    id: '4',
-    type: 'income',
-    description: 'Iuran Kas',
-    amount: 500000,
-    date: '2025-07-02',
-  },
-  {
-    id: '5',
-    type: 'expense',
-    description: 'Konsumsi Meeting',
-    amount: 125000,
-    date: '2025-07-03',
-  },
-  {
-    id: '6',
-    type: 'income',
-    description: 'Dana Kegiatan',
-    amount: 300000,
-    date: '2025-07-03',
-  },
-]
-
-const mockSubmissions = [
-  {
-    id: '1',
-    userId: '1',
-    name: 'Ridwan Alfarezi',
-    description: 'Pembelian ATK',
-    amount: 150000,
-    status: 'pending',
-    createdAt: '2024-03-20',
-  },
-  {
-    id: '2',
-    userId: '1',
-    name: 'Ridwan Alfarezi',
-    description: 'Snack Rapat',
-    amount: 75000,
-    status: 'pending',
-    createdAt: '2024-03-19',
-  },
-  {
-    id: '3',
-    userId: '2',
-    name: 'Dheki Akbar',
-    description: 'Pembelian Zoom Pro',
-    amount: 40000,
-    status: 'pending',
-    createdAt: '2024-03-19',
-  },
-]
-
-const mockSummary = {
-  totalBalance: 1573428.69,
-  totalIncome: 1573428.69,
-  totalExpense: 1573428.69,
-}
-
 export default function DashboardPage() {
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     to: new Date(),
   })
 
-  const filteredTransactions = mockTransactions.filter((transaction) => {
-    if (!date?.from || !date?.to) return true
-    const transactionDate = new Date(transaction.date)
-    return transactionDate >= date.from && transactionDate <= date.to
-  })
+  // Fetch dashboard data from API
+  const { data: dashboardData } = useQuery(bendaharaQueries.dashboard())
+
+  // Mutations for approve/reject
+  const approveMutation = useApproveFundApplication()
+  const rejectMutation = useRejectFundApplication()
+
+  // Map API transactions to local Transaction type
+  const transactions: Transaction[] = useMemo(() => {
+    if (!dashboardData?.recentTransactions) return []
+    return dashboardData.recentTransactions.map((t) => ({
+      id: t.id || '',
+      type: (t.type || 'income') as 'income' | 'expense',
+      description: t.description || '',
+      amount: t.amount || 0,
+      date: t.date || '',
+    }))
+  }, [dashboardData])
+
+  // Filter transactions by date
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((transaction) => {
+      if (!date?.from || !date?.to) return true
+      const transactionDate = new Date(transaction.date)
+      return transactionDate >= date.from && transactionDate <= date.to
+    })
+  }, [transactions, date])
 
   const groupedTransactions = groupTransactionsByDate(filteredTransactions)
 
+  // Summary from API with fallback
   const filteredSummary = {
-    totalBalance: mockSummary.totalBalance,
-    totalIncome: filteredTransactions
-      .filter((t) => t.type === 'income')
-      .reduce((sum, t) => sum + t.amount, 0),
-    totalExpense: filteredTransactions
-      .filter((t) => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0),
+    totalBalance: dashboardData?.totalBalance || 0,
+    totalIncome: dashboardData?.totalIncome || 0,
+    totalExpense: dashboardData?.totalExpense || 0,
+  }
+
+  // Fund applications from API
+  const pendingApplications = useMemo(() => {
+    if (!dashboardData?.recentFundApplications) return []
+    return dashboardData.recentFundApplications
+      .filter((app) => app.status === 'pending')
+      .map((app) => ({
+        id: app.id || '',
+        userId: app.applicant?.id || '', // Use applicant.id since userId doesn't exist
+        name: app.applicant?.name || 'Unknown',
+        description: app.purpose || '',
+        amount: app.amount || 0,
+        status: app.status || 'pending',
+        createdAt: app.date || '',
+      }))
+  }, [dashboardData])
+
+  const handleApprove = (id: string) => {
+    approveMutation.mutate(id)
+  }
+
+  const handleReject = (id: string) => {
+    rejectMutation.mutate({ id, rejectionReason: 'Ditolak oleh bendahara' })
   }
 
   return (
@@ -272,9 +240,8 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {mockSubmissions
-                .filter((s) => s.status === 'pending')
-                .map((submission) => (
+              {pendingApplications.length > 0 ? (
+                pendingApplications.map((submission) => (
                   <div
                     key={submission.id}
                     className="flex flex-row items-center justify-between gap-2"
@@ -293,16 +260,35 @@ export default function DashboardPage() {
                         {formatCurrency(submission.amount)}
                       </h3>
                       <div className="flex shrink-0 items-center justify-center overflow-hidden rounded-xl">
-                        <Button className="rounded-none bg-red-700 hover:bg-red-500">
+                        <Button
+                          className="rounded-none bg-red-700 hover:bg-red-500"
+                          onClick={() => handleReject(submission.id)}
+                          disabled={rejectMutation.isPending}
+                        >
                           <Icons.X className="size-4 text-gray-100" />
                         </Button>
-                        <Button className="rounded-none bg-green-700 hover:bg-green-500">
+                        <Button
+                          className="rounded-none bg-green-700 hover:bg-green-500"
+                          onClick={() => handleApprove(submission.id)}
+                          disabled={approveMutation.isPending}
+                        >
                           <Icons.Check className="size-4 text-gray-100" />
                         </Button>
                       </div>
                     </div>
                   </div>
-                ))}
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="mb-4 text-gray-400">
+                    <HandCoins className="mx-auto size-12" />
+                  </div>
+                  <h3 className="mb-2 text-lg font-medium text-gray-900">Tidak ada pengajuan</h3>
+                  <p className="text-sm text-gray-500">
+                    Belum ada pengajuan dana yang perlu diproses
+                  </p>
+                </div>
+              )}
             </CardContent>
             <div className="flex justify-center">
               <Link to="/bendahara/aju-dana" className="hover:underline">

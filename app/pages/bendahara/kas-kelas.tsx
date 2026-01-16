@@ -1,7 +1,8 @@
 'use client'
 
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
-import { ChevronDown, ChevronRight, ChevronUp, Filter } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { ChevronDown, ChevronRight, ChevronUp, Clock, Filter } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -16,6 +17,7 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
+import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { transactionService } from '~/lib/services/transaction.service'
 import { formatCurrency } from '~/lib/utils'
 
@@ -26,43 +28,6 @@ interface HistoryTransaction {
   type: 'income' | 'expense'
   amount: number
 }
-
-const historyTransaction: HistoryTransaction[] = [
-  {
-    id: '1',
-    date: '28 September 2098',
-    purpose: 'Pembayaran SPP',
-    type: 'income',
-    amount: 500000,
-  },
-  {
-    id: '2',
-    date: '28 September 2098',
-    purpose: 'Pembelian Buku',
-    type: 'expense',
-    amount: 150000,
-  },
-  {
-    id: '3',
-    date: '28 September 2098',
-    purpose: 'Donasi Kegiatan Sekolah',
-    type: 'income',
-    amount: 200000,
-  },
-]
-
-const incomeData = [
-  { name: 'Pembayaran SPP', value: 500000, fill: '#50b89a' },
-  { name: 'Donasi Kegiatan', value: 200000, fill: '#8cd9a7' },
-  { name: 'Infaq Bulanan', value: 300000, fill: '#34a0a4' },
-]
-
-// Sample expense data
-const expenseData = [
-  { name: 'Pembelian Buku', value: 150000, fill: '#920c22' },
-  { name: 'Konsumsi Rapat', value: 75000, fill: '#af2038' },
-  { name: 'ATK Kelas', value: 125000, fill: '#800016' },
-]
 
 export default function BendaharaKasKelas() {
   const [detailModal, setDetailModal] = useState<HistoryTransaction | null>(null)
@@ -82,6 +47,74 @@ export default function BendaharaKasKelas() {
     | 'type-za'
   >('date-newest')
   const isDetailModalOpen = detailModal !== null
+
+  // Fetch transactions from API
+  const { data: transactionsData } = useQuery(
+    transactionQueries.list({
+      page: 1,
+      limit: 50,
+      type: filterType === 'all' ? undefined : filterType,
+    })
+  )
+
+  // Map API transactions to local type
+  const transactions: HistoryTransaction[] = useMemo(() => {
+    if (!transactionsData?.transactions) return []
+    return transactionsData.transactions.map((t) => ({
+      id: t.id || '',
+      date: t.date || '',
+      purpose: t.description || '',
+      type: (t.type || 'income') as 'income' | 'expense',
+      amount: t.amount || 0,
+    }))
+  }, [transactionsData])
+
+  // Chart data - using placeholder data until API supports aggregated chart endpoints
+  // TODO: Replace with actual API call when backend supports chart data aggregation
+  const incomeData = useMemo(() => {
+    // Calculate from transactions if available
+    const incomeTransactions = transactions.filter((t) => t.type === 'income')
+    if (incomeTransactions.length === 0) {
+      return [{ name: 'Iuran Kas', value: 100000, fill: '#50b89a' }]
+    }
+    // Group by purpose for simple breakdown
+    const grouped = incomeTransactions.reduce(
+      (acc, t) => {
+        const key = t.purpose || 'Lainnya'
+        acc[key] = (acc[key] || 0) + t.amount
+        return acc
+      },
+      {} as Record<string, number>
+    )
+    const colors = ['#50b89a', '#8cd9a7', '#34a0a4', '#76c893', '#52b788']
+    return Object.entries(grouped).map(([name, value], index) => ({
+      name,
+      value,
+      fill: colors[index % colors.length],
+    }))
+  }, [transactions])
+
+  const expenseData = useMemo(() => {
+    const expenseTransactions = transactions.filter((t) => t.type === 'expense')
+    if (expenseTransactions.length === 0) {
+      return [{ name: 'Pengeluaran', value: 50000, fill: '#920c22' }]
+    }
+    // Group by purpose for simple breakdown
+    const grouped = expenseTransactions.reduce(
+      (acc, t) => {
+        const key = t.purpose || 'Lainnya'
+        acc[key] = (acc[key] || 0) + t.amount
+        return acc
+      },
+      {} as Record<string, number>
+    )
+    const colors = ['#920c22', '#af2038', '#800016', '#c32f48', '#e04055']
+    return Object.entries(grouped).map(([name, value], index) => ({
+      name,
+      value,
+      fill: colors[index % colors.length],
+    }))
+  }, [transactions])
 
   const openDetailModal = (transaction: HistoryTransaction) => {
     setDetailModal(transaction)
@@ -122,17 +155,9 @@ export default function BendaharaKasKelas() {
     }
   }
 
-  // Filter and sort functionality
-  const filteredAndSortedTransactions = useMemo(() => {
-    let filtered = historyTransaction
-
-    // Apply filter
-    if (filterType !== 'all') {
-      filtered = filtered.filter((transaction) => transaction.type === filterType)
-    }
-
-    // Apply sort
-    const sorted = [...filtered].sort((a, b) => {
+  // Sort functionality (filtering is done by API)
+  const sortedTransactions = useMemo(() => {
+    const sorted = [...transactions].sort((a, b) => {
       switch (sortBy) {
         case 'date-newest':
           return new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -156,7 +181,7 @@ export default function BendaharaKasKelas() {
     })
 
     return sorted
-  }, [filterType, sortBy])
+  }, [transactions, sortBy])
 
   const getSortLabel = () => {
     switch (sortBy) {
@@ -244,13 +269,21 @@ export default function BendaharaKasKelas() {
               <CardContent>
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
                   <FinancialPieChart
-                    data={incomeData}
+                    data={
+                      incomeData.length > 0
+                        ? incomeData
+                        : [{ name: 'No Data', value: 1, fill: '#e5e7eb' }]
+                    }
                     title="Pemasukan"
                     type="income"
                     className="flex justify-center"
                   />
                   <FinancialPieChart
-                    data={expenseData}
+                    data={
+                      expenseData.length > 0
+                        ? expenseData
+                        : [{ name: 'No Data', value: 1, fill: '#e5e7eb' }]
+                    }
                     title="Pengeluaran"
                     type="expense"
                     className="flex justify-center"
@@ -380,35 +413,55 @@ export default function BendaharaKasKelas() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredAndSortedTransactions.map((app) => (
-                      <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm">{app.date}</td>
-                        <td className="px-4 py-3 text-sm">{app.purpose}</td>
-                        <td className="px-4 py-3">{getTypeBadge(app.type)}</td>
-                        <td
-                          className={`px-4 py-3 text-sm font-medium ${app.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
-                        >
-                          {app.type === 'income' ? '+' : '-'}
-                          {formatCurrency(app.amount)}
-                        </td>
-                        <td className="px-4 py-3" onClick={() => openDetailModal(app)}>
-                          <Button variant="ghost" size="sm">
-                            <ChevronRight className="h-4 w-4" />
-                          </Button>
+                    {sortedTransactions.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-12">
+                          <div className="flex flex-col items-center justify-center text-center">
+                            <div className="mb-4 text-gray-400">
+                              <Clock className="mx-auto size-12" />
+                            </div>
+                            <h3 className="mb-2 text-lg font-medium text-gray-900">
+                              Tidak ada transaksi
+                            </h3>
+                            <p className="text-sm text-gray-500">Belum ada data transaksi</p>
+                          </div>
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      sortedTransactions.map((app) => (
+                        <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
+                          <td className="px-4 py-3 text-sm">{app.date}</td>
+                          <td className="px-4 py-3 text-sm">{app.purpose}</td>
+                          <td className="px-4 py-3">{getTypeBadge(app.type)}</td>
+                          <td
+                            className={`px-4 py-3 text-sm font-medium ${app.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
+                          >
+                            {app.type === 'income' ? '+' : '-'}
+                            {formatCurrency(app.amount)}
+                          </td>
+                          <td className="px-4 py-3" onClick={() => openDetailModal(app)}>
+                            <Button variant="ghost" size="sm">
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
 
               <div className="space-y-4 sm:hidden">
-                {filteredAndSortedTransactions.length === 0 ? (
-                  <div className="py-8 text-center text-gray-500">
-                    Tidak ada data yang sesuai dengan filter yang dipilih
+                {sortedTransactions.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="mb-4 text-gray-400">
+                      <Clock className="mx-auto size-12" />
+                    </div>
+                    <h3 className="mb-2 text-lg font-medium text-gray-900">Tidak ada transaksi</h3>
+                    <p className="text-sm text-gray-500">Belum ada data transaksi</p>
                   </div>
                 ) : (
-                  filteredAndSortedTransactions.map((app) => (
+                  sortedTransactions.map((app) => (
                     <div
                       key={app.id}
                       className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"

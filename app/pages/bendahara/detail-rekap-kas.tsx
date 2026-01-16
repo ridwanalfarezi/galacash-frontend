@@ -1,6 +1,9 @@
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, X } from 'lucide-react'
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router'
+'use client'
+
+import { useQuery } from '@tanstack/react-query'
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, Receipt, X } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Link, useLocation, useParams } from 'react-router'
 
 import { Icons } from '~/components/icons'
 import { DetailTagihanKasBendahara } from '~/components/modals/DetailTagihanKasBendahara'
@@ -10,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Checkbox } from '~/components/ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
 import { useIsMobile } from '~/hooks/use-mobile'
+import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { formatCurrency } from '~/lib/utils'
 
 export function useNamaMahasiswa() {
@@ -17,6 +21,7 @@ export function useNamaMahasiswa() {
   const nama = location.state?.nama || 'Mahasiswa'
   return nama
 }
+
 interface Tagihan {
   id: string
   month: string
@@ -50,53 +55,46 @@ export default function BendaharaDetailRekapKas() {
   const [selectedTagihan, setSelectedTagihan] = useState<Tagihan | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const nama = useNamaMahasiswa()
+  const { userId } = useParams()
 
-  const dataTagihan: Tagihan[] = [
-    {
-      id: '1',
-      month: 'Desember',
-      status: 'Belum Dibayar',
-      billId: 'INV-20241201-020-001',
-      name: nama,
-      dueDate: '31 Desember 2024',
-      kasKelas: 15000,
-      biayaAdmin: 1000,
-      totalAmount: 16000,
-    },
-    {
-      id: '2',
-      month: 'November',
-      status: 'Menunggu Konfirmasi',
-      billId: 'INV-20241101-020-001',
-      name: nama,
-      dueDate: '30 November 2024',
-      kasKelas: 15000,
-      biayaAdmin: 1000,
-      totalAmount: 16000,
-    },
-    {
-      id: '3',
-      month: 'Oktober',
-      status: 'Sudah Dibayar',
-      billId: 'INV-20241001-020-001',
-      name: nama,
-      dueDate: '31 October 2024',
-      kasKelas: 15000,
-      biayaAdmin: 1000,
-      totalAmount: 16000,
-    },
-    {
-      id: '4',
-      month: 'September',
-      status: 'Sudah Dibayar',
-      billId: 'INV-20240901-020-001',
-      name: nama,
-      dueDate: '30 September 2024',
-      kasKelas: 15000,
-      biayaAdmin: 1000,
-      totalAmount: 16000,
-    },
-  ]
+  // Fetch cash bills for specific user from API
+  const { data: billsData } = useQuery(bendaharaQueries.cashBills({ userId: userId || '' }))
+
+  // Map API data to local Tagihan format
+  const dataTagihan: Tagihan[] = useMemo(() => {
+    if (!billsData?.bills) return []
+    return billsData.bills.map((bill) => {
+      const monthDate = bill.month ? new Date(bill.month) : new Date()
+      const monthName = monthDate.toLocaleDateString('id-ID', { month: 'long' })
+      const dueDate = bill.dueDate
+        ? new Date(bill.dueDate).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })
+        : ''
+
+      // Map API status to display status
+      let displayStatus: Tagihan['status'] = 'Belum Dibayar'
+      if (bill.status === 'sudah_dibayar') {
+        displayStatus = 'Sudah Dibayar'
+      } else if (bill.status === 'menunggu_konfirmasi') {
+        displayStatus = 'Menunggu Konfirmasi'
+      }
+
+      return {
+        id: bill.id || '',
+        month: monthName,
+        status: displayStatus,
+        billId: bill.billId || '',
+        name: nama,
+        dueDate: dueDate,
+        kasKelas: bill.totalAmount ? Math.round(bill.totalAmount * 0.9375) : 15000, // ~93.75% of total
+        biayaAdmin: bill.totalAmount ? Math.round(bill.totalAmount * 0.0625) : 1000, // ~6.25% of total
+        totalAmount: bill.totalAmount || 16000,
+      }
+    })
+  }, [billsData, nama])
 
   // Filter and Sort states
   const [filters, setFilters] = useState<FilterState>({
@@ -158,6 +156,43 @@ export default function BendaharaDetailRekapKas() {
       direction: 'desc',
     })
   }
+
+  // Apply filters and sorting
+  const filteredAndSortedData = useMemo(() => {
+    let filtered = [...dataTagihan]
+
+    // Apply status filter
+    if (filters.status.length > 0) {
+      filtered = filtered.filter((t) => filters.status.includes(t.status))
+    }
+
+    // Apply month filter
+    if (filters.month.length > 0) {
+      filtered = filtered.filter((t) => filters.month.includes(t.month))
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      const direction = sortConfig.direction === 'asc' ? 1 : -1
+      switch (sortConfig.field) {
+        case 'amount':
+          return (a.totalAmount - b.totalAmount) * direction
+        case 'status':
+          return a.status.localeCompare(b.status) * direction
+        case 'month':
+          return a.month.localeCompare(b.month) * direction
+        default:
+          return 0
+      }
+    })
+
+    return filtered
+  }, [dataTagihan, filters, sortConfig])
+
+  // Get unique months from data
+  const uniqueMonths = useMemo(() => {
+    return [...new Set(dataTagihan.map((t) => t.month))]
+  }, [dataTagihan])
 
   // Check if any filters are active
   const hasActiveFilters =
@@ -251,7 +286,7 @@ export default function BendaharaDetailRekapKas() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Month</label>
                       <div className="space-y-2">
-                        {['Desember', 'November', 'Oktober', 'September'].map((month) => (
+                        {uniqueMonths.map((month) => (
                           <div key={month} className="flex items-center space-x-2">
                             <Checkbox
                               id={month}
@@ -349,60 +384,88 @@ export default function BendaharaDetailRekapKas() {
                 </tr>
               </thead>
               <tbody>
-                {dataTagihan.map((tagihan) => (
-                  <tr key={tagihan.billId} className="border-b transition hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium">{tagihan.month}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`rounded-md px-2 py-1 text-xs font-semibold ${statusColor[tagihan.status]}`}
-                      >
-                        {tagihan.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">{tagihan.billId}</td>
-                    <td className="px-4 py-3">{tagihan.dueDate}</td>
-                    <td className="px-4 py-3 font-semibold text-blue-500">
-                      {formatCurrency(tagihan.totalAmount)}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Button variant="ghost" size="sm" onClick={() => handleViewDetail(tagihan)}>
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
+                {filteredAndSortedData.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12">
+                      <div className="flex flex-col items-center justify-center text-center">
+                        <div className="mb-4 text-gray-400">
+                          <Receipt className="mx-auto size-12" />
+                        </div>
+                        <h3 className="mb-2 text-lg font-medium text-gray-900">
+                          Tidak ada tagihan
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Belum ada data tagihan untuk mahasiswa ini
+                        </p>
+                      </div>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredAndSortedData.map((tagihan) => (
+                    <tr key={tagihan.billId} className="border-b transition hover:bg-gray-50">
+                      <td className="px-4 py-3 font-medium">{tagihan.month}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`rounded-md px-2 py-1 text-xs font-semibold ${statusColor[tagihan.status]}`}
+                        >
+                          {tagihan.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">{tagihan.billId}</td>
+                      <td className="px-4 py-3">{tagihan.dueDate}</td>
+                      <td className="px-4 py-3 font-semibold text-blue-500">
+                        {formatCurrency(tagihan.totalAmount)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Button variant="ghost" size="sm" onClick={() => handleViewDetail(tagihan)}>
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
           <div className="space-y-4 sm:hidden">
-            {dataTagihan.map((tagihan) => (
-              <div
-                key={tagihan.billId}
-                className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">{tagihan.dueDate}</span>
-                  <span
-                    className={`rounded-md px-2 py-1 text-xs font-semibold ${statusColor[tagihan.status]}`}
-                  >
-                    {tagihan.status}
-                  </span>
+            {filteredAndSortedData.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="mb-4 text-gray-400">
+                  <Receipt className="mx-auto size-12" />
                 </div>
-                <div className="font-semibold">{tagihan.month}</div>
-                <div className="text-xs text-gray-700">
-                  <span>{tagihan.billId}</span>
-                </div>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="font-bold text-blue-500">
-                    {formatCurrency(tagihan.totalAmount)}
-                  </span>
-                  <Button variant="ghost" size="sm" onClick={() => handleViewDetail(tagihan)}>
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
+                <h3 className="mb-2 text-lg font-medium text-gray-900">Tidak ada tagihan</h3>
+                <p className="text-sm text-gray-500">Belum ada data tagihan untuk mahasiswa ini</p>
               </div>
-            ))}
+            ) : (
+              filteredAndSortedData.map((tagihan) => (
+                <div
+                  key={tagihan.billId}
+                  className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">{tagihan.dueDate}</span>
+                    <span
+                      className={`rounded-md px-2 py-1 text-xs font-semibold ${statusColor[tagihan.status]}`}
+                    >
+                      {tagihan.status}
+                    </span>
+                  </div>
+                  <div className="font-semibold">{tagihan.month}</div>
+                  <div className="text-xs text-gray-700">
+                    <span>{tagihan.billId}</span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="font-bold text-blue-500">
+                      {formatCurrency(tagihan.totalAmount)}
+                    </span>
+                    <Button variant="ghost" size="sm" onClick={() => handleViewDetail(tagihan)}>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

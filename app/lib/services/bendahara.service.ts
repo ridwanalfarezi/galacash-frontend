@@ -26,6 +26,7 @@ export interface BendaharaFilters {
   startDate?: string
   endDate?: string
   groupBy?: 'day' | 'week' | 'month' | 'year'
+  userId?: string // Filter by specific user ID for student-specific queries
 }
 
 export interface CreateTransactionData {
