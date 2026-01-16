@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { Check, ChevronDown, ChevronRight, ChevronUp, Receipt, X } from 'lucide-react'
+import { Check, ChevronDown, ChevronRight, ChevronUp, Receipt, Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 
@@ -135,12 +135,15 @@ export default function BendaharaRekapkas() {
             }`}
           >
             <div className="flex w-full flex-wrap items-center justify-center gap-4 sm:w-auto sm:gap-2">
-              <Input
-                placeholder="Cari nama atau NIM..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full sm:w-48"
-              />
+              <div className="relative w-full sm:w-48">
+                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Input
+                  placeholder="Cari nama atau NIM..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9"
+                />
+              </div>
 
               <Button className="w-full sm:w-auto">
                 <Export className="h-5 w-5" />
