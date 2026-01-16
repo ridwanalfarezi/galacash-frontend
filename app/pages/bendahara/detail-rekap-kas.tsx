@@ -9,6 +9,12 @@ import { Icons } from '~/components/icons'
 import { DetailTagihanKasBendahara } from '~/components/modals/DetailTagihanKasBendahara'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { formatCurrency } from '~/lib/utils'
@@ -105,10 +111,27 @@ export default function BendaharaDetailRekapKas() {
 
   const isMobile = useIsMobile()
 
-  const formatStatusLabel = (s?: string) => {
-    if (!s) return 'Filter Status'
-    const spaced = s.replace(/_/g, ' ')
-    return spaced.replace(/\b\w/g, (ch) => ch.toUpperCase())
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'belum_dibayar':
+        return 'Belum Dibayar'
+      case 'menunggu_konfirmasi':
+        return 'Menunggu Konfirmasi'
+      case 'sudah_dibayar':
+        return 'Sudah Dibayar'
+      default:
+        return status
+    }
+  }
+
+  const getSortLabel = (sortBy: string, sortOrder: string) => {
+    if (sortBy === 'createdAt') {
+      return sortOrder === 'desc' ? 'Terbaru' : 'Terlama'
+    }
+    if (sortBy === 'status') {
+      return 'Status'
+    }
+    return sortOrder === 'desc' ? 'Nominal Tertinggi' : 'Nominal Terendah'
   }
 
   // Get unique months from data (memoized for potential future use)
@@ -156,41 +179,73 @@ export default function BendaharaDetailRekapKas() {
             }`}
           >
             <div className="flex w-full flex-wrap items-center justify-center gap-4 sm:w-auto sm:gap-2">
-              <Button
-                variant={statusFilter ? 'default' : 'secondary'}
-                onClick={() => {
-                  const statuses = ['belum_dibayar', 'menunggu_konfirmasi', 'sudah_dibayar']
-                  const currentIndex = statuses.indexOf(statusFilter || '')
-                  const nextIndex = (currentIndex + 1) % (statuses.length + 1)
-                  setStatusFilter(nextIndex === statuses.length ? undefined : statuses[nextIndex])
-                }}
-                className="w-full sm:w-auto"
-              >
-                <Filter className="h-5 w-5" />
-                {formatStatusLabel(statusFilter)}
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  if (sortBy === 'createdAt') {
-                    setSortBy('amount')
-                  } else if (sortBy === 'amount') {
-                    setSortBy('status')
-                  } else {
-                    setSortBy('createdAt')
-                  }
-                  setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')
-                }}
-                className="w-full sm:w-auto"
-              >
-                <Icons.Sort className="h-5 w-5" />
-                {sortBy === 'createdAt'
-                  ? 'Tanggal'
-                  : sortBy === 'amount'
-                    ? 'Nominal'
-                    : 'Status'}{' '}
-                {sortOrder === 'desc' ? '↓' : '↑'}
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant={statusFilter ? 'default' : 'secondary'}
+                    className="w-full sm:w-auto"
+                  >
+                    <Filter className="h-5 w-5" />
+                    {statusFilter ? getStatusLabel(statusFilter) : 'Filter'}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => setStatusFilter(undefined)}>
+                    Semua Status
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter('belum_dibayar')}>
+                    Belum Dibayar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter('menunggu_konfirmasi')}>
+                    Menunggu Konfirmasi
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter('sudah_dibayar')}>
+                    Sudah Dibayar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary" className="w-full sm:w-auto">
+                    <Icons.Sort className="h-5 w-5" />
+                    {getSortLabel(sortBy, sortOrder)}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSortBy('createdAt')
+                      setSortOrder('desc')
+                    }}
+                  >
+                    Terbaru
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSortBy('createdAt')
+                      setSortOrder('asc')
+                    }}
+                  >
+                    Terlama
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSortBy('amount')
+                      setSortOrder('desc')
+                    }}
+                  >
+                    Nominal Tertinggi
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSortBy('amount')
+                      setSortOrder('asc')
+                    }}
+                  >
+                    Nominal Terendah
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </CardHeader>

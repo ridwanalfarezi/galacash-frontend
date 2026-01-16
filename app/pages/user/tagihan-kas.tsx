@@ -9,6 +9,12 @@ import { DetailTagihanKas } from '~/components/modals/DetailTagihanKas'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { formatCurrency } from '~/lib/utils'
@@ -106,166 +112,227 @@ export default function TagihanKasPage() {
     setSelectedTagihan(null)
   }
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'belum_dibayar':
+        return 'Belum Dibayar'
+      case 'menunggu_konfirmasi':
+        return 'Menunggu Konfirmasi'
+      case 'sudah_dibayar':
+        return 'Sudah Dibayar'
+      default:
+        return status
+    }
+  }
+
+  const getSortLabel = (sortBy: string, sortOrder: string) => {
+    if (sortBy === 'createdAt') {
+      return sortOrder === 'desc' ? 'Terbaru' : 'Terlama'
+    }
+    if (sortBy === 'month') {
+      return 'Bulan'
+    }
+    return sortOrder === 'desc' ? 'Nominal Tertinggi' : 'Nominal Terendah'
+  }
+
   return (
-    <div className="container mx-auto px-2 pt-4 sm:px-4 sm:pt-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between gap-2">
-            <CardTitle>Tagihan Kas</CardTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsButtonsVisible(!isButtonsVisible)}
-              className="p-1 transition-transform duration-200 hover:scale-110 sm:hidden"
-            >
-              <div className="transition-transform duration-300">
-                {isButtonsVisible ? (
-                  <ChevronUp className="size-6" />
-                ) : (
-                  <ChevronDown className="size-6" />
-                )}
-              </div>
-            </Button>
-          </div>
-          <div
-            className={`transition-all duration-300 ease-in-out sm:block sm:w-auto sm:translate-y-0 sm:opacity-100 ${
-              !isButtonsVisible
-                ? 'max-h-0 w-full translate-y-2 overflow-hidden opacity-0'
-                : 'max-h-96 w-full translate-y-0 overflow-visible opacity-100'
-            }`}
-          >
-            <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
+    <div className="p-6">
+      <div className="mx-auto max-w-360">
+        <Card className="rounded-4xl border-0">
+          <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
+            <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
+              <CardTitle className="xl:text-3.75 text-xl font-semibold md:text-2xl">
+                Tagihan Kas
+              </CardTitle>
               <Button
-                variant={statusFilter ? 'default' : 'secondary'}
-                onClick={() => {
-                  const statuses = ['belum_dibayar', 'menunggu_konfirmasi', 'sudah_dibayar']
-                  const currentIndex = statuses.indexOf(statusFilter || '')
-                  const nextIndex = (currentIndex + 1) % (statuses.length + 1)
-                  setStatusFilter(nextIndex === statuses.length ? undefined : statuses[nextIndex])
-                }}
-                className="w-full sm:w-auto"
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsButtonsVisible(!isButtonsVisible)}
+                className="p-1 transition-transform duration-200 hover:scale-110 sm:hidden"
               >
-                <Filter className="h-5 w-5" />
-                {statusFilter
-                  ? statusFilter.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())
-                  : 'Filter Status'}
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  if (sortBy === 'createdAt') {
-                    setSortBy('amount')
-                  } else if (sortBy === 'amount') {
-                    setSortBy('month')
-                  } else {
-                    setSortBy('createdAt')
-                  }
-                  setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')
-                }}
-                className="w-full sm:w-auto"
-              >
-                <Icons.Sort className="h-5 w-5" />
-                {sortBy === 'createdAt'
-                  ? 'Tanggal'
-                  : sortBy === 'amount'
-                    ? 'Nominal'
-                    : 'Bulan'}{' '}
-                {sortOrder === 'desc' ? '↓' : '↑'}
+                <div className="transition-transform duration-300">
+                  {isButtonsVisible ? (
+                    <ChevronUp className="size-6" />
+                  ) : (
+                    <ChevronDown className="size-6" />
+                  )}
+                </div>
               </Button>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="hidden overflow-x-auto sm:block">
-            <table className="w-full max-w-360">
-              <thead>
-                <tr className="border-b border-gray-300">
-                  <th className="px-4 py-3 text-left font-medium">Bulan</th>
-                  <th className="px-4 py-3 text-left font-medium">Status</th>
-                  <th className="px-4 py-3 text-left font-medium">ID Tagihan</th>
-                  <th className="px-4 py-3 text-left font-medium">Tenggat Waktu</th>
-                  <th className="px-4 py-3 text-left font-medium">Total Tagihan</th>
-                  <th className="w-12" />
-                </tr>
-              </thead>
-              <tbody>
-                {tagihanKasList.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-12">
-                      <div className="flex flex-col items-center justify-center text-center">
-                        <div className="mb-4 text-gray-400">
-                          <Receipt className="mx-auto size-12" />
-                        </div>
-                        <h3 className="mb-2 text-lg font-medium text-gray-900">
-                          Tidak ada tagihan
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          Belum ada data yang sesuai dengan filter yang dipilih
-                        </p>
-                      </div>
-                    </td>
+            <div
+              className={`transition-all duration-300 ease-in-out sm:block sm:w-auto sm:translate-y-0 sm:opacity-100 ${
+                !isButtonsVisible
+                  ? 'max-h-0 w-full translate-y-2 overflow-hidden opacity-0'
+                  : 'max-h-96 w-full translate-y-0 overflow-visible opacity-100'
+              }`}
+            >
+              <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant={statusFilter ? 'default' : 'secondary'}
+                      className="w-full sm:w-auto"
+                    >
+                      <Filter className="h-5 w-5" />
+                      {statusFilter ? getStatusLabel(statusFilter) : 'Filter'}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem onClick={() => setStatusFilter(undefined)}>
+                      Semua Status
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter('belum_dibayar')}>
+                      Belum Dibayar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter('menunggu_konfirmasi')}>
+                      Menunggu Konfirmasi
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter('sudah_dibayar')}>
+                      Sudah Dibayar
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" className="w-full sm:w-auto">
+                      <Icons.Sort className="h-5 w-5" />
+                      {getSortLabel(sortBy, sortOrder)}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortBy('createdAt')
+                        setSortOrder('desc')
+                      }}
+                    >
+                      Terbaru
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortBy('createdAt')
+                        setSortOrder('asc')
+                      }}
+                    >
+                      Terlama
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortBy('amount')
+                        setSortOrder('desc')
+                      }}
+                    >
+                      Nominal Tertinggi
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSortBy('amount')
+                        setSortOrder('asc')
+                      }}
+                    >
+                      Nominal Terendah
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="hidden overflow-x-auto sm:block">
+              <table className="w-full max-w-360">
+                <thead>
+                  <tr className="border-b border-gray-300">
+                    <th className="px-4 py-3 text-left font-medium">Bulan</th>
+                    <th className="px-4 py-3 text-left font-medium">Status</th>
+                    <th className="px-4 py-3 text-left font-medium">ID Tagihan</th>
+                    <th className="px-4 py-3 text-left font-medium">Tenggat Waktu</th>
+                    <th className="px-4 py-3 text-left font-medium">Total Tagihan</th>
+                    <th className="w-12" />
                   </tr>
-                ) : (
-                  tagihanKasList.map((tagihan) => (
-                    <tr key={tagihan.id} className="border-b border-gray-300 hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm font-medium">{tagihan.month}</td>
-                      <td className="px-4 py-3">{getStatusBadge(tagihan.status)}</td>
-                      <td className="px-4 py-3 text-sm">{tagihan.billId}</td>
-                      <td className="px-4 py-3 text-sm">{tagihan.dueDate}</td>
-                      <td className="px-4 py-3 text-sm font-bold text-blue-500">
-                        {formatCurrency(tagihan.totalAmount)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Button variant="ghost" size="sm" onClick={() => handleViewDetail(tagihan)}>
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
+                </thead>
+                <tbody>
+                  {tagihanKasList.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-12">
+                        <div className="flex flex-col items-center justify-center text-center">
+                          <div className="mb-4 text-gray-400">
+                            <Receipt className="mx-auto size-12" />
+                          </div>
+                          <h3 className="mb-2 text-lg font-medium text-gray-900">
+                            Tidak ada tagihan
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Belum ada data yang sesuai dengan filter yang dipilih
+                          </p>
+                        </div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ) : (
+                    tagihanKasList.map((tagihan) => (
+                      <tr key={tagihan.id} className="border-b border-gray-300 hover:bg-gray-50">
+                        <td className="px-4 py-3 text-sm font-medium">{tagihan.month}</td>
+                        <td className="px-4 py-3">{getStatusBadge(tagihan.status)}</td>
+                        <td className="px-4 py-3 text-sm">{tagihan.billId}</td>
+                        <td className="px-4 py-3 text-sm">{tagihan.dueDate}</td>
+                        <td className="px-4 py-3 text-sm font-bold text-blue-500">
+                          {formatCurrency(tagihan.totalAmount)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewDetail(tagihan)}
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-          <div className="space-y-4 sm:hidden">
-            {tagihanKasList.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="mb-4 text-gray-400">
-                  <Receipt className="mx-auto size-12" />
+            <div className="space-y-4 sm:hidden">
+              {tagihanKasList.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="mb-4 text-gray-400">
+                    <Receipt className="mx-auto size-12" />
+                  </div>
+                  <h3 className="mb-2 text-lg font-medium text-gray-900">Tidak ada tagihan</h3>
+                  <p className="text-sm text-gray-500">
+                    Belum ada data yang sesuai dengan filter yang dipilih
+                  </p>
                 </div>
-                <h3 className="mb-2 text-lg font-medium text-gray-900">Tidak ada tagihan</h3>
-                <p className="text-sm text-gray-500">
-                  Belum ada data yang sesuai dengan filter yang dipilih
-                </p>
-              </div>
-            ) : (
-              tagihanKasList.map((tagihan) => (
-                <div
-                  key={tagihan.id}
-                  className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">{tagihan.dueDate}</span>
-                    {getStatusBadge(tagihan.status)}
+              ) : (
+                tagihanKasList.map((tagihan) => (
+                  <div
+                    key={tagihan.id}
+                    className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500">{tagihan.dueDate}</span>
+                      {getStatusBadge(tagihan.status)}
+                    </div>
+                    <div className="font-semibold">{tagihan.month}</div>
+                    <div className="text-xs text-gray-700">
+                      <span>{tagihan.billId}</span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="font-bold text-blue-500">
+                        {formatCurrency(tagihan.totalAmount)}
+                      </span>
+                      <Button variant="ghost" size="sm" onClick={() => handleViewDetail(tagihan)}>
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="font-semibold">{tagihan.month}</div>
-                  <div className="text-xs text-gray-700">
-                    <span>{tagihan.billId}</span>
-                  </div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="font-bold text-blue-500">
-                      {formatCurrency(tagihan.totalAmount)}
-                    </span>
-                    <Button variant="ghost" size="sm" onClick={() => handleViewDetail(tagihan)}>
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Detail Modal */}
       {selectedTagihan && (
