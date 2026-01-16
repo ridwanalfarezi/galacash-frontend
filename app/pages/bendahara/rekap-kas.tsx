@@ -1,13 +1,21 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { Check, ChevronDown, ChevronRight, ChevronUp, Receipt, X } from 'lucide-react'
+import { Check, ChevronDown, ChevronRight, ChevronUp, Filter, Receipt, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 
 import Export from '~/components/icons/export'
+import Sort from '~/components/icons/sort'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu'
+import { Input } from '~/components/ui/input'
 import { useIsMobile } from '~/hooks/use-mobile'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { formatCurrency } from '~/lib/utils'
@@ -23,6 +31,11 @@ interface StudentBill {
 export default function BendaharaRekapkas() {
   const isMobile = useIsMobile()
   const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
+  const [filterStatus, setFilterStatus] = useState<'all' | 'lunas' | 'belum-lunas'>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState<
+    'name-az' | 'name-za' | 'nim-asc' | 'nim-desc' | 'unpaid-highest' | 'unpaid-lowest'
+  >('name-az')
 
   // Fetch students data from API
   const { data: studentsData } = useQuery(bendaharaQueries.students())
@@ -75,6 +88,49 @@ export default function BendaharaRekapkas() {
     return tagihan.biayaPerBulan * belumLunasCount
   }
 
+  // Filter and sort data
+  const filteredAndSortedData = useMemo(() => {
+    const filtered = dataTagihan.filter((item) => {
+      // Apply search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase()
+        const matchesSearch =
+          item.nama.toLowerCase().includes(query) || item.nim.toLowerCase().includes(query)
+        if (!matchesSearch) return false
+      }
+
+      // Apply status filter
+      if (filterStatus !== 'all') {
+        const totalUnpaid = hitungTotalBelumBayar(item, bulanList)
+        const isLunas = totalUnpaid === 0
+        if (filterStatus === 'lunas' && !isLunas) return false
+        if (filterStatus === 'belum-lunas' && isLunas) return false
+      }
+
+      return true
+    })
+
+    // Apply sorting
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'name-az':
+          return a.nama.localeCompare(b.nama)
+        case 'name-za':
+          return b.nama.localeCompare(a.nama)
+        case 'nim-asc':
+          return a.nim.localeCompare(b.nim)
+        case 'nim-desc':
+          return b.nim.localeCompare(a.nim)
+        case 'unpaid-highest':
+          return hitungTotalBelumBayar(b, bulanList) - hitungTotalBelumBayar(a, bulanList)
+        case 'unpaid-lowest':
+          return hitungTotalBelumBayar(a, bulanList) - hitungTotalBelumBayar(b, bulanList)
+        default:
+          return 0
+      }
+    })
+  }, [dataTagihan, searchQuery, filterStatus, sortBy, bulanList])
+
   // Check if all months are paid
   function getStatusLunas(tagihan: StudentBill, bulanList: string[]): boolean {
     return hitungTotalBelumBayar(tagihan, bulanList) === 0
@@ -96,6 +152,36 @@ export default function BendaharaRekapkas() {
     ) : (
       <X className={`mx-auto h-5 w-5 ${getMonthStatusColor(false)}`} />
     )
+  }
+
+  const getFilterLabel = () => {
+    switch (filterStatus) {
+      case 'lunas':
+        return 'Lunas'
+      case 'belum-lunas':
+        return 'Belum Lunas'
+      default:
+        return 'Filter'
+    }
+  }
+
+  const getSortLabel = () => {
+    switch (sortBy) {
+      case 'name-az':
+        return 'Nama: A-Z'
+      case 'name-za':
+        return 'Nama: Z-A'
+      case 'nim-asc':
+        return 'NIM: Ascending'
+      case 'nim-desc':
+        return 'NIM: Descending'
+      case 'unpaid-highest':
+        return 'Tunggakan: Tertinggi'
+      case 'unpaid-lowest':
+        return 'Tunggakan: Terendah'
+      default:
+        return 'Sort'
+    }
   }
 
   return (
@@ -129,17 +215,70 @@ export default function BendaharaRekapkas() {
             }`}
           >
             <div className="flex w-full flex-wrap items-center justify-center gap-4 sm:w-auto sm:gap-2">
-              {/* TODO: Implement filter functionality */}
-              {/* <Button variant="secondary" className="w-full sm:w-auto">
-                <Icons.Filter className="h-5 w-5" />
-                Filter
-              </Button> */}
+              <Input
+                placeholder="Cari nama atau NIM..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full sm:w-48"
+              />
 
-              {/* TODO: Implement sort functionality */}
-              {/* <Button variant="secondary" className="w-full sm:w-auto">
-                <Icons.Sort className="h-5 w-5" />
-                Sort
-              </Button> */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary" className="w-full sm:w-auto">
+                    <Filter className="h-5 w-5" />
+                    {getFilterLabel()}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-auto sm:w-50">
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => setFilterStatus('all')}
+                  >
+                    Semua
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => setFilterStatus('lunas')}
+                  >
+                    Lunas
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => setFilterStatus('belum-lunas')}
+                  >
+                    Belum Lunas
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary" className="w-full sm:w-auto">
+                    <Sort className="h-5 w-5" />
+                    {getSortLabel()}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-auto">
+                  <DropdownMenuItem onClick={() => setSortBy('name-az')}>
+                    Nama: A-Z
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('name-za')}>
+                    Nama: Z-A
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('nim-asc')}>
+                    NIM: Ascending
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('nim-desc')}>
+                    NIM: Descending
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('unpaid-highest')}>
+                    Tunggakan: Tertinggi
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('unpaid-lowest')}>
+                    Tunggakan: Terendah
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <Button className="w-full sm:w-auto">
                 <Export className="h-5 w-5" />
@@ -168,7 +307,7 @@ export default function BendaharaRekapkas() {
               </thead>
 
               <tbody className="text-sm">
-                {dataTagihan.length === 0 ? (
+                {filteredAndSortedData.length === 0 ? (
                   <tr>
                     <td colSpan={bulanList.length + 4} className="py-12">
                       <div className="flex flex-col items-center justify-center text-center">
@@ -183,7 +322,7 @@ export default function BendaharaRekapkas() {
                     </td>
                   </tr>
                 ) : (
-                  dataTagihan.map((item) => {
+                  filteredAndSortedData.map((item) => {
                     const totalBelum = hitungTotalBelumBayar(item, bulanList)
 
                     return (
@@ -221,7 +360,7 @@ export default function BendaharaRekapkas() {
 
           {/* display mobile */}
           <div className="space-y-4 sm:hidden">
-            {dataTagihan.length === 0 ? (
+            {filteredAndSortedData.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="mb-4 text-gray-400">
                   <Receipt className="mx-auto size-12" />
@@ -230,7 +369,7 @@ export default function BendaharaRekapkas() {
                 <p className="text-sm text-gray-500">Belum ada data tagihan kas</p>
               </div>
             ) : (
-              dataTagihan.map((tagihan) => {
+              filteredAndSortedData.map((tagihan) => {
                 const totalBelum = hitungTotalBelumBayar(tagihan, bulanList)
                 const statusLunas = getStatusLunas(tagihan, bulanList)
 
