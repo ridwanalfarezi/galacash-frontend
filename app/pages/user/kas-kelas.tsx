@@ -243,7 +243,10 @@ export default function KasKelasPage() {
                 <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="secondary" className="w-full sm:w-auto">
+                      <Button
+                        variant={filterType !== 'all' ? 'default' : 'secondary'}
+                        className="w-full sm:w-auto"
+                      >
                         <Filter className="h-5 w-5" />
                         {getFilterLabel()}
                       </Button>
