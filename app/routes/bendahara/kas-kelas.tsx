@@ -19,7 +19,7 @@ export async function clientLoader() {
   try {
     await Promise.all([
       queryClient.prefetchQuery(
-        bendaharaQueries.cashBills({ status: 'pending_payment', limit: 10 })
+        bendaharaQueries.cashBills({ status: 'menunggu_konfirmasi', limit: 10 })
       ),
       queryClient.prefetchQuery(transactionQueries.list({ limit: 10 })),
     ])
