@@ -293,21 +293,13 @@ export default function BendaharaKasKelas() {
               <CardContent>
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
                   <FinancialPieChart
-                    data={
-                      incomeData.length > 0
-                        ? incomeData
-                        : [{ name: 'No Data', value: 1, fill: '#e5e7eb' }]
-                    }
+                    data={incomeData}
                     title="Pemasukan"
                     type="income"
                     className="flex justify-center"
                   />
                   <FinancialPieChart
-                    data={
-                      expenseData.length > 0
-                        ? expenseData
-                        : [{ name: 'No Data', value: 1, fill: '#e5e7eb' }]
-                    }
+                    data={expenseData}
                     title="Pengeluaran"
                     type="expense"
                     className="flex justify-center"
