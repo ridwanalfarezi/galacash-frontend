@@ -17,6 +17,7 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
+import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { transactionService } from '~/lib/services/transaction.service'
 import { formatCurrency } from '~/lib/utils'
@@ -57,6 +58,9 @@ export default function BendaharaKasKelas() {
     })
   )
 
+  // Fetch rekap kas for chart data
+  const { data: rekapKasData } = useQuery(bendaharaQueries.rekapKas())
+
   // Map API transactions to local type
   const transactions: HistoryTransaction[] = useMemo(() => {
     if (!transactionsData?.transactions) return []
@@ -69,18 +73,27 @@ export default function BendaharaKasKelas() {
     }))
   }, [transactionsData])
 
-  // Chart data - using placeholder data until API supports aggregated chart endpoints
-  // TODO: Replace with actual API call when backend supports chart data aggregation
+  // Chart data using real rekap kas transactions when available
   const incomeData = useMemo(() => {
-    // Calculate from transactions if available
-    const incomeTransactions = transactions.filter((t) => t.type === 'income')
+    const txs = rekapKasData?.transactions
+      ? rekapKasData.transactions.map((t) => ({
+          description: t.description || 'Lainnya',
+          type: (t.type || 'income') as 'income' | 'expense',
+          amount: t.amount || 0,
+        }))
+      : transactions.map((t) => ({
+          description: t.purpose || 'Lainnya',
+          type: t.type,
+          amount: t.amount,
+        }))
+
+    const incomeTransactions = txs.filter((t) => t.type === 'income')
     if (incomeTransactions.length === 0) {
-      return [{ name: 'Iuran Kas', value: 100000, fill: '#50b89a' }]
+      return []
     }
-    // Group by purpose for simple breakdown
     const grouped = incomeTransactions.reduce(
       (acc, t) => {
-        const key = t.purpose || 'Lainnya'
+        const key = t.description || 'Lainnya'
         acc[key] = (acc[key] || 0) + t.amount
         return acc
       },
@@ -92,17 +105,28 @@ export default function BendaharaKasKelas() {
       value,
       fill: colors[index % colors.length],
     }))
-  }, [transactions])
+  }, [rekapKasData, transactions])
 
   const expenseData = useMemo(() => {
-    const expenseTransactions = transactions.filter((t) => t.type === 'expense')
+    const txs = rekapKasData?.transactions
+      ? rekapKasData.transactions.map((t) => ({
+          description: t.description || 'Lainnya',
+          type: (t.type || 'income') as 'income' | 'expense',
+          amount: t.amount || 0,
+        }))
+      : transactions.map((t) => ({
+          description: t.purpose || 'Lainnya',
+          type: t.type,
+          amount: t.amount,
+        }))
+
+    const expenseTransactions = txs.filter((t) => t.type === 'expense')
     if (expenseTransactions.length === 0) {
-      return [{ name: 'Pengeluaran', value: 50000, fill: '#920c22' }]
+      return []
     }
-    // Group by purpose for simple breakdown
     const grouped = expenseTransactions.reduce(
       (acc, t) => {
-        const key = t.purpose || 'Lainnya'
+        const key = t.description || 'Lainnya'
         acc[key] = (acc[key] || 0) + t.amount
         return acc
       },
@@ -114,7 +138,7 @@ export default function BendaharaKasKelas() {
       value,
       fill: colors[index % colors.length],
     }))
-  }, [transactions])
+  }, [rekapKasData, transactions])
 
   const openDetailModal = (transaction: HistoryTransaction) => {
     setDetailModal(transaction)

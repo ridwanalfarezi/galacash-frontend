@@ -22,6 +22,7 @@ export async function clientLoader() {
         bendaharaQueries.cashBills({ status: 'menunggu_konfirmasi', limit: 10 })
       ),
       queryClient.prefetchQuery(transactionQueries.list({ limit: 10 })),
+      queryClient.prefetchQuery(bendaharaQueries.rekapKas()),
     ])
   } catch (error) {
     // Silently catch prefetch errors - the page will refetch on mount

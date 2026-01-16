@@ -6,6 +6,7 @@ import {
   ChevronRight,
   ChevronUp,
   Clock,
+  HandCoins,
   RotateCcw,
   XIcon,
 } from 'lucide-react'
@@ -290,8 +291,18 @@ export default function BendaharaAjuDana() {
                     </tr>
                   ) : filteredAndSortedApplicationsB.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-8 text-center text-gray-500">
-                        Tidak ada data yang sesuai dengan filter yang dipilih
+                      <td colSpan={7} className="py-12">
+                        <div className="flex flex-col items-center justify-center text-center">
+                          <div className="mb-4 text-gray-400">
+                            <HandCoins className="mx-auto size-12" />
+                          </div>
+                          <h3 className="mb-2 text-lg font-medium text-gray-900">
+                            Tidak ada pengajuan
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Tidak ada data yang sesuai dengan filter yang dipilih
+                          </p>
+                        </div>
                       </td>
                     </tr>
                   ) : (
@@ -321,8 +332,14 @@ export default function BendaharaAjuDana() {
               {isLoading ? (
                 <div className="py-8 text-center text-gray-500">Memuat data...</div>
               ) : filteredAndSortedApplicationsB.length === 0 ? (
-                <div className="py-8 text-center text-gray-500">
-                  Tidak ada data yang sesuai dengan filter yang dipilih
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="mb-4 text-gray-400">
+                    <HandCoins className="mx-auto size-12" />
+                  </div>
+                  <h3 className="mb-2 text-lg font-medium text-gray-900">Tidak ada pengajuan</h3>
+                  <p className="text-sm text-gray-500">
+                    Tidak ada data yang sesuai dengan filter yang dipilih
+                  </p>
                 </div>
               ) : (
                 filteredAndSortedApplicationsB.map((app) => (
