@@ -1,5 +1,7 @@
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions, useMutation } from '@tanstack/react-query'
+import { useNavigate } from 'react-router'
 
+import { queryClient } from '~/lib/query-client'
 import { authService } from '~/lib/services/auth.service'
 
 /**
@@ -18,4 +20,22 @@ export const authQueries = {
       staleTime: Infinity,
       retry: false, // Don't retry on 401
     }),
+}
+
+/**
+ * Hook to logout user
+ * Clears all React Query cache and redirects to sign-in
+ */
+export function useLogout() {
+  const navigate = useNavigate()
+
+  return useMutation({
+    mutationFn: () => authService.logout(),
+    onSuccess: () => {
+      // Clear all cached queries
+      queryClient.clear()
+      // Redirect to sign-in page
+      navigate('/sign-in')
+    },
+  })
 }

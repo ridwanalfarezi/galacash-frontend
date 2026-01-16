@@ -1,6 +1,6 @@
 'use client'
 
-import { Link, useLocation, useNavigate } from 'react-router'
+import { Link, useLocation } from 'react-router'
 
 import { Icons } from '~/components/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
+import { useLogout } from '~/lib/queries/auth.queries'
 import { useUserProfile } from '~/lib/queries/user.queries'
 import { cn } from '~/lib/utils'
 
@@ -18,13 +19,11 @@ import { navigationBendahara, navigationUser, type NavigationItem } from './navd
 
 export function BottomBar() {
   const location = useLocation()
-  const navigate = useNavigate()
   const { data: user } = useUserProfile()
+  const logoutMutation = useLogout()
 
   const signOut = () => {
-    // Implement sign out logic here
-    console.log('User signed out')
-    navigate('/sign-in')
+    logoutMutation.mutate()
   }
 
   const navigation: NavigationItem[] = location.pathname.startsWith('/bendahara')

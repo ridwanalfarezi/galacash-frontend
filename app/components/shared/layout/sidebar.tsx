@@ -2,7 +2,7 @@
 
 import { ChevronUp } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router'
+import { Link, useLocation } from 'react-router'
 
 import { Icons } from '~/components/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
+import { useLogout } from '~/lib/queries/auth.queries'
 import { useUserProfile } from '~/lib/queries/user.queries'
 
 import { navigationBendahara, navigationUser, type NavigationItem } from './navdata'
@@ -22,13 +23,11 @@ import { navigationBendahara, navigationUser, type NavigationItem } from './navd
 export function Sidebar() {
   const location = useLocation()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const navigate = useNavigate()
   const { data: user } = useUserProfile()
+  const logoutMutation = useLogout()
 
   const signOut = () => {
-    // Implement sign out logic here
-    console.log('User signed out')
-    navigate('/sign-in')
+    logoutMutation.mutate()
   }
 
   const navigation: NavigationItem[] = location.pathname.startsWith('/bendahara')
