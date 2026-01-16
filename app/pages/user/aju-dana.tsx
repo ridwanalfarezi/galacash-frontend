@@ -50,12 +50,12 @@ export default function AjuDanaPage() {
 
   // Section A: Your Applications - filters and state
   const [statusFilterA, setStatusFilterA] = useState<string | undefined>()
-  const [sortByA, setSortByA] = useState<'createdAt' | 'amount'>('createdAt')
+  const [sortByA, setSortByA] = useState<'date' | 'amount' | 'status'>('date')
   const [sortOrderA, setSortOrderA] = useState<'asc' | 'desc'>('desc')
 
   // Section B: All Fund Applications - filters and state
   const [statusFilterB, setStatusFilterB] = useState<string | undefined>()
-  const [sortByB, setSortByB] = useState<'createdAt' | 'amount'>('createdAt')
+  const [sortByB, setSortByB] = useState<'date' | 'amount' | 'status'>('date')
   const [sortOrderB, setSortOrderB] = useState<'asc' | 'desc'>('desc')
 
   // Fetch applications for Section A
@@ -67,9 +67,9 @@ export default function AjuDanaPage() {
     })
   )
 
-  // Fetch applications for Section B
+  // Fetch applications for Section B (all applications)
   const { data: myApplicationsDataB, isLoading: isLoadingB } = useQuery(
-    fundApplicationQueries.my({
+    fundApplicationQueries.list({
       status: statusFilterB as 'pending' | 'approved' | 'rejected' | undefined,
       sortBy: sortByB,
       sortOrder: sortOrderB,
@@ -100,7 +100,7 @@ export default function AjuDanaPage() {
       category: app.category || '',
       status: (app.status || 'pending') as 'pending' | 'approved' | 'rejected',
       amount: app.amount || 0,
-      applicant: 'Anda',
+      applicant: app.applicant?.name || 'Unknown',
     }))
   }, [myApplicationsDataB])
 
@@ -110,8 +110,11 @@ export default function AjuDanaPage() {
 
   // Helper functions
   const getSortLabel = (sortBy: string, sortOrder: string) => {
-    if (sortBy === 'createdAt') {
+    if (sortBy === 'date') {
       return sortOrder === 'desc' ? 'Terbaru' : 'Terlama'
+    }
+    if (sortBy === 'status') {
+      return 'Status'
     }
     return sortOrder === 'desc' ? 'Nominal Tertinggi' : 'Nominal Terendah'
   }
@@ -233,7 +236,7 @@ export default function AjuDanaPage() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       onClick={() => {
-                        setSortByA('createdAt')
+                        setSortByA('date')
                         setSortOrderA('desc')
                       }}
                     >
@@ -241,7 +244,7 @@ export default function AjuDanaPage() {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
-                        setSortByA('createdAt')
+                        setSortByA('date')
                         setSortOrderA('asc')
                       }}
                     >
@@ -446,7 +449,7 @@ export default function AjuDanaPage() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       onClick={() => {
-                        setSortByB('createdAt')
+                        setSortByB('date')
                         setSortOrderB('desc')
                       }}
                     >
@@ -454,7 +457,7 @@ export default function AjuDanaPage() {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
-                        setSortByB('createdAt')
+                        setSortByB('date')
                         setSortOrderB('asc')
                       }}
                     >

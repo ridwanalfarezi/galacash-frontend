@@ -9,7 +9,7 @@ export interface FundApplicationFilters {
   limit?: number
   status?: 'pending' | 'approved' | 'rejected'
   category?: 'education' | 'health' | 'emergency' | 'equipment'
-  sortBy?: 'createdAt' | 'amount' | 'status'
+  sortBy?: 'date' | 'amount' | 'status'
   sortOrder?: 'asc' | 'desc'
 }
 
