@@ -162,10 +162,14 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
                   inputMode="numeric"
                   placeholder="Rp 99.999.999"
                   value={formData.amount}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, amount: e.target.value }))}
+                  onChange={(e) => {
+                    const numeric = e.target.value.replace(/[^0-9]/g, '')
+                    const formatted =
+                      numeric === '' ? '' : `Rp ${Number(numeric).toLocaleString('id-ID')}`
+                    setFormData((prev) => ({ ...prev, amount: formatted }))
+                  }}
                   required
                 />
-                <p className="mt-1 text-xs text-gray-500">Hanya angka, tanpa titik/koma</p>
               </div>
             </div>
           </div>
