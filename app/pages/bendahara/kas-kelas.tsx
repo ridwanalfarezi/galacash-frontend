@@ -37,24 +37,18 @@ export default function BendaharaKasKelas() {
   const [isExporting, setIsExporting] = useState(false)
 
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all')
-  const [sortBy, setSortBy] = useState<
-    | 'date-newest'
-    | 'date-oldest'
-    | 'amount-highest'
-    | 'amount-lowest'
-    | 'purpose-az'
-    | 'purpose-za'
-    | 'type-az'
-    | 'type-za'
-  >('date-newest')
+  const [sortBy, setSortBy] = useState<'date' | 'amount'>('date')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const isDetailModalOpen = detailModal !== null
 
-  // Fetch transactions from API
+  // Fetch transactions from API with sorting
   const { data: transactionsData } = useQuery(
     transactionQueries.list({
       page: 1,
       limit: 50,
       type: filterType === 'all' ? undefined : filterType,
+      sortBy,
+      sortOrder,
     })
   )
 
@@ -179,55 +173,11 @@ export default function BendaharaKasKelas() {
     }
   }
 
-  // Sort functionality (filtering is done by API)
-  const sortedTransactions = useMemo(() => {
-    const sorted = [...transactions].sort((a, b) => {
-      switch (sortBy) {
-        case 'date-newest':
-          return new Date(b.date).getTime() - new Date(a.date).getTime()
-        case 'date-oldest':
-          return new Date(a.date).getTime() - new Date(b.date).getTime()
-        case 'amount-highest':
-          return b.amount - a.amount
-        case 'amount-lowest':
-          return a.amount - b.amount
-        case 'purpose-az':
-          return a.purpose.localeCompare(b.purpose)
-        case 'purpose-za':
-          return b.purpose.localeCompare(a.purpose)
-        case 'type-az':
-          return a.type.localeCompare(b.type)
-        case 'type-za':
-          return b.type.localeCompare(a.type)
-        default:
-          return 0
-      }
-    })
-
-    return sorted
-  }, [transactions, sortBy])
-
   const getSortLabel = () => {
-    switch (sortBy) {
-      case 'date-newest':
-        return 'Tanggal Terbaru'
-      case 'date-oldest':
-        return 'Tanggal Terlama'
-      case 'amount-highest':
-        return 'Nominal Tertinggi'
-      case 'amount-lowest':
-        return 'Nominal Terendah'
-      case 'purpose-az':
-        return 'Keperluan: A ke Z'
-      case 'purpose-za':
-        return 'Keperluan: Z ke A'
-      case 'type-az':
-        return 'Tipe: A ke Z'
-      case 'type-za':
-        return 'Tipe: Z ke A'
-      default:
-        return 'Sort'
+    if (sortBy === 'date') {
+      return sortOrder === 'desc' ? 'Tanggal Terbaru' : 'Tanggal Terlama'
     }
+    return sortOrder === 'desc' ? 'Nominal Tertinggi' : 'Nominal Terendah'
   }
 
   const getFilterLabel = () => {
@@ -375,29 +325,37 @@ export default function BendaharaKasKelas() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-auto">
-                      <DropdownMenuItem onClick={() => setSortBy('date-newest')}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSortBy('date')
+                          setSortOrder('desc')
+                        }}
+                      >
                         Tanggal Terbaru
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSortBy('date-oldest')}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSortBy('date')
+                          setSortOrder('asc')
+                        }}
+                      >
                         Tanggal Terlama
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSortBy('amount-highest')}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSortBy('amount')
+                          setSortOrder('desc')
+                        }}
+                      >
                         Nominal Tertinggi
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSortBy('amount-lowest')}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSortBy('amount')
+                          setSortOrder('asc')
+                        }}
+                      >
                         Nominal Terendah
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSortBy('purpose-az')}>
-                        Keperluan: A ke Z
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSortBy('purpose-za')}>
-                        Keperluan: Z ke A
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSortBy('type-az')}>
-                        Tipe: A ke Z
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSortBy('type-za')}>
-                        Tipe: Z ke A
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -429,7 +387,7 @@ export default function BendaharaKasKelas() {
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedTransactions.length === 0 ? (
+                    {transactions.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="py-12">
                           <div className="flex flex-col items-center justify-center text-center">
@@ -444,7 +402,7 @@ export default function BendaharaKasKelas() {
                         </td>
                       </tr>
                     ) : (
-                      sortedTransactions.map((app) => (
+                      transactions.map((app) => (
                         <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
                           <td className="px-4 py-3 text-sm">{app.date}</td>
                           <td className="px-4 py-3 text-sm">{app.purpose}</td>
@@ -468,7 +426,7 @@ export default function BendaharaKasKelas() {
               </div>
 
               <div className="space-y-4 sm:hidden">
-                {sortedTransactions.length === 0 ? (
+                {transactions.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
                     <div className="mb-4 text-gray-400">
                       <Clock className="mx-auto size-12" />
@@ -477,7 +435,7 @@ export default function BendaharaKasKelas() {
                     <p className="text-sm text-gray-500">Belum ada data transaksi</p>
                   </div>
                 ) : (
-                  sortedTransactions.map((app) => (
+                  transactions.map((app) => (
                     <div
                       key={app.id}
                       className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"

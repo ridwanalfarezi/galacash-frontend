@@ -12,6 +12,8 @@ export interface TransactionFilters {
   startDate?: string
   endDate?: string
   search?: string
+  sortBy?: 'date' | 'amount' | 'createdAt'
+  sortOrder?: 'asc' | 'desc'
 }
 
 export interface TransactionListResult {
