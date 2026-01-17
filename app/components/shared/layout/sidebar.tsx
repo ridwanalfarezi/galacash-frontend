@@ -16,14 +16,17 @@ import {
 } from '~/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
 import { useLogout } from '~/lib/queries/auth.queries'
-import { useUserProfile } from '~/lib/queries/user.queries'
+import { useCurrentUser, useUserInitials } from '~/lib/stores/auth.store'
 
 import { navigationBendahara, navigationUser, type NavigationItem } from './navdata'
 
 export function Sidebar() {
   const location = useLocation()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const { data: user } = useUserProfile()
+
+  // Use auth store instead of API call - user is already cached from route loader
+  const user = useCurrentUser()
+  const userInitials = useUserInitials()
   const logoutMutation = useLogout()
 
   const signOut = () => {
@@ -33,14 +36,6 @@ export function Sidebar() {
   const navigation: NavigationItem[] = location.pathname.startsWith('/bendahara')
     ? navigationBendahara
     : navigationUser
-
-  const userInitials =
-    user?.name
-      ?.split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || 'U'
 
   return (
     <TooltipProvider>

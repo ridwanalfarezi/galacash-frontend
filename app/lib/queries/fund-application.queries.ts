@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 
+import { queryKeys } from '~/lib/queries/keys'
 import {
   fundApplicationService,
   type FundApplicationFilters,
@@ -16,7 +17,7 @@ export const fundApplicationQueries = {
    */
   list: (filters?: FundApplicationFilters) =>
     queryOptions({
-      queryKey: ['fund-applications', 'list', filters],
+      queryKey: [...queryKeys.fundApplications.all, 'list', filters] as const,
       queryFn: () => fundApplicationService.getApplications(filters),
       staleTime: 120 * 1000,
     }),
@@ -27,7 +28,7 @@ export const fundApplicationQueries = {
    */
   my: (filters?: FundApplicationFilters) =>
     queryOptions({
-      queryKey: ['fund-applications', 'my', filters],
+      queryKey: queryKeys.fundApplications.my(filters),
       queryFn: () => fundApplicationService.getMyApplications(filters),
       staleTime: 120 * 1000,
     }),
@@ -38,7 +39,7 @@ export const fundApplicationQueries = {
    */
   detail: (id: string) =>
     queryOptions({
-      queryKey: ['fund-applications', 'detail', id],
+      queryKey: queryKeys.fundApplications.detail(id),
       queryFn: () => fundApplicationService.getApplicationById(id),
       staleTime: 300 * 1000,
       enabled: !!id,

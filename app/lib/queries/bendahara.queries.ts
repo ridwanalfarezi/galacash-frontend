@@ -2,6 +2,12 @@ import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query
 import { toast } from 'sonner'
 
 import {
+  getCashBillInvalidationKeys,
+  getFundApplicationInvalidationKeys,
+  getTransactionInvalidationKeys,
+  queryKeys,
+} from '~/lib/queries/keys'
+import {
   bendaharaService,
   type BendaharaFilters,
   type CreateTransactionData,
@@ -18,7 +24,7 @@ export const bendaharaQueries = {
    */
   dashboard: () =>
     queryOptions({
-      queryKey: ['bendahara', 'dashboard'],
+      queryKey: queryKeys.bendahara.dashboard(),
       queryFn: () => bendaharaService.getDashboard(),
       staleTime: 60 * 1000,
     }),
@@ -29,7 +35,7 @@ export const bendaharaQueries = {
    */
   fundApplications: (params?: BendaharaFilters) =>
     queryOptions({
-      queryKey: ['bendahara', 'fund-applications', params],
+      queryKey: queryKeys.bendahara.fundApplications(params),
       queryFn: () => bendaharaService.getFundApplications(params),
       staleTime: 120 * 1000,
     }),
@@ -40,7 +46,7 @@ export const bendaharaQueries = {
    */
   cashBills: (params?: BendaharaFilters) =>
     queryOptions({
-      queryKey: ['bendahara', 'cash-bills', params],
+      queryKey: queryKeys.bendahara.cashBills(params),
       queryFn: () => bendaharaService.getCashBills(params),
       staleTime: 120 * 1000,
     }),
@@ -51,7 +57,7 @@ export const bendaharaQueries = {
    */
   rekapKas: (params?: BendaharaFilters) =>
     queryOptions({
-      queryKey: ['bendahara', 'rekap-kas', params],
+      queryKey: queryKeys.bendahara.rekapKas(params),
       queryFn: () => bendaharaService.getRekapKas(params),
       staleTime: 300 * 1000,
     }),
@@ -62,7 +68,7 @@ export const bendaharaQueries = {
    */
   students: (params?: BendaharaFilters) =>
     queryOptions({
-      queryKey: ['bendahara', 'students', params],
+      queryKey: queryKeys.bendahara.students(params),
       queryFn: () => bendaharaService.getStudents(params),
       staleTime: 300 * 1000,
     }),
@@ -81,10 +87,13 @@ export const useApproveFundApplication = () => {
   return useMutation({
     mutationFn: (id: string) => bendaharaService.approveFundApplication(id),
     onSuccess: () => {
-      // Invalidate related queries
-      queryClient.invalidateQueries({ queryKey: ['bendahara', 'fund-applications'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara', 'dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      // Use centralized invalidation helpers
+      getFundApplicationInvalidationKeys().forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: key })
+      })
+      getTransactionInvalidationKeys().forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: key })
+      })
       toast.success('Pengajuan dana berhasil disetujui')
     },
     onError: (error: unknown) => {
@@ -108,8 +117,10 @@ export const useRejectFundApplication = () => {
     mutationFn: ({ id, rejectionReason }: { id: string; rejectionReason: string }) =>
       bendaharaService.rejectFundApplication(id, rejectionReason),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bendahara', 'fund-applications'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara', 'dashboard'] })
+      // Use centralized invalidation helpers
+      getFundApplicationInvalidationKeys().forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: key })
+      })
       toast.success('Pengajuan dana berhasil ditolak')
     },
     onError: (error: unknown) => {
@@ -132,10 +143,13 @@ export const useConfirmPayment = () => {
   return useMutation({
     mutationFn: (billId: string) => bendaharaService.confirmPayment(billId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bendahara', 'cash-bills'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara', 'dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
-      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      // Use centralized invalidation helpers
+      getCashBillInvalidationKeys().forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: key })
+      })
+      getTransactionInvalidationKeys().forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: key })
+      })
       toast.success('Pembayaran berhasil dikonfirmasi')
     },
     onError: (error: unknown) => {
@@ -159,9 +173,10 @@ export const useRejectPayment = () => {
     mutationFn: ({ billId, reason }: { billId: string; reason?: string }) =>
       bendaharaService.rejectPayment(billId, reason),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bendahara', 'cash-bills'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara', 'dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
+      // Use centralized invalidation helpers
+      getCashBillInvalidationKeys().forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: key })
+      })
       toast.success('Pembayaran berhasil ditolak')
     },
     onError: (error: unknown) => {
@@ -184,10 +199,11 @@ export const useCreateTransaction = () => {
   return useMutation({
     mutationFn: (data: CreateTransactionData) => bendaharaService.createTransaction(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara', 'dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara', 'rekap-kas'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      // Use centralized invalidation helper
+      getTransactionInvalidationKeys().forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: key })
+      })
+      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.rekapKas() })
       toast.success('Transaksi berhasil dibuat')
     },
     onError: (error: unknown) => {

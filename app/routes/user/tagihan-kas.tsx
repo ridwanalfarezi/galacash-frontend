@@ -1,11 +1,15 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { lazy, Suspense } from 'react'
 
+import { KasKelasSkeleton } from '~/components/data-display'
 import { requireAuth } from '~/lib/auth'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { queryClient } from '~/lib/query-client'
-import TagihanKasPage from '~/pages/user/tagihan-kas'
 
 import type { Route } from './+types/tagihan-kas'
+
+// Lazy load the page component for code splitting
+const TagihanKasPage = lazy(() => import('~/pages/user/tagihan-kas'))
 
 export function meta() {
   return [{ title: 'GalaCash | Tagihan Kas' }]
@@ -31,7 +35,9 @@ clientLoader.hydrate = true
 export default function TagihanKas({ loaderData }: Route.ComponentProps) {
   return (
     <HydrationBoundary state={loaderData.dehydratedState}>
-      <TagihanKasPage />
+      <Suspense fallback={<KasKelasSkeleton />}>
+        <TagihanKasPage />
+      </Suspense>
     </HydrationBoundary>
   )
 }

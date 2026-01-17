@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
+import type { TransactionDisplay, TransactionGroup } from '~/types/domain'
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -24,15 +26,12 @@ export const formatDate = (dateString: string): string => {
   })
 }
 
-export interface Transaction {
-  id: string
-  type: 'income' | 'expense'
-  description: string
-  amount: number
-  date: string
-}
+/**
+ * @deprecated Use TransactionDisplay from ~/types/domain instead
+ */
+export type Transaction = TransactionDisplay
 
-export const groupTransactionsByDate = (transactions: Transaction[]) => {
+export const groupTransactionsByDate = (transactions: TransactionDisplay[]): TransactionGroup[] => {
   const grouped = transactions.reduce(
     (acc, transaction) => {
       const date = transaction.date
@@ -42,7 +41,7 @@ export const groupTransactionsByDate = (transactions: Transaction[]) => {
       acc[date].push(transaction)
       return acc
     },
-    {} as Record<string, Transaction[]>
+    {} as Record<string, TransactionDisplay[]>
   )
 
   return Object.entries(grouped)

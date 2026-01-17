@@ -1,31 +1,28 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import {
-  Calendar as CalendarIcon,
-  CircleArrowDown,
-  CircleArrowUp,
-  Clock,
-  HandCoins,
-} from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, HandCoins } from 'lucide-react'
 import { useState } from 'react'
 import type { DateRange } from 'react-day-picker'
 import { Link } from 'react-router'
 
+import {
+  EmptyState,
+  StatCard,
+  StatCardsGridSkeleton,
+  TransactionItem,
+  TransactionListSkeleton,
+} from '~/components/data-display'
 import { Icons } from '~/components/icons'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
 import { DatePicker } from '~/components/ui/date-picker'
+import { Skeleton } from '~/components/ui/skeleton'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { dashboardQueries } from '~/lib/queries/dashboard.queries'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
-
-import {
-  formatCurrency,
-  formatDate,
-  groupTransactionsByDate,
-  type Transaction,
-} from '../../lib/utils'
+import { formatCurrency, formatDate, groupTransactionsByDate } from '~/lib/utils'
+import { toTransactionDisplayList } from '~/types/domain'
 
 export default function DashboardPage() {
   const [date, setDate] = useState<DateRange | undefined>({
@@ -34,14 +31,16 @@ export default function DashboardPage() {
   })
 
   // Fetch dashboard data using React Query
-  const { data: summary } = useQuery(
+  const { data: summary, isLoading: isSummaryLoading } = useQuery(
     dashboardQueries.summary({
       startDate: date?.from?.toISOString().split('T')[0],
       endDate: date?.to?.toISOString().split('T')[0],
     })
   )
 
-  const { data: transactionsData } = useQuery(transactionQueries.recent(5))
+  const { data: transactionsData, isLoading: isTransactionsLoading } = useQuery(
+    transactionQueries.recent(5)
+  )
 
   const { data: billsData } = useQuery(
     cashBillQueries.my({
@@ -50,21 +49,15 @@ export default function DashboardPage() {
     })
   )
 
-  const { data: fundApplicationsData } = useQuery(
+  const { data: fundApplicationsData, isLoading: isApplicationsLoading } = useQuery(
     fundApplicationQueries.my({
       status: 'pending',
       limit: 5,
     })
   )
 
-  // Convert API transactions to local Transaction type
-  const filteredTransactions: Transaction[] = (transactionsData?.transactions || []).map((t) => ({
-    id: t.id || '',
-    type: (t.type || 'income') as 'income' | 'expense',
-    description: t.description || '',
-    amount: t.amount || 0,
-    date: t.date || new Date().toISOString().split('T')[0],
-  }))
+  // Convert API transactions to display type using centralized converter
+  const filteredTransactions = toTransactionDisplayList(transactionsData?.transactions || [])
   const groupedTransactions = groupTransactionsByDate(filteredTransactions)
 
   const filteredSummary = {
@@ -101,52 +94,36 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Card className="gap-4 rounded-4xl border-none border-blue-200 bg-blue-50">
-          <CardHeader>
-            <CardTitle className="flex items-center text-lg font-semibold text-gray-900 md:text-2xl xl:text-3xl">
-              <Icons.MoneyTotal className="mr-2 h-6 w-6" />
-              Total Saldo
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-1 text-base font-semibold">Saldo Efektif</div>
-            <div className="text-xl font-bold text-blue-600 md:text-3xl xl:text-4xl">
-              {formatCurrency(filteredSummary.totalBalance)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="gap-4 rounded-4xl border-none border-green-200 bg-green-50">
-          <CardHeader>
-            <CardTitle className="flex items-center text-lg font-semibold text-gray-900 md:text-2xl xl:text-3xl">
-              <Icons.ArrowDownCircle className="mr-2 h-6 w-6" />
-              Total Pemasukan
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-1 text-base font-semibold">Saldo Pemasukan</div>
-            <div className="text-xl font-bold text-green-600 md:text-3xl xl:text-4xl">
-              {formatCurrency(filteredSummary.totalIncome)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="gap-4 rounded-4xl border-none border-red-200 bg-red-50">
-          <CardHeader>
-            <CardTitle className="flex items-center text-lg font-semibold text-gray-900 md:text-2xl xl:text-3xl">
-              <Icons.ArrowUpCircle className="mr-2 h-6 w-6" />
-              Total Pengeluaran
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-1 text-base font-semibold">Saldo Pengeluaran</div>
-            <div className="text-xl font-bold text-red-600 md:text-3xl xl:text-4xl">
-              -{formatCurrency(filteredSummary.totalExpense)}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Stat Cards - With skeleton loading */}
+      {isSummaryLoading ? (
+        <div className="mb-8">
+          <StatCardsGridSkeleton count={3} />
+        </div>
+      ) : (
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <StatCard
+            icon={<Icons.MoneyTotal className="mr-2 h-6 w-6" />}
+            title="Total Saldo"
+            label="Saldo Efektif"
+            value={formatCurrency(filteredSummary.totalBalance)}
+            variant="blue"
+          />
+          <StatCard
+            icon={<Icons.ArrowDownCircle className="mr-2 h-6 w-6" />}
+            title="Total Pemasukan"
+            label="Saldo Pemasukan"
+            value={formatCurrency(filteredSummary.totalIncome)}
+            variant="green"
+          />
+          <StatCard
+            icon={<Icons.ArrowUpCircle className="mr-2 h-6 w-6" />}
+            title="Total Pengeluaran"
+            label="Saldo Pengeluaran"
+            value={`-${formatCurrency(filteredSummary.totalExpense)}`}
+            variant="red"
+          />
+        </div>
+      )}
 
       {/* Content Grid */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -204,66 +181,31 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-8">
-              {groupedTransactions.length > 0 ? (
+              {isTransactionsLoading ? (
+                <TransactionListSkeleton count={5} />
+              ) : groupedTransactions.length > 0 ? (
                 groupedTransactions.map((day, dayIndex) => (
                   <div key={dayIndex}>
                     <h3 className="mb-2 border-b border-gray-900 pb-2 text-lg font-semibold text-gray-900 xl:text-xl">
                       {formatDate(day.date)}
                     </h3>
                     <div className="space-y-6 sm:space-y-3">
-                      {(day.items as Transaction[]).map((transaction: Transaction) => (
-                        <div
+                      {day.items.map((transaction) => (
+                        <TransactionItem
                           key={transaction.id}
-                          className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <div
-                              className={`flex items-center justify-center rounded-full p-1 ${
-                                transaction.type === 'income'
-                                  ? 'bg-green-100 text-green-600'
-                                  : 'bg-red-100 text-red-600'
-                              }`}
-                            >
-                              {transaction.type === 'income' ? (
-                                <CircleArrowDown className="size-8" />
-                              ) : (
-                                <CircleArrowUp className="size-8" />
-                              )}
-                            </div>
-                            <div>
-                              <h4 className="text-base font-medium">
-                                {transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}
-                              </h4>
-                              <h6 className="text-xs text-gray-500">{transaction.description}</h6>
-                              <h6
-                                className={`font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'} block text-sm md:hidden md:text-base`}
-                              >
-                                {transaction.type === 'income' ? '+' : '-'}
-                                {formatCurrency(transaction.amount)}
-                              </h6>
-                            </div>
-                          </div>
-                          <h6
-                            className={`font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'} hidden text-sm md:block md:text-base`}
-                          >
-                            {transaction.type === 'income' ? '+' : '-'}
-                            {formatCurrency(transaction.amount)}
-                          </h6>
-                        </div>
+                          transaction={transaction}
+                          variant="compact"
+                        />
                       ))}
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <div className="mb-4 text-gray-400">
-                    <Clock className="mx-auto size-12" />
-                  </div>
-                  <h3 className="mb-2 text-lg font-medium text-gray-900">Tidak ada transaksi</h3>
-                  <p className="text-sm text-gray-500">
-                    Belum ada transaksi pada periode yang dipilih
-                  </p>
-                </div>
+                <EmptyState
+                  icon={Clock}
+                  title="Tidak ada transaksi"
+                  description="Belum ada transaksi pada periode yang dipilih"
+                />
               )}
               <div className="flex justify-center">
                 <Link to="/user/kas-kelas" className="hover:underline">
@@ -283,8 +225,20 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {fundApplicationsData?.applications &&
-              fundApplicationsData.applications.length > 0 ? (
+              {isApplicationsLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center space-x-3">
+                      <Skeleton className="size-12 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-3 w-32" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : fundApplicationsData?.applications &&
+                fundApplicationsData.applications.length > 0 ? (
                 fundApplicationsData.applications
                   .filter((app) => app.status === 'pending')
                   .map((application) => (
@@ -312,17 +266,11 @@ export default function DashboardPage() {
                     </div>
                   ))
               ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <div className="mb-4 text-gray-400">
-                    <HandCoins className="mx-auto size-12" />
-                  </div>
-                  <h3 className="mb-2 text-lg font-medium text-gray-900">
-                    Tidak ada pengajuan pending
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    Anda belum memiliki pengajuan dana yang sedang diproses
-                  </p>
-                </div>
+                <EmptyState
+                  icon={HandCoins}
+                  title="Tidak ada pengajuan pending"
+                  description="Anda belum memiliki pengajuan dana yang sedang diproses"
+                />
               )}
             </CardContent>
             <div className="flex justify-center">

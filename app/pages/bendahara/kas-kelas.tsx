@@ -1,22 +1,28 @@
 'use client'
 
-import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, ChevronUp, Clock, Filter } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 import { FinancialPieChart } from '~/components/chart/financial-pie-chart'
+import { EmptyState, KasKelasSkeleton, TransactionTypeBadge } from '~/components/data-display'
 import { Icons } from '~/components/icons'
 import Export from '~/components/icons/export'
 import Sort from '~/components/icons/sort'
 import { BuatTransaksi } from '~/components/modals/BuatTransaksi'
 import { DetailTransaksi } from '~/components/modals/DetailTransaksi'
-import { Badge } from '~/components/ui/badge'
+import { PaginationControls } from '~/components/shared/PaginationControls'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
+import { getChartColor } from '~/lib/constants'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { transactionService } from '~/lib/services/transaction.service'
@@ -39,13 +45,19 @@ export default function BendaharaKasKelas() {
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all')
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [page, setPage] = useState(1)
+  const LIMIT = 50
+
   const isDetailModalOpen = detailModal !== null
 
-  // Fetch transactions from API with sorting
-  const { data: transactionsData } = useQuery(
+  const isMobile = useIsMobile()
+  const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
+
+  // Fetch transactions from API with sorting and pagination
+  const { data: transactionsData, isLoading } = useQuery(
     transactionQueries.list({
-      page: 1,
-      limit: 50,
+      page,
+      limit: LIMIT,
       type: filterType === 'all' ? undefined : filterType,
       sortBy,
       sortOrder,
@@ -67,8 +79,10 @@ export default function BendaharaKasKelas() {
     }))
   }, [transactionsData])
 
-  // Chart data using real rekap kas transactions when available
+  // Chart data using real rekap kas transactions when available - using centralized colors
   const incomeData = useMemo(() => {
+    // If we have rekap kas data (summary for charts), use it.
+    // Otherwise fallback to current page transactions (less accurate for charts but better than nothing)
     const txs = rekapKasData?.transactions
       ? rekapKasData.transactions.map((t) => ({
           description: t.description || 'Lainnya',
@@ -93,11 +107,10 @@ export default function BendaharaKasKelas() {
       },
       {} as Record<string, number>
     )
-    const colors = ['#50b89a', '#8cd9a7', '#34a0a4', '#76c893', '#52b788']
     return Object.entries(grouped).map(([name, value], index) => ({
       name,
       value,
-      fill: colors[index % colors.length],
+      fill: getChartColor('income', index),
     }))
   }, [rekapKasData, transactions])
 
@@ -126,11 +139,10 @@ export default function BendaharaKasKelas() {
       },
       {} as Record<string, number>
     )
-    const colors = ['#920c22', '#af2038', '#800016', '#c32f48', '#e04055']
     return Object.entries(grouped).map(([name, value], index) => ({
       name,
       value,
-      fill: colors[index % colors.length],
+      fill: getChartColor('expense', index),
     }))
   }, [rekapKasData, transactions])
 
@@ -191,29 +203,14 @@ export default function BendaharaKasKelas() {
     }
   }
 
-  const getTypeBadge = (type: string) => {
-    switch (type) {
-      case 'income':
-        return (
-          <Badge className="bg-green-50 font-normal text-green-700 md:text-base">
-            <Icons.ArrowUpCircle className="h-5 w-5" />
-            Pemasukan
-          </Badge>
-        )
-      case 'expense':
-        return (
-          <Badge className="bg-red-50 font-normal text-red-700 md:text-base">
-            <Icons.ArrowDownCircle className="h-5 w-5" />
-            Pengeluaran
-          </Badge>
-        )
-      default:
-        return <Badge variant="secondary">{type}</Badge>
-    }
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const isMobile = useIsMobile()
-  const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
+  if (isLoading && page === 1) {
+    return <KasKelasSkeleton />
+  }
 
   return (
     <>
@@ -300,20 +297,29 @@ export default function BendaharaKasKelas() {
                     <DropdownMenuContent align="end" className="w-auto sm:w-50">
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => setFilterType('all')}
+                        onClick={() => {
+                          setFilterType('all')
+                          setPage(1)
+                        }}
                       >
                         <span>Semua</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer hover:text-green-700 focus:bg-green-50"
-                        onClick={() => setFilterType('income')}
+                        onClick={() => {
+                          setFilterType('income')
+                          setPage(1)
+                        }}
                       >
                         <Icons.ArrowUpCircle className="h-5 w-5 text-green-700" />
                         <span className="text-green-700">Pemasukan</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer hover:text-red-700 focus:bg-red-50"
-                        onClick={() => setFilterType('expense')}
+                        onClick={() => {
+                          setFilterType('expense')
+                          setPage(1)
+                        }}
                       >
                         <Icons.ArrowDownCircle className="h-5 w-5 text-red-700" />
                         <span className="text-red-700">Pengeluaran</span>
@@ -378,6 +384,7 @@ export default function BendaharaKasKelas() {
               </div>
             </CardHeader>
             <CardContent>
+              {/* Desktop Table View */}
               <div className="hidden overflow-x-auto sm:block">
                 <table className="w-full max-w-360">
                   <thead>
@@ -393,15 +400,11 @@ export default function BendaharaKasKelas() {
                     {transactions.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="py-12">
-                          <div className="flex flex-col items-center justify-center text-center">
-                            <div className="mb-4 text-gray-400">
-                              <Clock className="mx-auto size-12" />
-                            </div>
-                            <h3 className="mb-2 text-lg font-medium text-gray-900">
-                              Tidak ada transaksi
-                            </h3>
-                            <p className="text-sm text-gray-500">Belum ada data transaksi</p>
-                          </div>
+                          <EmptyState
+                            icon={Clock}
+                            title="Tidak ada transaksi"
+                            description="Belum ada data transaksi"
+                          />
                         </td>
                       </tr>
                     ) : (
@@ -409,7 +412,9 @@ export default function BendaharaKasKelas() {
                         <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
                           <td className="px-4 py-3 text-sm">{app.date}</td>
                           <td className="px-4 py-3 text-sm">{app.purpose}</td>
-                          <td className="px-4 py-3">{getTypeBadge(app.type)}</td>
+                          <td className="px-4 py-3">
+                            <TransactionTypeBadge type={app.type} />
+                          </td>
                           <td
                             className={`px-4 py-3 text-sm font-medium ${app.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
                           >
@@ -428,15 +433,15 @@ export default function BendaharaKasKelas() {
                 </table>
               </div>
 
+              {/* Mobile Card View */}
               <div className="space-y-4 sm:hidden">
                 {transactions.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <div className="mb-4 text-gray-400">
-                      <Clock className="mx-auto size-12" />
-                    </div>
-                    <h3 className="mb-2 text-lg font-medium text-gray-900">Tidak ada transaksi</h3>
-                    <p className="text-sm text-gray-500">Belum ada data transaksi</p>
-                  </div>
+                  <EmptyState
+                    icon={Clock}
+                    title="Tidak ada transaksi"
+                    description="Belum ada data transaksi"
+                    className="py-12"
+                  />
                 ) : (
                   transactions.map((app) => (
                     <div
@@ -445,7 +450,7 @@ export default function BendaharaKasKelas() {
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">{app.date}</span>
-                        {getTypeBadge(app.type)}
+                        <TransactionTypeBadge type={app.type} size="sm" />
                       </div>
                       <div className="font-semibold">{app.purpose}</div>
                       <div className="flex items-center justify-between">
@@ -463,6 +468,18 @@ export default function BendaharaKasKelas() {
                   ))
                 )}
               </div>
+
+              {/* Pagination Controls */}
+              {transactionsData?.pagination && transactionsData.pagination.totalPages! > 1 && (
+                <div className="mt-8 border-t border-gray-100 pt-4">
+                  <PaginationControls
+                    currentPage={page}
+                    totalPages={transactionsData.pagination.totalPages!}
+                    onPageChange={handlePageChange}
+                    disabled={isLoading}
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

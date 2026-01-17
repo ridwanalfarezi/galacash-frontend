@@ -1,6 +1,7 @@
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
+import { getCashBillInvalidationKeys, queryKeys } from '~/lib/queries/keys'
 import {
   cashBillService,
   type CashBillFilters,
@@ -18,7 +19,7 @@ export const cashBillQueries = {
    */
   my: (filters?: CashBillFilters) =>
     queryOptions({
-      queryKey: ['cash-bills', 'my', filters],
+      queryKey: queryKeys.cashBills.my(filters),
       queryFn: () => cashBillService.getMyBills(filters),
       staleTime: 120 * 1000,
     }),
@@ -29,7 +30,7 @@ export const cashBillQueries = {
    */
   detail: (id: string) =>
     queryOptions({
-      queryKey: ['cash-bills', 'detail', id],
+      queryKey: queryKeys.cashBills.detail(id),
       queryFn: () => cashBillService.getBillById(id),
       staleTime: 300 * 1000,
       enabled: !!id,
@@ -46,7 +47,10 @@ export function usePayBill() {
     mutationFn: ({ billId, data }: { billId: string; data: PayBillData }) =>
       cashBillService.payBill(billId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
+      // Use centralized invalidation helper
+      getCashBillInvalidationKeys().forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: key })
+      })
       toast.success('Bukti pembayaran berhasil diupload')
     },
     onError: () => {
@@ -64,7 +68,10 @@ export function useCancelPayment() {
   return useMutation({
     mutationFn: (billId: string) => cashBillService.cancelPayment(billId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
+      // Use centralized invalidation helper
+      getCashBillInvalidationKeys().forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: key })
+      })
       toast.success('Pembayaran berhasil dibatalkan')
     },
     onError: () => {

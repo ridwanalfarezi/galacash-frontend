@@ -12,14 +12,17 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
 import { useLogout } from '~/lib/queries/auth.queries'
-import { useUserProfile } from '~/lib/queries/user.queries'
+import { useCurrentUser, useUserInitials } from '~/lib/stores/auth.store'
 import { cn } from '~/lib/utils'
 
 import { navigationBendahara, navigationUser, type NavigationItem } from './navdata'
 
 export function BottomBar() {
   const location = useLocation()
-  const { data: user } = useUserProfile()
+
+  // Use auth store instead of API call - user is already cached from route loader
+  const user = useCurrentUser()
+  const userInitials = useUserInitials()
   const logoutMutation = useLogout()
 
   const signOut = () => {
@@ -29,14 +32,6 @@ export function BottomBar() {
   const navigation: NavigationItem[] = location.pathname.startsWith('/bendahara')
     ? navigationBendahara
     : navigationUser
-
-  const userInitials =
-    user?.name
-      ?.split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || 'U'
 
   return (
     <div className="fixed bottom-0 z-50 block w-full border-t border-gray-200 bg-white md:hidden">

@@ -1,8 +1,8 @@
 'use client'
 
-import { Upload, X } from 'lucide-react'
 import { useState } from 'react'
 
+import { CurrencyInput, FileUpload } from '~/components/form'
 import { Icons } from '~/components/icons'
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
@@ -35,19 +35,16 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
 
   const createTransaction = useCreateTransaction()
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleFileChange = (file: File | null) => {
     if (file) {
       const previewUrl = file.type.startsWith('image') ? URL.createObjectURL(file) : ''
       setTransaction((prev) => ({ ...prev, attachment: file, attachmentPreview: previewUrl }))
+    } else {
+      if (transaction.attachmentPreview) {
+        URL.revokeObjectURL(transaction.attachmentPreview)
+      }
+      setTransaction((prev) => ({ ...prev, attachment: null, attachmentPreview: '' }))
     }
-  }
-
-  const clearAttachment = () => {
-    if (transaction.attachmentPreview) {
-      URL.revokeObjectURL(transaction.attachmentPreview)
-    }
-    setTransaction((prev) => ({ ...prev, attachment: null, attachmentPreview: '' }))
   }
 
   const handleSubmit = async () => {
@@ -135,68 +132,22 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
 
             <div className="space-y-1">
               <Label className="text-lg font-normal sm:text-xl">Nominal</Label>
-              <div className="relative">
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="Rp 99.999.999"
-                  value={
-                    transaction.amount ? `Rp ${transaction.amount.toLocaleString('id-ID')}` : ''
-                  }
-                  onChange={(e) => {
-                    const numeric = e.target.value.replace(/[^0-9]/g, '')
-                    setTransaction((prev) => ({
-                      ...prev,
-                      amount: numeric === '' ? 0 : Number(numeric),
-                    }))
-                  }}
-                />
-              </div>
+              <CurrencyInput
+                value={transaction.amount}
+                onValueChange={(value) => setTransaction((prev) => ({ ...prev, amount: value }))}
+                placeholder="Rp 0"
+              />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="space-y-1">
-              <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
-              <div className="relative">
-                <Input type="file" onChange={handleFileChange} className="hidden" id="attachment" />
-                <Label
-                  htmlFor="attachment"
-                  className="flex w-full cursor-pointer items-center justify-between rounded-md border-2 border-gray-500 px-3 py-2 text-base focus-within:border-gray-900 hover:bg-gray-50"
-                >
-                  <span className={transaction.attachment ? 'text-gray-900' : 'text-gray-500'}>
-                    {transaction.attachment ? transaction.attachment.name : 'Upload File'}
-                  </span>
-                  <Upload className="h-6 w-6 text-gray-900" />
-                </Label>
-              </div>
-            </div>
-            {transaction.attachment && (
-              <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3">
-                <div className="flex items-center gap-3">
-                  {transaction.attachmentPreview ? (
-                    <img
-                      src={transaction.attachmentPreview}
-                      alt="Lampiran"
-                      className="h-12 w-12 rounded-md object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-md bg-white text-sm text-gray-600">
-                      File
-                    </div>
-                  )}
-                  <div className="space-y-0.5 text-sm">
-                    <p className="font-medium text-gray-900">{transaction.attachment.name}</p>
-                    <p className="text-gray-500">
-                      {(transaction.attachment.size / 1024).toFixed(1)} KB
-                    </p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="icon" onClick={clearAttachment}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
+          <div className="space-y-1">
+            <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
+            <FileUpload
+              file={transaction.attachment}
+              previewUrl={transaction.attachmentPreview}
+              onChange={handleFileChange}
+              label="Upload Bukti Transaksi"
+            />
           </div>
 
           <div className="flex w-full border-t pt-6 sm:justify-end">

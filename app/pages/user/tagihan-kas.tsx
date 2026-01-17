@@ -4,9 +4,9 @@ import { useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, ChevronUp, Filter, Receipt } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { BillStatusBadge, EmptyState } from '~/components/data-display'
 import { Icons } from '~/components/icons'
 import { DetailTagihanKas } from '~/components/modals/DetailTagihanKas'
-import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import {
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
+import { STATUS_LABELS } from '~/lib/constants'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { formatCurrency } from '~/lib/utils'
 
@@ -77,31 +78,6 @@ export default function TagihanKasPage() {
   const [selectedTagihan, setSelectedTagihan] = useState<TagihanKas | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
-  const getStatusBadge = (status: TagihanKas['status']) => {
-    switch (status) {
-      case 'Belum Dibayar':
-        return (
-          <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-100">
-            {status}
-          </Badge>
-        )
-      case 'Menunggu Konfirmasi':
-        return (
-          <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100">
-            {status}
-          </Badge>
-        )
-      case 'Sudah Dibayar':
-        return (
-          <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100">
-            {status}
-          </Badge>
-        )
-      default:
-        return <Badge variant="outline">{status}</Badge>
-    }
-  }
-
   const handleViewDetail = (tagihan: TagihanKas) => {
     setSelectedTagihan(tagihan)
     setIsDetailModalOpen(true)
@@ -113,16 +89,7 @@ export default function TagihanKasPage() {
   }
 
   const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'belum_dibayar':
-        return 'Belum Dibayar'
-      case 'menunggu_konfirmasi':
-        return 'Menunggu Konfirmasi'
-      case 'sudah_dibayar':
-        return 'Sudah Dibayar'
-      default:
-        return status
-    }
+    return STATUS_LABELS[status as keyof typeof STATUS_LABELS]?.labelId || status
   }
 
   const getSortLabel = (sortBy: string, sortOrder: string) => {
@@ -238,6 +205,7 @@ export default function TagihanKasPage() {
             </div>
           </CardHeader>
           <CardContent>
+            {/* Desktop Table View */}
             <div className="hidden overflow-x-auto sm:block">
               <table className="w-full max-w-360">
                 <thead>
@@ -254,24 +222,20 @@ export default function TagihanKasPage() {
                   {tagihanKasList.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-12">
-                        <div className="flex flex-col items-center justify-center text-center">
-                          <div className="mb-4 text-gray-400">
-                            <Receipt className="mx-auto size-12" />
-                          </div>
-                          <h3 className="mb-2 text-lg font-medium text-gray-900">
-                            Tidak ada tagihan
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            Belum ada data yang sesuai dengan filter yang dipilih
-                          </p>
-                        </div>
+                        <EmptyState
+                          icon={Receipt}
+                          title="Tidak ada tagihan"
+                          description="Belum ada data yang sesuai dengan filter yang dipilih"
+                        />
                       </td>
                     </tr>
                   ) : (
                     tagihanKasList.map((tagihan) => (
                       <tr key={tagihan.id} className="border-b border-gray-300 hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm font-medium">{tagihan.month}</td>
-                        <td className="px-4 py-3">{getStatusBadge(tagihan.status)}</td>
+                        <td className="px-4 py-3">
+                          <BillStatusBadge status={tagihan.status} />
+                        </td>
                         <td className="px-4 py-3 text-sm">{tagihan.billId}</td>
                         <td className="px-4 py-3 text-sm">{tagihan.dueDate}</td>
                         <td className="px-4 py-3 text-sm font-bold text-blue-500">
@@ -293,17 +257,15 @@ export default function TagihanKasPage() {
               </table>
             </div>
 
+            {/* Mobile Card View */}
             <div className="space-y-4 sm:hidden">
               {tagihanKasList.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="mb-4 text-gray-400">
-                    <Receipt className="mx-auto size-12" />
-                  </div>
-                  <h3 className="mb-2 text-lg font-medium text-gray-900">Tidak ada tagihan</h3>
-                  <p className="text-sm text-gray-500">
-                    Belum ada data yang sesuai dengan filter yang dipilih
-                  </p>
-                </div>
+                <EmptyState
+                  icon={Receipt}
+                  title="Tidak ada tagihan"
+                  description="Belum ada data yang sesuai dengan filter yang dipilih"
+                  className="py-12"
+                />
               ) : (
                 tagihanKasList.map((tagihan) => (
                   <div
@@ -312,7 +274,7 @@ export default function TagihanKasPage() {
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-500">{tagihan.dueDate}</span>
-                      {getStatusBadge(tagihan.status)}
+                      <BillStatusBadge status={tagihan.status} size="sm" />
                     </div>
                     <div className="font-semibold">{tagihan.month}</div>
                     <div className="text-xs text-gray-700">

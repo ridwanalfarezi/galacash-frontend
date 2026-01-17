@@ -1,12 +1,16 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { lazy, Suspense } from 'react'
 
+import { KasKelasSkeleton } from '~/components/data-display'
 import { requireAuth } from '~/lib/auth'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { queryClient } from '~/lib/query-client'
-import KasKelasPage from '~/pages/bendahara/kas-kelas'
 
 import type { Route } from './+types/kas-kelas'
+
+// Lazy load the page component for code splitting
+const KasKelasPage = lazy(() => import('~/pages/bendahara/kas-kelas'))
 
 export function meta() {
   return [{ title: 'GalaCash | Kas Kelas' }]
@@ -39,7 +43,9 @@ clientLoader.hydrate = true
 export default function KasKelas({ loaderData }: Route.ComponentProps) {
   return (
     <HydrationBoundary state={loaderData.dehydratedState}>
-      <KasKelasPage />
+      <Suspense fallback={<KasKelasSkeleton />}>
+        <KasKelasPage />
+      </Suspense>
     </HydrationBoundary>
   )
 }

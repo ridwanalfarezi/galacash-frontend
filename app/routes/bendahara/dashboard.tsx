@@ -1,11 +1,15 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { lazy, Suspense } from 'react'
 
+import { DashboardSkeleton } from '~/components/data-display'
 import { requireAuth } from '~/lib/auth'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { queryClient } from '~/lib/query-client'
-import DashboardPage from '~/pages/bendahara/dashboard'
 
 import type { Route } from './+types/dashboard'
+
+// Lazy load the page component for code splitting
+const DashboardPage = lazy(() => import('~/pages/bendahara/dashboard'))
 
 export function meta() {
   return [{ title: 'GalaCash | Dashboard Bendahara' }]
@@ -28,7 +32,9 @@ clientLoader.hydrate = true
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
   return (
     <HydrationBoundary state={loaderData.dehydratedState}>
-      <DashboardPage />
+      <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardPage />
+      </Suspense>
     </HydrationBoundary>
   )
 }

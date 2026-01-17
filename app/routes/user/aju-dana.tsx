@@ -1,11 +1,15 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { lazy, Suspense } from 'react'
 
+import { KasKelasSkeleton } from '~/components/data-display'
 import { requireAuth } from '~/lib/auth'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import { queryClient } from '~/lib/query-client'
-import AjuDanaPage from '~/pages/user/aju-dana'
 
 import type { Route } from './+types/aju-dana'
+
+// Lazy load the page component for code splitting
+const AjuDanaPage = lazy(() => import('~/pages/user/aju-dana'))
 
 export function meta() {
   return [{ title: 'GalaCash | Aju Dana' }]
@@ -31,7 +35,9 @@ clientLoader.hydrate = true
 export default function AjuDana({ loaderData }: Route.ComponentProps) {
   return (
     <HydrationBoundary state={loaderData.dehydratedState}>
-      <AjuDanaPage />
+      <Suspense fallback={<KasKelasSkeleton />}>
+        <AjuDanaPage />
+      </Suspense>
     </HydrationBoundary>
   )
 }

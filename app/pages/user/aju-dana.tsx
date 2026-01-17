@@ -1,23 +1,14 @@
 'use client'
 import { useQuery } from '@tanstack/react-query'
-import {
-  CheckIcon,
-  ChevronDown,
-  ChevronRight,
-  ChevronUp,
-  Clock,
-  Filter,
-  HandCoins,
-  XIcon,
-} from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronUp, Filter, HandCoins } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { EmptyState, StatusBadge } from '~/components/data-display'
 import Export from '~/components/icons/export'
 import Plus from '~/components/icons/plus'
 import Sort from '~/components/icons/sort'
 import { BuatAjuDanaModal } from '~/components/modals/BuatAjuDana'
 import { DetailAjuDanaModal } from '~/components/modals/DetailAjuDana'
-import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import {
@@ -27,7 +18,9 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
+import { STATUS_LABELS } from '~/lib/constants'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
+import { formatCurrency } from '~/lib/utils'
 
 interface Application {
   id: string
@@ -120,48 +113,7 @@ export default function AjuDanaPage() {
   }
 
   const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'Menunggu'
-      case 'approved':
-        return 'Disetujui'
-      case 'rejected':
-        return 'Ditolak'
-      default:
-        return status
-    }
-  }
-
-  const formatCurrency = (amount: number) => {
-    return `Rp ${amount.toLocaleString('id-ID')}`
-  }
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return (
-          <Badge className="bg-yellow-300 text-yellow-700 md:text-sm">
-            <Clock />
-            Pending
-          </Badge>
-        )
-      case 'approved':
-        return (
-          <Badge className="bg-green-50 text-green-700 md:text-sm">
-            <CheckIcon />
-            Diterima
-          </Badge>
-        )
-      case 'rejected':
-        return (
-          <Badge className="bg-red-50 text-red-700 md:text-sm">
-            <XIcon />
-            Ditolak
-          </Badge>
-        )
-      default:
-        return <Badge variant="secondary">{status}</Badge>
-    }
+    return STATUS_LABELS[status as keyof typeof STATUS_LABELS]?.labelId || status
   }
 
   const handleViewDetail = (app: Application) => {
@@ -172,6 +124,7 @@ export default function AjuDanaPage() {
   return (
     <div className="p-6">
       <div className="mx-auto max-w-360 space-y-8">
+        {/* Section A: Your Applications */}
         <Card className="rounded-4xl border-0">
           <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
             <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
@@ -283,6 +236,7 @@ export default function AjuDanaPage() {
             </div>
           </CardHeader>
           <CardContent>
+            {/* Desktop Table View */}
             <div className="hidden overflow-x-auto sm:block">
               <table className="w-full max-w-360">
                 <thead>
@@ -306,17 +260,11 @@ export default function AjuDanaPage() {
                   ) : applicationsA.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="py-12">
-                        <div className="flex flex-col items-center justify-center text-center">
-                          <div className="mb-4 text-gray-400">
-                            <HandCoins className="mx-auto size-12" />
-                          </div>
-                          <h3 className="mb-2 text-lg font-medium text-gray-900">
-                            Tidak ada pengajuan dana
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            Belum ada data yang sesuai dengan filter yang dipilih
-                          </p>
-                        </div>
+                        <EmptyState
+                          icon={HandCoins}
+                          title="Tidak ada pengajuan dana"
+                          description="Belum ada data yang sesuai dengan filter yang dipilih"
+                        />
                       </td>
                     </tr>
                   ) : (
@@ -325,7 +273,9 @@ export default function AjuDanaPage() {
                         <td className="px-4 py-3 text-sm">{app.date}</td>
                         <td className="px-4 py-3 text-sm">{app.purpose}</td>
                         <td className="px-4 py-3 text-sm">🎯 {app.category}</td>
-                        <td className="px-4 py-3">{getStatusBadge(app.status)}</td>
+                        <td className="px-4 py-3">
+                          <StatusBadge status={app.status} />
+                        </td>
                         <td className="px-4 py-3 text-sm font-medium">
                           {formatCurrency(app.amount)}
                         </td>
@@ -342,21 +292,17 @@ export default function AjuDanaPage() {
               </table>
             </div>
 
+            {/* Mobile Card View */}
             <div className="space-y-4 sm:hidden">
               {isLoadingA ? (
                 <div className="py-8 text-center text-gray-500">Memuat data...</div>
               ) : applicationsA.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="mb-4 text-gray-400">
-                    <HandCoins className="mx-auto size-12" />
-                  </div>
-                  <h3 className="mb-2 text-lg font-medium text-gray-900">
-                    Tidak ada pengajuan dana
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    Belum ada data yang sesuai dengan filter yang dipilih
-                  </p>
-                </div>
+                <EmptyState
+                  icon={HandCoins}
+                  title="Tidak ada pengajuan dana"
+                  description="Belum ada data yang sesuai dengan filter yang dipilih"
+                  className="py-12"
+                />
               ) : (
                 applicationsA.map((app) => (
                   <div
@@ -365,7 +311,7 @@ export default function AjuDanaPage() {
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-500">{app.date}</span>
-                      {getStatusBadge(app.status)}
+                      <StatusBadge status={app.status} size="sm" />
                     </div>
                     <div className="font-semibold">{app.purpose}</div>
                     <div className="flex flex-wrap gap-2 text-xs text-gray-700">
@@ -385,6 +331,7 @@ export default function AjuDanaPage() {
           </CardContent>
         </Card>
 
+        {/* Section B: All Fund Applications */}
         <Card className="rounded-4xl border-0">
           <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
             <div className="flex w-full items-center justify-between sm:w-auto sm:justify-around">
@@ -489,6 +436,7 @@ export default function AjuDanaPage() {
             </div>
           </CardHeader>
           <CardContent>
+            {/* Desktop Table View */}
             <div className="hidden overflow-x-auto sm:block">
               <table className="w-full max-w-360">
                 <thead>
@@ -512,17 +460,11 @@ export default function AjuDanaPage() {
                   ) : applicationsB.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="py-12">
-                        <div className="flex flex-col items-center justify-center text-center">
-                          <div className="mb-4 text-gray-400">
-                            <HandCoins className="mx-auto size-12" />
-                          </div>
-                          <h3 className="mb-2 text-lg font-medium text-gray-900">
-                            Tidak ada pengajuan dana
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            Belum ada data yang sesuai dengan filter yang dipilih
-                          </p>
-                        </div>
+                        <EmptyState
+                          icon={HandCoins}
+                          title="Tidak ada pengajuan dana"
+                          description="Belum ada data yang sesuai dengan filter yang dipilih"
+                        />
                       </td>
                     </tr>
                   ) : (
@@ -531,7 +473,9 @@ export default function AjuDanaPage() {
                         <td className="px-4 py-3 text-sm">{app.date}</td>
                         <td className="px-4 py-3 text-sm">{app.purpose}</td>
                         <td className="px-4 py-3 text-sm">🎯 {app.category}</td>
-                        <td className="px-4 py-3">{getStatusBadge(app.status)}</td>
+                        <td className="px-4 py-3">
+                          <StatusBadge status={app.status} />
+                        </td>
                         <td className="px-4 py-3 text-sm font-medium">
                           {formatCurrency(app.amount)}
                         </td>
@@ -548,21 +492,17 @@ export default function AjuDanaPage() {
               </table>
             </div>
 
+            {/* Mobile Card View */}
             <div className="space-y-4 sm:hidden">
               {isLoadingB ? (
                 <div className="py-8 text-center text-gray-500">Memuat data...</div>
               ) : applicationsB.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="mb-4 text-gray-400">
-                    <HandCoins className="mx-auto size-12" />
-                  </div>
-                  <h3 className="mb-2 text-lg font-medium text-gray-900">
-                    Tidak ada pengajuan dana
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    Belum ada data yang sesuai dengan filter yang dipilih
-                  </p>
-                </div>
+                <EmptyState
+                  icon={HandCoins}
+                  title="Tidak ada pengajuan dana"
+                  description="Belum ada data yang sesuai dengan filter yang dipilih"
+                  className="py-12"
+                />
               ) : (
                 applicationsB.map((app) => (
                   <div
@@ -571,7 +511,7 @@ export default function AjuDanaPage() {
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-500">{app.date}</span>
-                      {getStatusBadge(app.status)}
+                      <StatusBadge status={app.status} size="sm" />
                     </div>
                     <div className="font-semibold">{app.purpose}</div>
                     <div className="flex flex-wrap gap-2 text-xs text-gray-700">

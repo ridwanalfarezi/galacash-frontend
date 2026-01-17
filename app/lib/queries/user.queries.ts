@@ -1,7 +1,9 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 
+import { queryKeys } from '~/lib/queries/keys'
 import { queryClient } from '~/lib/query-client'
 import { userService } from '~/lib/services/user.service'
+import { useAuthStore } from '~/lib/stores/auth.store'
 
 /**
  * User query factory
@@ -13,7 +15,7 @@ export const userQueries = {
    */
   profile: () =>
     queryOptions({
-      queryKey: ['user', 'profile'],
+      queryKey: queryKeys.user.profile(),
       queryFn: () => userService.getProfile(),
       staleTime: 5 * 60 * 1000, // 5 minutes
     }),
@@ -32,8 +34,19 @@ export function useUserProfile() {
 export function useUpdateProfile() {
   return useMutation({
     mutationFn: userService.updateProfile,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] })
+    onSuccess: (updatedUser) => {
+      // Update query cache
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.profile() })
+      // Also update auth store if user data changed
+      if (updatedUser) {
+        const currentUser = useAuthStore.getState().user
+        if (currentUser) {
+          useAuthStore.getState().setUser({
+            ...currentUser,
+            ...updatedUser,
+          })
+        }
+      }
     },
   })
 }
@@ -54,8 +67,19 @@ export function useChangePassword() {
 export function useUploadAvatar() {
   return useMutation({
     mutationFn: userService.uploadAvatar,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] })
+    onSuccess: (response) => {
+      // Update query cache
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.profile() })
+      // Also update auth store avatar
+      if (response?.avatarUrl) {
+        const currentUser = useAuthStore.getState().user
+        if (currentUser) {
+          useAuthStore.getState().setUser({
+            ...currentUser,
+            avatarUrl: response.avatarUrl,
+          })
+        }
+      }
     },
   })
 }

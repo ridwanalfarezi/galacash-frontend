@@ -13,6 +13,7 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 - 📦 [Vite](https://vitejs.dev/) for fast builds
 - 🎭 [Shadcn UI](https://ui.shadcn.com/) - Accessible components built on Radix UI
 - 🏗️ [Zustand](https://zustand-demo.pmnd.rs/) for state management
+- 📡 [TanStack Query](https://tanstack.com/query/latest) for server state & caching
 - ✨ [Zod](https://zod.dev/) for schema validation
 - 📝 [React Hook Form](https://react-hook-form.com/) for form handling
 - 📊 [Recharts](https://recharts.org/) for data visualization
@@ -32,8 +33,8 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 1. **Clone Repository**
 
    ```bash
-   git clone https://github.com/username/galacash.git
-   cd galacash
+   git clone https://github.com/ridwanalfarezi/galacash-frontend.git
+   cd galacash-frontend
    ```
 
 2. **Setup Node.js**
@@ -101,6 +102,21 @@ GalaCash is a full-stack application that enables treasurers to track and manage
    pnpm commit
    ```
 
+## ✨ Key Features & Optimizations
+
+- **⚡ Performance First**:
+  - **Route Lazy Loading**: All pages are code-split using `React.lazy` and `Suspense`.
+  - **Skeleton Screens**: Custom loading states for improved perceived performance.
+  - **Optimized Assets**: Dynamic imports for heavy components.
+- **🛠️ Robust Architecture**:
+  - **Centralized Query Keys**: Type-safe query management with TanStack Query.
+  - **Auth Store**: Zustand-based authentication state to minimize API calls.
+  - **Type Safety**: Comprehensive TypeScript types for all data domains.
+- **🎨 Enhanced UX**:
+  - **Pagination**: Efficient data handling for large lists.
+  - **Smart Forms**: Reusable currency and file upload components.
+  - **Responsive Design**: Mobile-first layout with adaptive navigation.
+
 ## 📦 Project Structure
 
 ```
@@ -113,27 +129,22 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 │   ├── components/          # Reusable components
 │   │   ├── chart/          # Chart components
 │   │   │   └── financial-pie-chart.tsx
+│   │   ├── data-display/   # Data display components
+│   │   │   ├── Skeletons.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   └── ...
+│   │   ├── form/           # Form components
+│   │   │   ├── CurrencyInput.tsx
+│   │   │   └── FileUpload.tsx
 │   │   ├── icons/          # Icon components
-│   │   │   ├── index.ts    # Icon exports
-│   │   │   └── *.tsx       # Individual icon components
 │   │   ├── modals/         # Modal components
-│   │   │   ├── BuatAjuDana.tsx
-│   │   │   ├── DetailAjuDana.tsx
-│   │   │   ├── DetailTagihanKas.tsx
-│   │   │   └── DetailTransaksi.tsx
-│   │   ├── shared/         # Shared components
-│   │   │   ├── filter-component.tsx
-│   │   │   ├── sort-dropdown.tsx
-│   │   │   └── layout/     # Layout components
-│   │   │       ├── bottombar.tsx
-│   │   │       ├── layout.tsx
-│   │   │       ├── navdata.ts
-│   │   │       └── sidebar.tsx
-│   │   └── ui/             # Shadcn UI components
+│   │   ├── shared/         # Shared business components
+│   │   │   ├── PaginationControls.tsx
+│   │   │   └── layout/...
+│   │   └── ui/             # Shadcn UI (Base) components
 │   │       ├── button.tsx
-│   │       ├── card.tsx
-│   │       ├── input.tsx
-│   │       └── ...         # Other UI components
+│   │       ├── pagination.tsx
+│   │       └── ...
 │   │
 │   ├── hooks/              # Custom React hooks
 │   │   └── use-mobile.ts
@@ -299,6 +310,10 @@ docs(readme): update deployment steps
 | `pnpm clean`        | Clean build directory               |
 | `pnpm lint-staged`  | Run linters on staged files         |
 
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](../CONTRIBUTING.md) for guidelines.
+
 ## License
 
-MIT License - see [LICENSE](LICENSE)
+MIT License - see [LICENSE](../LICENSE)
