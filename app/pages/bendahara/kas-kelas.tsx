@@ -54,7 +54,11 @@ export default function BendaharaKasKelas() {
   const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
 
   // Fetch transactions from API with sorting and pagination
-  const { data: transactionsData, isLoading } = useQuery(
+  const {
+    data: transactionsData,
+    isLoading,
+    isFetching,
+  } = useQuery(
     transactionQueries.list({
       page,
       limit: LIMIT,
@@ -70,14 +74,27 @@ export default function BendaharaKasKelas() {
   // Map API transactions to local type
   const transactions: HistoryTransaction[] = useMemo(() => {
     if (!transactionsData?.transactions) return []
-    return transactionsData.transactions.map((t) => ({
+    const mapped = transactionsData.transactions.map((t) => ({
       id: t.id || '',
       date: t.date || '',
       purpose: t.description || '',
       type: (t.type || 'income') as 'income' | 'expense',
       amount: t.amount || 0,
     }))
-  }, [transactionsData])
+    if (sortBy === 'amount') {
+      return [...mapped].sort((a, b) =>
+        sortOrder === 'asc' ? a.amount - b.amount : b.amount - a.amount
+      )
+    }
+    if (sortBy === 'date') {
+      return [...mapped].sort((a, b) => {
+        const da = a.date ? new Date(a.date).getTime() : 0
+        const db = b.date ? new Date(b.date).getTime() : 0
+        return sortOrder === 'asc' ? da - db : db - da
+      })
+    }
+    return mapped
+  }, [transactionsData, sortBy, sortOrder])
 
   // Chart data using real rekap kas transactions when available - using centralized colors
   const incomeData = useMemo(() => {
@@ -208,7 +225,7 @@ export default function BendaharaKasKelas() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  if (isLoading && page === 1) {
+  if (isLoading || isFetching) {
     return <KasKelasSkeleton />
   }
 
@@ -297,7 +314,8 @@ export default function BendaharaKasKelas() {
                     <DropdownMenuContent align="end" className="w-auto sm:w-50">
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => {
+                        onSelect={(e) => {
+                          e.preventDefault()
                           setFilterType('all')
                           setPage(1)
                         }}
@@ -306,7 +324,8 @@ export default function BendaharaKasKelas() {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer hover:text-green-700 focus:bg-green-50"
-                        onClick={() => {
+                        onSelect={(e) => {
+                          e.preventDefault()
                           setFilterType('income')
                           setPage(1)
                         }}
@@ -316,7 +335,8 @@ export default function BendaharaKasKelas() {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer hover:text-red-700 focus:bg-red-50"
-                        onClick={() => {
+                        onSelect={(e) => {
+                          e.preventDefault()
                           setFilterType('expense')
                           setPage(1)
                         }}
@@ -335,7 +355,8 @@ export default function BendaharaKasKelas() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-auto">
                       <DropdownMenuItem
-                        onClick={() => {
+                        onSelect={(e) => {
+                          e.preventDefault()
                           setSortBy('date')
                           setSortOrder('desc')
                         }}
@@ -343,7 +364,8 @@ export default function BendaharaKasKelas() {
                         Tanggal Terbaru
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => {
+                        onSelect={(e) => {
+                          e.preventDefault()
                           setSortBy('date')
                           setSortOrder('asc')
                         }}
@@ -351,7 +373,8 @@ export default function BendaharaKasKelas() {
                         Tanggal Terlama
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => {
+                        onSelect={(e) => {
+                          e.preventDefault()
                           setSortBy('amount')
                           setSortOrder('desc')
                         }}
@@ -359,7 +382,8 @@ export default function BendaharaKasKelas() {
                         Nominal Tertinggi
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => {
+                        onSelect={(e) => {
+                          e.preventDefault()
                           setSortBy('amount')
                           setSortOrder('asc')
                         }}

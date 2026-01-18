@@ -60,7 +60,11 @@ export default function BendaharaAjuDana() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   // Fetch fund applications from API
-  const { data: fundApplicationsData, isLoading } = useQuery(
+  const {
+    data: fundApplicationsData,
+    isLoading,
+    isFetching,
+  } = useQuery(
     bendaharaQueries.fundApplications({
       status: statusFilter,
       sortBy,
@@ -73,7 +77,18 @@ export default function BendaharaAjuDana() {
     // API returns array directly now
     const data = Array.isArray(fundApplicationsData) ? fundApplicationsData : []
 
-    return data.map((app: FundApplicationAPI) => ({
+    const sorted = [...data].sort((a: FundApplicationAPI, b: FundApplicationAPI) => {
+      if (sortBy === 'amount') {
+        return sortOrder === 'asc'
+          ? (a?.amount ?? 0) - (b?.amount ?? 0)
+          : (b?.amount ?? 0) - (a?.amount ?? 0)
+      }
+      const dateA = a?.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b?.createdAt ? new Date(b.createdAt).getTime() : 0
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA
+    })
+
+    return sorted.map((app: FundApplicationAPI) => ({
       id: app?.id ?? '',
       date: app?.createdAt
         ? new Date(app.createdAt).toLocaleDateString('id-ID', {
@@ -90,7 +105,7 @@ export default function BendaharaAjuDana() {
       description: app?.description,
       attachment: app?.attachmentUrl,
     }))
-  }, [fundApplicationsData])
+  }, [fundApplicationsData, sortBy, sortOrder])
 
   // Helper functions
   const getSortLabel = () => {
@@ -150,7 +165,7 @@ export default function BendaharaAjuDana() {
     setIsDetailModalOpen(true)
   }
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return <AjuDanaBendaharaSkeleton />
   }
 
@@ -197,16 +212,36 @@ export default function BendaharaAjuDana() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    <DropdownMenuItem onClick={() => setStatusFilter(undefined)}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setStatusFilter(undefined)
+                      }}
+                    >
                       Semua Status
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilter('pending')}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setStatusFilter('pending')
+                      }}
+                    >
                       Menunggu
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilter('approved')}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setStatusFilter('approved')
+                      }}
+                    >
                       Disetujui
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilter('rejected')}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setStatusFilter('rejected')
+                      }}
+                    >
                       Ditolak
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -220,7 +255,8 @@ export default function BendaharaAjuDana() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
-                      onClick={() => {
+                      onSelect={(e) => {
+                        e.preventDefault()
                         setSortBy('date')
                         setSortOrder('desc')
                       }}
@@ -228,7 +264,8 @@ export default function BendaharaAjuDana() {
                       Terbaru
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => {
+                      onSelect={(e) => {
+                        e.preventDefault()
                         setSortBy('date')
                         setSortOrder('asc')
                       }}
@@ -236,7 +273,8 @@ export default function BendaharaAjuDana() {
                       Terlama
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => {
+                      onSelect={(e) => {
+                        e.preventDefault()
                         setSortBy('amount')
                         setSortOrder('desc')
                       }}
@@ -244,7 +282,8 @@ export default function BendaharaAjuDana() {
                       Nominal Tertinggi
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => {
+                      onSelect={(e) => {
+                        e.preventDefault()
                         setSortBy('amount')
                         setSortOrder('asc')
                       }}

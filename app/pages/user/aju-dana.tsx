@@ -21,6 +21,12 @@ import { useIsMobile } from '~/hooks/use-mobile'
 import { STATUS_LABELS } from '~/lib/constants'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import { formatCurrency } from '~/lib/utils'
+import type { components } from '~/types/api'
+
+type FundApplicationWithMeta = components['schemas']['FundApplication'] & {
+  createdAt?: string
+  user?: { name?: string }
+}
 
 interface Application {
   id: string
@@ -52,7 +58,11 @@ export default function AjuDanaPage() {
   const [sortOrderB, setSortOrderB] = useState<'asc' | 'desc'>('desc')
 
   // Fetch applications for Section A
-  const { data: myApplicationsDataA, isLoading: isLoadingA } = useQuery(
+  const {
+    data: myApplicationsDataA,
+    isLoading: isLoadingA,
+    isFetching: isFetchingA,
+  } = useQuery(
     fundApplicationQueries.my({
       status: statusFilterA as 'pending' | 'approved' | 'rejected' | undefined,
       sortBy: sortByA,
@@ -61,7 +71,11 @@ export default function AjuDanaPage() {
   )
 
   // Fetch applications for Section B (all applications)
-  const { data: myApplicationsDataB, isLoading: isLoadingB } = useQuery(
+  const {
+    data: myApplicationsDataB,
+    isLoading: isLoadingB,
+    isFetching: isFetchingB,
+  } = useQuery(
     fundApplicationQueries.list({
       status: statusFilterB as 'pending' | 'approved' | 'rejected' | undefined,
       sortBy: sortByB,
@@ -73,7 +87,7 @@ export default function AjuDanaPage() {
   const applicationsA: Application[] = useMemo(() => {
     // API returns array directly now
     const data = Array.isArray(myApplicationsDataA) ? myApplicationsDataA : []
-    return data.map((app: any) => ({
+    const mapped = data.map((app: FundApplicationWithMeta) => ({
       id: app.id || '',
       date: app.createdAt
         ? new Date(app.createdAt).toLocaleDateString('id-ID', {
@@ -88,13 +102,27 @@ export default function AjuDanaPage() {
       amount: app.amount || 0,
       applicant: 'Anda',
     }))
-  }, [myApplicationsDataA])
+
+    if (sortByA === 'amount') {
+      return [...mapped].sort((a, b) =>
+        sortOrderA === 'asc' ? a.amount - b.amount : b.amount - a.amount
+      )
+    }
+    if (sortByA === 'date') {
+      return [...mapped].sort((a, b) => {
+        const da = a.date ? new Date(a.date).getTime() : 0
+        const db = b.date ? new Date(b.date).getTime() : 0
+        return sortOrderA === 'asc' ? da - db : db - da
+      })
+    }
+    return mapped
+  }, [myApplicationsDataA, sortByA, sortOrderA])
 
   // Map API data for Section B
   const applicationsB: Application[] = useMemo(() => {
     // API returns array directly now
     const data = Array.isArray(myApplicationsDataB) ? myApplicationsDataB : []
-    return data.map((app: any) => ({
+    const mapped = data.map((app: FundApplicationWithMeta) => ({
       id: app.id || '',
       date: app.createdAt
         ? new Date(app.createdAt).toLocaleDateString('id-ID', {
@@ -109,7 +137,21 @@ export default function AjuDanaPage() {
       amount: app.amount || 0,
       applicant: app.user?.name || 'Unknown',
     }))
-  }, [myApplicationsDataB])
+
+    if (sortByB === 'amount') {
+      return [...mapped].sort((a, b) =>
+        sortOrderB === 'asc' ? a.amount - b.amount : b.amount - a.amount
+      )
+    }
+    if (sortByB === 'date') {
+      return [...mapped].sort((a, b) => {
+        const da = a.date ? new Date(a.date).getTime() : 0
+        const db = b.date ? new Date(b.date).getTime() : 0
+        return sortOrderB === 'asc' ? da - db : db - da
+      })
+    }
+    return mapped
+  }, [myApplicationsDataB, sortByB, sortOrderB])
 
   // Toggle states for buttons - initialize based on isMobile
   const [isButtonsAVisible, setIsButtonsAVisible] = useState(!isMobile)
@@ -135,7 +177,7 @@ export default function AjuDanaPage() {
     setIsDetailModalOpen(true)
   }
 
-  if (isLoadingA || isLoadingB) {
+  if (isLoadingA || isLoadingB || isFetchingA || isFetchingB) {
     return <AjuDanaUserSkeleton />
   }
 

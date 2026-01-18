@@ -31,6 +31,12 @@ export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDa
     return `Rp. ${amount.toLocaleString('id-ID')}`
   }
 
+  const handleOpenAttachment = () => {
+    if (application.attachment) {
+      window.open(application.attachment, '_blank')
+    }
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
@@ -66,11 +72,14 @@ export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDa
 
           <div className="space-y-1">
             <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
-            <div className="flex w-full items-center justify-between rounded-md border-2 border-gray-500 px-3 py-2">
-              <span className="text-gray-900">
+            <div
+              onClick={handleOpenAttachment}
+              className="flex w-full cursor-pointer items-center justify-between rounded-md border-2 border-gray-500 px-3 py-2 transition-colors hover:border-blue-500 hover:bg-blue-50"
+            >
+              <span className="text-gray-900 hover:text-blue-600">
                 {application.attachment || 'Photo_17082098_143209.png'}
               </span>
-              <File className="h-5 w-5 text-gray-900" />
+              <File className="h-5 w-5 text-gray-900 hover:text-blue-600" />
             </div>
           </div>
 
