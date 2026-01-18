@@ -31,9 +31,10 @@ export function DetailAjuDanaBendahara({ isOpen, onClose, application }: DetailA
     return `Rp. ${amount.toLocaleString('id-ID')}`
   }
 
-  const handleOpenAttachment = () => {
+  const handleOpenAttachment = (e: React.MouseEvent) => {
+    e.stopPropagation()
     if (application.attachment) {
-      window.open(application.attachment, '_blank')
+      window.open(application.attachment, '_blank', 'noopener,noreferrer')
     }
   }
 
@@ -74,12 +75,24 @@ export function DetailAjuDanaBendahara({ isOpen, onClose, application }: DetailA
             <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
             <div
               onClick={handleOpenAttachment}
-              className="flex w-full cursor-pointer items-center justify-between rounded-md border-2 border-gray-500 px-3 py-2 transition-colors hover:border-blue-500 hover:bg-blue-50"
+              className={`flex w-full items-center justify-between rounded-md border-2 px-3 py-2 transition-colors ${
+                application.attachment
+                  ? 'cursor-pointer border-gray-500 hover:border-blue-500 hover:bg-blue-50'
+                  : 'cursor-default border-gray-300 bg-gray-100'
+              }`}
             >
-              <span className="text-gray-900 hover:text-blue-600">
-                {application.attachment || 'Photo_17082098_143209.png'}
+              <span
+                className={`${
+                  application.attachment ? 'text-gray-900 hover:text-blue-600' : 'text-gray-500'
+                }`}
+              >
+                {application.attachment || 'Tidak ada lampiran'}
               </span>
-              <File className="h-5 w-5 text-gray-900 hover:text-blue-600" />
+              <File
+                className={`h-5 w-5 ${
+                  application.attachment ? 'text-gray-900 hover:text-blue-600' : 'text-gray-400'
+                }`}
+              />
             </div>
           </div>
 
