@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
-import { requireAuth } from '~/lib/auth'
+import { requireRole } from '~/lib/auth'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { queryClient } from '~/lib/query-client'
 import DetailRekapKasPage from '~/pages/bendahara/detail-rekap-kas'
@@ -12,7 +12,7 @@ export function meta() {
 }
 
 export async function clientLoader() {
-  await requireAuth()
+  await requireRole('bendahara')
 
   // Prefetch rekap kas detail
   await queryClient.prefetchQuery(bendaharaQueries.rekapKas())

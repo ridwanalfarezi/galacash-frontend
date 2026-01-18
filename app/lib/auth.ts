@@ -88,6 +88,26 @@ export async function redirectIfAuthenticated() {
 }
 
 /**
+ * Require specific role for route access
+ * Redirects to appropriate dashboard if user doesn't have the required role
+ */
+export async function requireRole(role: 'user' | 'bendahara') {
+  const { user } = await requireAuth()
+
+  // Check if user has the required role
+  if (user.role !== role) {
+    // Redirect to their appropriate dashboard
+    if (user.role === 'bendahara') {
+      throw redirect('/bendahara/dashboard')
+    } else {
+      throw redirect('/user/dashboard')
+    }
+  }
+
+  return { user }
+}
+
+/**
  * Clear auth state on logout
  * Call this after successful logout API call
  */

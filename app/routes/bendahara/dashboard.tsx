@@ -2,7 +2,7 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { lazy, Suspense } from 'react'
 
 import { DashboardSkeleton } from '~/components/data-display'
-import { requireAuth } from '~/lib/auth'
+import { requireRole } from '~/lib/auth'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { queryClient } from '~/lib/query-client'
 
@@ -16,8 +16,8 @@ export function meta() {
 }
 
 export async function clientLoader() {
-  // Check authentication
-  await requireAuth()
+  // Check authentication and role
+  await requireRole('bendahara')
 
   // Prefetch bendahara dashboard data
   await queryClient.prefetchQuery(bendaharaQueries.dashboard())

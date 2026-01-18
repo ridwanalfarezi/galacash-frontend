@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
-import { requireAuth } from '~/lib/auth'
+import { requireRole } from '~/lib/auth'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import { queryClient } from '~/lib/query-client'
 import AjuDanaPage from '~/pages/bendahara/aju-dana'
@@ -12,7 +12,7 @@ export function meta() {
 }
 
 export async function clientLoader() {
-  await requireAuth()
+  await requireRole('bendahara')
 
   // Prefetch fund applications with error handling
   try {

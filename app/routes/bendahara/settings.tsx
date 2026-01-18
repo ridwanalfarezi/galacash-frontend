@@ -1,4 +1,4 @@
-import { requireAuth } from '~/lib/auth'
+import { requireRole } from '~/lib/auth'
 import SettingsPage from '~/pages/shared/settings'
 
 export function meta() {
@@ -6,7 +6,7 @@ export function meta() {
 }
 
 export async function clientLoader() {
-  await requireAuth()
+  await requireRole('bendahara')
   return null
 }
 

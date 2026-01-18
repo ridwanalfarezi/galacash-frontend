@@ -26,7 +26,7 @@ import { getChartColor } from '~/lib/constants'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { transactionService } from '~/lib/services/transaction.service'
-import { formatCurrency } from '~/lib/utils'
+import { formatCurrency, formatDate } from '~/lib/utils'
 
 interface HistoryTransaction {
   id: string
@@ -436,7 +436,7 @@ export default function BendaharaKasKelas() {
                     ) : (
                       transactions.map((app) => (
                         <tr key={app.id} className="border-b border-gray-300 hover:bg-gray-50">
-                          <td className="px-4 py-3 text-sm">{app.date}</td>
+                          <td className="px-4 py-3 text-sm">{formatDate(app.date)}</td>
                           <td className="px-4 py-3 text-sm">{app.purpose}</td>
                           <td className="px-4 py-3">
                             <TransactionTypeBadge type={app.type} />
