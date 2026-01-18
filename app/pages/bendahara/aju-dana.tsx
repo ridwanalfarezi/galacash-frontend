@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
-import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
+import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import type { components } from '~/types/api'
 
 interface Application {
@@ -65,8 +65,8 @@ export default function BendaharaAjuDana() {
     isLoading,
     isFetching,
   } = useQuery(
-    bendaharaQueries.fundApplications({
-      status: statusFilter,
+    fundApplicationQueries.list({
+      status: statusFilter as 'pending' | 'approved' | 'rejected' | undefined,
       sortBy,
       sortOrder,
     })

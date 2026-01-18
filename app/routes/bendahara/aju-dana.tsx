@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
 import { requireAuth } from '~/lib/auth'
-import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
+import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import { queryClient } from '~/lib/query-client'
 import AjuDanaPage from '~/pages/bendahara/aju-dana'
 
@@ -16,9 +16,7 @@ export async function clientLoader() {
 
   // Prefetch fund applications with error handling
   try {
-    await queryClient.prefetchQuery(
-      bendaharaQueries.fundApplications({ status: 'pending', limit: 10 })
-    )
+    await queryClient.prefetchQuery(fundApplicationQueries.list({ status: 'pending', limit: 10 }))
   } catch (error) {
     // Silently catch prefetch errors - the page will refetch on mount
     console.debug('Fund applications prefetch failed:', error)

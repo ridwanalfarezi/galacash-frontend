@@ -59,23 +59,6 @@ export const bendaharaService = {
   },
 
   /**
-   * Get fund applications for review
-   */
-  async getFundApplications(params?: BendaharaFilters) {
-    const response = await apiClient.get<{
-      success: boolean
-      data: {
-        data: FundApplication[]
-        page?: number
-        limit?: number
-        total?: number
-        totalPages?: number
-      }
-    }>('/bendahara/fund-applications', { params })
-    return response.data.data.data
-  },
-
-  /**
    * Get fund application detail by ID
    */
   async getFundApplicationDetail(id: string) {

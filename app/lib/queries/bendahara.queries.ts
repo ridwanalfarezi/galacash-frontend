@@ -30,23 +30,12 @@ export const bendaharaQueries = {
     }),
 
   /**
-   * Get fund applications for review
-   * staleTime: 120s
-   */
-  fundApplications: (params?: BendaharaFilters) =>
-    queryOptions({
-      queryKey: queryKeys.bendahara.fundApplications(params),
-      queryFn: () => bendaharaService.getFundApplications(params),
-      staleTime: 120 * 1000,
-    }),
-
-  /**
    * Get fund application detail by ID
    * staleTime: 300s
    */
   fundApplicationDetail: (id: string) =>
     queryOptions({
-      queryKey: [...queryKeys.bendahara.fundApplications(), 'detail', id] as const,
+      queryKey: ['bendahara', 'fundApplications', 'detail', id] as const,
       queryFn: () => bendaharaService.getFundApplicationDetail(id),
       staleTime: 300 * 1000,
       enabled: !!id,
