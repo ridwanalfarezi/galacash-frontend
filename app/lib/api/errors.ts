@@ -56,3 +56,32 @@ export class APIError extends Error {
     )
   }
 }
+
+/**
+ * Extract error message from any error type
+ * Centralizes the error extraction logic used in mutations
+ *
+ * @param error - The error object (can be APIError, Axios error, or unknown)
+ * @param fallback - Fallback message if extraction fails
+ * @returns The error message string
+ */
+export function getErrorMessage(error: unknown, fallback: string): string {
+  // Handle APIError directly
+  if (error instanceof APIError) {
+    return error.message
+  }
+
+  // Handle Error instances
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  // Handle axios-like error responses
+  const axiosError = error as Record<string, unknown>
+  const response = axiosError?.response as Record<string, unknown> | undefined
+  const data = response?.data as Record<string, unknown> | undefined
+  const errorObj = data?.error as Record<string, unknown> | undefined
+  const message = errorObj?.message as string | undefined
+
+  return message || fallback
+}

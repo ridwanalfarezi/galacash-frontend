@@ -51,7 +51,7 @@ export default function DashboardPage() {
     })
   )
 
-  const { data: billsData } = useQuery(
+  const { data: billsData, isLoading: isBillsLoading } = useQuery(
     cashBillQueries.my({
       status: 'belum_dibayar',
       limit: 5,
@@ -77,24 +77,30 @@ export default function DashboardPage() {
 
   // Handle flat data response for bills
   const bills = (Array.isArray(billsData) ? billsData : []) as CashBill[]
-  const totalBills = bills.reduce(
-    (totalBill: { amount: number; date: Date; dueDate: Date }, bill: CashBill) => {
-      totalBill.amount += bill.totalAmount || 0
-      const billMonth = bill.month || '2025-01'
-      totalBill.date = new Date(
-        Math.min(totalBill.date.getTime(), new Date(billMonth + '-01').getTime())
+  const hasBills = bills.length > 0
+  const totalBills = hasBills
+    ? bills.reduce(
+        (totalBill: { amount: number; date: Date; dueDate: Date }, bill: CashBill) => {
+          totalBill.amount += bill.totalAmount || 0
+          const billMonth = bill.month || '2025-01'
+          totalBill.date = new Date(
+            Math.min(totalBill.date.getTime(), new Date(billMonth + '-01').getTime())
+          )
+          totalBill.dueDate = new Date(
+            Math.max(
+              totalBill.dueDate.getTime(),
+              new Date(bill.dueDate || billMonth + '-31').getTime()
+            )
+          )
+          return totalBill
+        },
+        {
+          amount: 0,
+          date: new Date(),
+          dueDate: new Date(),
+        }
       )
-      totalBill.dueDate = new Date(
-        Math.max(totalBill.dueDate.getTime(), new Date(bill.dueDate || billMonth + '-31').getTime())
-      )
-      return totalBill
-    },
-    {
-      amount: 0,
-      date: new Date('2100-01-01'),
-      dueDate: new Date('2000-01-01'),
-    }
-  )
+    : null
 
   return (
     <div className="p-6">
@@ -141,48 +147,82 @@ export default function DashboardPage() {
         {/* Transaction History */}
         <div className="grid gap-4 lg:col-span-2">
           {/* Tagihan Notification */}
-          <Card className="gap-2 rounded-4xl border-none bg-red-700 text-gray-100">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-start gap-2 text-lg font-semibold md:text-2xl xl:text-3xl">
-                <Icons.Alert className="size-6" />
-                Tagihan Kas Anda
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col">
-              <div className="flex items-center gap-2 text-sm">
-                <CalendarIcon className="size-4" />
-                {totalBills?.date.toLocaleDateString('id', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                })}{' '}
-                -{' '}
-                {totalBills?.dueDate.toLocaleDateString('id', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                })}
-              </div>
-              <div className="text-xl font-bold md:text-3xl xl:text-4xl">
-                {formatCurrency(totalBills?.amount || 0)}
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-between gap-2">
-              <div className="hidden md:block">
-                Harap bayar tagihan anda sebelum{' '}
-                <span className="font-semibold">
-                  {totalBills?.dueDate.toLocaleDateString('id', {
+          {isBillsLoading ? (
+            <Card className="gap-2 rounded-4xl border-none bg-gray-200">
+              <CardHeader>
+                <Skeleton className="h-8 w-48" />
+              </CardHeader>
+              <CardContent className="flex flex-col gap-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-10 w-40" />
+              </CardContent>
+              <CardFooter>
+                <Skeleton className="h-4 w-64" />
+              </CardFooter>
+            </Card>
+          ) : hasBills && totalBills ? (
+            <Card className="gap-2 rounded-4xl border-none bg-red-700 text-gray-100">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-start gap-2 text-lg font-semibold md:text-2xl xl:text-3xl">
+                  <Icons.Alert className="size-6" />
+                  Tagihan Kas Anda
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col">
+                <div className="flex items-center gap-2 text-sm">
+                  <CalendarIcon className="size-4" />
+                  {totalBills.date.toLocaleDateString('id', {
                     year: 'numeric',
-                    month: 'long',
+                    month: 'short',
+                    day: 'numeric',
+                  })}{' '}
+                  -{' '}
+                  {totalBills.dueDate.toLocaleDateString('id', {
+                    year: 'numeric',
+                    month: 'short',
                     day: 'numeric',
                   })}
-                </span>
-              </div>
-              <Link to="/user/tagihan-kas" className="font-semibold hover:underline">
-                Bayar Sekarang
-              </Link>
-            </CardFooter>
-          </Card>
+                </div>
+                <div className="text-xl font-bold md:text-3xl xl:text-4xl">
+                  {formatCurrency(totalBills.amount)}
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between gap-2">
+                <div className="hidden md:block">
+                  Harap bayar tagihan anda sebelum{' '}
+                  <span className="font-semibold">
+                    {totalBills.dueDate.toLocaleDateString('id', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </span>
+                </div>
+                <Link to="/user/tagihan-kas" className="font-semibold hover:underline">
+                  Bayar Sekarang
+                </Link>
+              </CardFooter>
+            </Card>
+          ) : (
+            <Card className="gap-2 rounded-4xl border-none bg-green-600 text-gray-100">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-start gap-2 text-lg font-semibold md:text-2xl xl:text-3xl">
+                  <Icons.Check className="size-6" />
+                  Tagihan Lunas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm md:text-base">
+                  Tidak ada tagihan yang belum dibayar. Terima kasih!
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Link to="/user/tagihan-kas" className="font-semibold hover:underline">
+                  Lihat Riwayat Pembayaran
+                </Link>
+              </CardFooter>
+            </Card>
+          )}
 
           {/* Transaction History Card */}
           <Card className="rounded-4xl border-none">

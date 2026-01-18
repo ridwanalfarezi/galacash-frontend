@@ -77,13 +77,15 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
   }
 
   const handleFileChange = (file: File | null) => {
+    // Always revoke previous URL first to prevent memory leak
+    if (formData.attachmentPreview) {
+      URL.revokeObjectURL(formData.attachmentPreview)
+    }
+
     if (file) {
       const previewUrl = file.type.startsWith('image') ? URL.createObjectURL(file) : ''
       setFormData((prev) => ({ ...prev, attachment: file, attachmentPreview: previewUrl }))
     } else {
-      if (formData.attachmentPreview) {
-        URL.revokeObjectURL(formData.attachmentPreview)
-      }
       setFormData((prev) => ({ ...prev, attachment: null, attachmentPreview: '' }))
     }
   }

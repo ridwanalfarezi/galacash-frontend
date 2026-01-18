@@ -1,6 +1,7 @@
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
+import { getErrorMessage } from '~/lib/api/errors'
 import { queryKeys } from '~/lib/queries/keys'
 import {
   bendaharaService,
@@ -91,12 +92,7 @@ export const useApproveFundApplication = () => {
       toast.success('Pengajuan dana berhasil disetujui')
     },
     onError: (error: unknown) => {
-      const axiosError = error as Record<string, unknown>
-      const response = axiosError?.response as Record<string, unknown> | undefined
-      const data = response?.data as Record<string, unknown> | undefined
-      const errorObj = data?.error as Record<string, unknown> | undefined
-      const message = errorObj?.message as string | undefined
-      toast.error(message || 'Gagal menyetujui pengajuan dana')
+      toast.error(getErrorMessage(error, 'Gagal menyetujui pengajuan dana'))
     },
   })
 }
@@ -119,12 +115,7 @@ export const useRejectFundApplication = () => {
       toast.success('Pengajuan dana berhasil ditolak')
     },
     onError: (error: unknown) => {
-      const axiosError = error as Record<string, unknown>
-      const response = axiosError?.response as Record<string, unknown> | undefined
-      const data = response?.data as Record<string, unknown> | undefined
-      const errorObj = data?.error as Record<string, unknown> | undefined
-      const message = errorObj?.message as string | undefined
-      toast.error(message || 'Gagal menolak pengajuan dana')
+      toast.error(getErrorMessage(error, 'Gagal menolak pengajuan dana'))
     },
   })
 }
@@ -146,12 +137,7 @@ export const useConfirmPayment = () => {
       toast.success('Pembayaran berhasil dikonfirmasi')
     },
     onError: (error: unknown) => {
-      const axiosError = error as Record<string, unknown>
-      const response = axiosError?.response as Record<string, unknown> | undefined
-      const data = response?.data as Record<string, unknown> | undefined
-      const errorObj = data?.error as Record<string, unknown> | undefined
-      const message = errorObj?.message as string | undefined
-      toast.error(message || 'Gagal mengonfirmasi pembayaran')
+      toast.error(getErrorMessage(error, 'Gagal mengonfirmasi pembayaran'))
     },
   })
 }
@@ -173,12 +159,7 @@ export const useRejectPayment = () => {
       toast.success('Pembayaran berhasil ditolak')
     },
     onError: (error: unknown) => {
-      const axiosError = error as Record<string, unknown>
-      const response = axiosError?.response as Record<string, unknown> | undefined
-      const data = response?.data as Record<string, unknown> | undefined
-      const errorObj = data?.error as Record<string, unknown> | undefined
-      const message = errorObj?.message as string | undefined
-      toast.error(message || 'Gagal menolak pembayaran')
+      toast.error(getErrorMessage(error, 'Gagal menolak pembayaran'))
     },
   })
 }
@@ -200,12 +181,7 @@ export const useCreateTransaction = () => {
       toast.success('Transaksi berhasil dibuat')
     },
     onError: (error: unknown) => {
-      const axiosError = error as Record<string, unknown>
-      const response = axiosError?.response as Record<string, unknown> | undefined
-      const data = response?.data as Record<string, unknown> | undefined
-      const errorObj = data?.error as Record<string, unknown> | undefined
-      const message = errorObj?.message as string | undefined
-      toast.error(message || 'Gagal membuat transaksi')
+      toast.error(getErrorMessage(error, 'Gagal membuat transaksi'))
     },
   })
 }

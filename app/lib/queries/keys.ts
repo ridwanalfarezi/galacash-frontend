@@ -89,34 +89,3 @@ export const queryKeys = {
       [...queryKeys.bendahara.all, 'rekap-kas', filters] as const,
   },
 } as const
-
-// ============================================================================
-// Invalidation Helpers
-// ============================================================================
-
-/**
- * Get keys to invalidate after a transaction is created/updated
- */
-export const getTransactionInvalidationKeys = () => [
-  queryKeys.transactions.all,
-  queryKeys.dashboard.all,
-  queryKeys.bendahara.dashboard(),
-]
-
-/**
- * Get keys to invalidate after a fund application is created/updated
- */
-export const getFundApplicationInvalidationKeys = () => [
-  queryKeys.fundApplications.all,
-  queryKeys.bendahara.fundApplications(),
-  queryKeys.dashboard.all,
-]
-
-/**
- * Get keys to invalidate after a cash bill is paid/updated
- */
-export const getCashBillInvalidationKeys = () => [
-  queryKeys.cashBills.all,
-  queryKeys.bendahara.cashBills(),
-  queryKeys.dashboard.all,
-]
