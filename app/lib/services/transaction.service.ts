@@ -59,9 +59,15 @@ export const transactionService = {
     }
 
     // Fallback to legacy nested structure if API hasn't changed
+    // Fallback to legacy nested structure if API hasn't changed
+    const legacyData = responseData as {
+      transactions?: Transaction[]
+      pagination?: TransactionListResult['pagination']
+    }
+
     return {
-      transactions: (responseData as any)?.transactions || [],
-      pagination: (responseData as any)?.pagination || {},
+      transactions: legacyData?.transactions || [],
+      pagination: legacyData?.pagination || {},
     }
   },
 

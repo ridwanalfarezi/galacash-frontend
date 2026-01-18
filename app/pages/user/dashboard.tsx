@@ -6,6 +6,9 @@ import { useState } from 'react'
 import type { DateRange } from 'react-day-picker'
 import { Link } from 'react-router'
 
+type CashBill = components['schemas']['CashBill']
+type FundApplication = components['schemas']['FundApplication']
+
 import {
   EmptyState,
   StatCard,
@@ -22,6 +25,7 @@ import { dashboardQueries } from '~/lib/queries/dashboard.queries'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { formatCurrency, formatDate, groupTransactionsByDate } from '~/lib/utils'
+import type { components } from '~/types/api'
 import { toTransactionDisplayList } from '~/types/domain'
 
 export default function DashboardPage() {
@@ -67,9 +71,9 @@ export default function DashboardPage() {
   }
 
   // Handle flat data response for bills
-  const bills = Array.isArray(billsData) ? billsData : []
+  const bills = (Array.isArray(billsData) ? billsData : []) as CashBill[]
   const totalBills = bills.reduce(
-    (totalBill: any, bill: any) => {
+    (totalBill: { amount: number; date: Date; dueDate: Date }, bill: CashBill) => {
       totalBill.amount += bill.totalAmount || 0
       const billMonth = bill.month || '2025-01'
       totalBill.date = new Date(
@@ -240,9 +244,9 @@ export default function DashboardPage() {
                   ))}
                 </div>
               ) : Array.isArray(fundApplicationsData) && fundApplicationsData.length > 0 ? (
-                fundApplicationsData
-                  .filter((app: any) => app.status === 'pending')
-                  .map((application: any) => (
+                (fundApplicationsData as FundApplication[])
+                  .filter((app: FundApplication) => app.status === 'pending')
+                  .map((application: FundApplication) => (
                     <div
                       key={application.id}
                       className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"

@@ -5,6 +5,8 @@ import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, Receipt } fr
 import { useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 
+type CashBill = components['schemas']['CashBill']
+
 import { Icons } from '~/components/icons'
 import { DetailTagihanKasBendahara } from '~/components/modals/DetailTagihanKasBendahara'
 import { Button } from '~/components/ui/button'
@@ -18,6 +20,7 @@ import {
 import { useIsMobile } from '~/hooks/use-mobile'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { formatCurrency } from '~/lib/utils'
+import type { components } from '~/types/api'
 
 export function useNamaMahasiswa() {
   const location = useLocation()
@@ -66,9 +69,9 @@ export default function BendaharaDetailRekapKas() {
   // Map API data to local Tagihan format
   const dataTagihan: Tagihan[] = useMemo(() => {
     // API returns array directly or fallback to empty array
-    const bills = Array.isArray(billsData) ? billsData : []
+    const bills = (Array.isArray(billsData) ? billsData : []) as CashBill[]
 
-    return bills.map((bill: any) => {
+    return bills.map((bill) => {
       const monthDate = bill.month ? new Date(bill.month) : new Date()
       const monthName = monthDate.toLocaleDateString('id-ID', { month: 'long' })
       const dueDate = bill.dueDate
