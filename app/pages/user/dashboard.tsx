@@ -66,8 +66,10 @@ export default function DashboardPage() {
     totalExpense: summary?.totalExpense || 0,
   }
 
-  const totalBills = billsData?.bills?.reduce(
-    (totalBill, bill) => {
+  // Handle flat data response for bills
+  const bills = Array.isArray(billsData) ? billsData : []
+  const totalBills = bills.reduce(
+    (totalBill: any, bill: any) => {
       totalBill.amount += bill.totalAmount || 0
       const billMonth = bill.month || '2025-01'
       totalBill.date = new Date(
@@ -237,11 +239,10 @@ export default function DashboardPage() {
                     </div>
                   ))}
                 </div>
-              ) : fundApplicationsData?.applications &&
-                fundApplicationsData.applications.length > 0 ? (
-                fundApplicationsData.applications
-                  .filter((app) => app.status === 'pending')
-                  .map((application) => (
+              ) : Array.isArray(fundApplicationsData) && fundApplicationsData.length > 0 ? (
+                fundApplicationsData
+                  .filter((app: any) => app.status === 'pending')
+                  .map((application: any) => (
                     <div
                       key={application.id}
                       className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"

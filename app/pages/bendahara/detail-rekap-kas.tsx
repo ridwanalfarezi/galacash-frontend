@@ -51,7 +51,7 @@ export default function BendaharaDetailRekapKas() {
 
   // Fetch cash bills for specific user from API
   const [statusFilter, setStatusFilter] = useState<string | undefined>()
-  const [sortBy, setSortBy] = useState<'createdAt' | 'amount' | 'status'>('createdAt')
+  const [sortBy, setSortBy] = useState<'date' | 'amount' | 'status' | undefined>(undefined)
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   const { data: billsData } = useQuery(
@@ -65,8 +65,10 @@ export default function BendaharaDetailRekapKas() {
 
   // Map API data to local Tagihan format
   const dataTagihan: Tagihan[] = useMemo(() => {
-    if (!billsData?.bills) return []
-    return billsData.bills.map((bill) => {
+    // API returns array directly or fallback to empty array
+    const bills = Array.isArray(billsData) ? billsData : []
+
+    return bills.map((bill: any) => {
       const monthDate = bill.month ? new Date(bill.month) : new Date()
       const monthName = monthDate.toLocaleDateString('id-ID', { month: 'long' })
       const dueDate = bill.dueDate
@@ -124,8 +126,8 @@ export default function BendaharaDetailRekapKas() {
     }
   }
 
-  const getSortLabel = (sortBy: string, sortOrder: string) => {
-    if (sortBy === 'createdAt') {
+  const getSortLabel = (sortBy: string | undefined, sortOrder: string) => {
+    if (sortBy === 'date' || !sortBy) {
       return sortOrder === 'desc' ? 'Terbaru' : 'Terlama'
     }
     if (sortBy === 'status') {
@@ -214,7 +216,7 @@ export default function BendaharaDetailRekapKas() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
                     onClick={() => {
-                      setSortBy('createdAt')
+                      setSortBy('date')
                       setSortOrder('desc')
                     }}
                   >
@@ -222,7 +224,7 @@ export default function BendaharaDetailRekapKas() {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
-                      setSortBy('createdAt')
+                      setSortBy('date')
                       setSortOrder('asc')
                     }}
                   >
