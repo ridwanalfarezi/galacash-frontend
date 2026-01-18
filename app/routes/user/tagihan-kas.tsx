@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { lazy, Suspense } from 'react'
 
-import { KasKelasSkeleton } from '~/components/data-display'
+import { TagihanKasSkeleton } from '~/components/data-display'
 import { requireAuth } from '~/lib/auth'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { queryClient } from '~/lib/query-client'
@@ -35,7 +35,7 @@ clientLoader.hydrate = true
 export default function TagihanKas({ loaderData }: Route.ComponentProps) {
   return (
     <HydrationBoundary state={loaderData.dehydratedState}>
-      <Suspense fallback={<KasKelasSkeleton />}>
+      <Suspense fallback={<TagihanKasSkeleton />}>
         <TagihanKasPage />
       </Suspense>
     </HydrationBoundary>

@@ -64,13 +64,15 @@ export const bendaharaService = {
   async getFundApplications(params?: BendaharaFilters) {
     const response = await apiClient.get<{
       success: boolean
-      data: FundApplication[]
-      page?: number
-      limit?: number
-      total?: number
-      totalPages?: number
+      data: {
+        data: FundApplication[]
+        page?: number
+        limit?: number
+        total?: number
+        totalPages?: number
+      }
     }>('/bendahara/fund-applications', { params })
-    return response.data.data
+    return response.data.data.data
   },
 
   /**
@@ -103,13 +105,15 @@ export const bendaharaService = {
   async getCashBills(params?: BendaharaFilters) {
     const response = await apiClient.get<{
       success: boolean
-      data: CashBill[]
-      page?: number
-      limit?: number
-      total?: number
-      totalPages?: number
+      data: {
+        data: CashBill[]
+        page?: number
+        limit?: number
+        total?: number
+        totalPages?: number
+      }
     }>('/bendahara/cash-bills', { params })
-    return response.data.data
+    return response.data.data.data
   },
 
   /**

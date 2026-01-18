@@ -32,17 +32,17 @@ export const fundApplicationService = {
   async getApplications(filters?: FundApplicationFilters) {
     const response = await apiClient.get<{
       success: boolean
-      data: FundApplication[]
-      pagination?: components['schemas']['Pagination'] // Optional if API returns flat fields
-      page?: number
-      limit?: number
-      total?: number
-      totalPages?: number
+      data: {
+        data: FundApplication[]
+        page?: number
+        limit?: number
+        total?: number
+        totalPages?: number
+      }
     }>('/fund-applications', { params: filters })
 
-    // API returns data as an array directly in response.data.data
-    // structure: { data: [...], page: 1, limit: 10, ... }
-    return response.data.data
+    // API returns nested structure: { success, data: { data: [...], ...pagination } }
+    return response.data.data.data
   },
 
   /**
@@ -51,14 +51,16 @@ export const fundApplicationService = {
   async getMyApplications(filters?: FundApplicationFilters) {
     const response = await apiClient.get<{
       success: boolean
-      data: FundApplication[]
-      page?: number
-      limit?: number
-      total?: number
-      totalPages?: number
+      data: {
+        data: FundApplication[]
+        page?: number
+        limit?: number
+        total?: number
+        totalPages?: number
+      }
     }>('/fund-applications/my', { params: filters })
 
-    return response.data.data
+    return response.data.data.data
   },
 
   /**

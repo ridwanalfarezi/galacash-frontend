@@ -50,8 +50,8 @@ export default function TagihanKasPage() {
   )
 
   const tagihanKasList: TagihanKas[] = useMemo(() => {
-    if (!billsData?.bills) return []
-    return billsData.bills.map((bill: Record<string, unknown>) => {
+    if (!Array.isArray(billsData)) return []
+    return billsData.map((bill: Record<string, unknown>) => {
       const monthValue = (bill.month as string | undefined) || ''
       const dueDateValue = (bill.dueDate as string | undefined) || ''
       const user = bill.user as Record<string, unknown> | undefined

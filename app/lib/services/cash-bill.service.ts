@@ -36,7 +36,8 @@ export const cashBillService = {
         pagination: components['schemas']['Pagination']
       }
     }>('/cash-bills/my', { params: filters })
-    return response.data.data
+    // Return just the bills array for simpler consumption
+    return response.data.data.bills
   },
 
   /**

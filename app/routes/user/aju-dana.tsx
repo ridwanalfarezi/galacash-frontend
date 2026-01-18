@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { lazy, Suspense } from 'react'
 
-import { KasKelasSkeleton } from '~/components/data-display'
+import { AjuDanaUserSkeleton } from '~/components/data-display'
 import { requireAuth } from '~/lib/auth'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import { queryClient } from '~/lib/query-client'
@@ -35,7 +35,7 @@ clientLoader.hydrate = true
 export default function AjuDana({ loaderData }: Route.ComponentProps) {
   return (
     <HydrationBoundary state={loaderData.dehydratedState}>
-      <Suspense fallback={<KasKelasSkeleton />}>
+      <Suspense fallback={<AjuDanaUserSkeleton />}>
         <AjuDanaPage />
       </Suspense>
     </HydrationBoundary>
