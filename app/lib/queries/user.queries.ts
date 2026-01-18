@@ -36,7 +36,8 @@ export function useUpdateProfile() {
     mutationFn: userService.updateProfile,
     onSuccess: (updatedUser) => {
       // Update query cache
-      queryClient.invalidateQueries({ queryKey: queryKeys.user.profile() })
+      queryClient.invalidateQueries({ queryKey: ['user'] })
+      queryClient.invalidateQueries({ queryKey: ['auth'] })
       // Also update auth store if user data changed
       if (updatedUser) {
         const currentUser = useAuthStore.getState().user
@@ -76,7 +77,8 @@ export function useUploadAvatar() {
     mutationFn: userService.uploadAvatar,
     onSuccess: (response) => {
       // Update query cache
-      queryClient.invalidateQueries({ queryKey: queryKeys.user.profile() })
+      queryClient.invalidateQueries({ queryKey: ['user'] })
+      queryClient.invalidateQueries({ queryKey: ['auth'] })
       // Also update auth store avatar
       if (response?.avatarUrl) {
         const currentUser = useAuthStore.getState().user

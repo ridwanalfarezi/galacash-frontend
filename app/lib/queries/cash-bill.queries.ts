@@ -1,7 +1,7 @@
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { getCashBillInvalidationKeys, queryKeys } from '~/lib/queries/keys'
+import { queryKeys } from '~/lib/queries/keys'
 import {
   cashBillService,
   type CashBillFilters,
@@ -47,10 +47,11 @@ export function usePayBill() {
     mutationFn: ({ billId, data }: { billId: string; data: PayBillData }) =>
       cashBillService.payBill(billId, data),
     onSuccess: () => {
-      // Use centralized invalidation helper
-      getCashBillInvalidationKeys().forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: key })
-      })
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
+      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
       toast.success('Bukti pembayaran berhasil diupload')
     },
     onError: () => {
@@ -68,10 +69,11 @@ export function useCancelPayment() {
   return useMutation({
     mutationFn: (billId: string) => cashBillService.cancelPayment(billId),
     onSuccess: () => {
-      // Use centralized invalidation helper
-      getCashBillInvalidationKeys().forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: key })
-      })
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
+      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
       toast.success('Pembayaran berhasil dibatalkan')
     },
     onError: () => {

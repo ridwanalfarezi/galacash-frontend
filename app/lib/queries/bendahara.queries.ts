@@ -1,12 +1,7 @@
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import {
-  getCashBillInvalidationKeys,
-  getFundApplicationInvalidationKeys,
-  getTransactionInvalidationKeys,
-  queryKeys,
-} from '~/lib/queries/keys'
+import { queryKeys } from '~/lib/queries/keys'
 import {
   bendaharaService,
   type BendaharaFilters,
@@ -88,13 +83,11 @@ export const useApproveFundApplication = () => {
   return useMutation({
     mutationFn: (id: string) => bendaharaService.approveFundApplication(id),
     onSuccess: () => {
-      // Use centralized invalidation helpers
-      getFundApplicationInvalidationKeys().forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: key })
-      })
-      getTransactionInvalidationKeys().forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: key })
-      })
+      // Invalidate all fund application related queries
+      queryClient.invalidateQueries({ queryKey: ['fund-applications'] })
+      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
       toast.success('Pengajuan dana berhasil disetujui')
     },
     onError: (error: unknown) => {
@@ -118,10 +111,11 @@ export const useRejectFundApplication = () => {
     mutationFn: ({ id, rejectionReason }: { id: string; rejectionReason: string }) =>
       bendaharaService.rejectFundApplication(id, rejectionReason),
     onSuccess: () => {
-      // Use centralized invalidation helpers
-      getFundApplicationInvalidationKeys().forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: key })
-      })
+      // Invalidate all fund application related queries
+      queryClient.invalidateQueries({ queryKey: ['fund-applications'] })
+      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
       toast.success('Pengajuan dana berhasil ditolak')
     },
     onError: (error: unknown) => {
@@ -144,13 +138,11 @@ export const useConfirmPayment = () => {
   return useMutation({
     mutationFn: (billId: string) => bendaharaService.confirmPayment(billId),
     onSuccess: () => {
-      // Use centralized invalidation helpers
-      getCashBillInvalidationKeys().forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: key })
-      })
-      getTransactionInvalidationKeys().forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: key })
-      })
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       toast.success('Pembayaran berhasil dikonfirmasi')
     },
     onError: (error: unknown) => {
@@ -174,10 +166,10 @@ export const useRejectPayment = () => {
     mutationFn: ({ billId, reason }: { billId: string; reason?: string }) =>
       bendaharaService.rejectPayment(billId, reason),
     onSuccess: () => {
-      // Use centralized invalidation helpers
-      getCashBillInvalidationKeys().forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: key })
-      })
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
+      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       toast.success('Pembayaran berhasil ditolak')
     },
     onError: (error: unknown) => {
@@ -200,11 +192,11 @@ export const useCreateTransaction = () => {
   return useMutation({
     mutationFn: (data: CreateTransactionData) => bendaharaService.createTransaction(data),
     onSuccess: () => {
-      // Use centralized invalidation helper
-      getTransactionInvalidationKeys().forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: key })
-      })
-      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.rekapKas() })
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
       toast.success('Transaksi berhasil dibuat')
     },
     onError: (error: unknown) => {
