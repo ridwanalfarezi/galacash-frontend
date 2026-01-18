@@ -26,6 +26,8 @@ import type { components } from '~/types/api'
 type FundApplicationWithMeta = components['schemas']['FundApplication'] & {
   createdAt?: string
   user?: { name?: string }
+  description?: string
+  attachmentUrl?: string
 }
 
 interface Application {
@@ -101,8 +103,8 @@ export default function AjuDanaPage() {
       status: (app.status || 'pending') as 'pending' | 'approved' | 'rejected',
       amount: app.amount || 0,
       applicant: 'Anda',
-      description: (app as any).description,
-      attachment: (app as any).attachmentUrl,
+      description: app.description,
+      attachment: app.attachmentUrl,
     }))
 
     if (sortByA === 'amount') {
@@ -138,8 +140,8 @@ export default function AjuDanaPage() {
       status: (app.status || 'pending') as 'pending' | 'approved' | 'rejected',
       amount: app.amount || 0,
       applicant: app.user?.name || 'Unknown',
-      description: (app as any).description,
-      attachment: (app as any).attachmentUrl,
+      description: app.description,
+      attachment: app.attachmentUrl,
     }))
 
     if (sortByB === 'amount') {
