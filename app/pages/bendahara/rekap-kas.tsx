@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Check, ChevronDown, ChevronRight, ChevronUp, Receipt, Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
+import { toast } from 'sonner'
 
 import { RekapKasSkeleton } from '~/components/data-display'
 import Export from '~/components/icons/export'
@@ -12,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { useIsMobile } from '~/hooks/use-mobile'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
+import { transactionService } from '~/lib/services/transaction.service'
 import { formatCurrency } from '~/lib/utils'
 
 interface StudentBill {
@@ -26,6 +28,7 @@ export default function BendaharaRekapkas() {
   const isMobile = useIsMobile()
   const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isExporting, setIsExporting] = useState(false)
 
   // Fetch students data from API with search filter
   const { data: studentsData, isLoading: isLoadingStudents } = useQuery(
@@ -105,6 +108,31 @@ export default function BendaharaRekapkas() {
     )
   }
 
+  // Handle export transactions
+  const handleExport = async () => {
+    try {
+      setIsExporting(true)
+      toast.info('Mengekspor transaksi...', { duration: 2000 })
+
+      const blob = await transactionService.exportTransactions({})
+
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `rekap-kas-${new Date().toISOString().split('T')[0]}.xlsx`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      toast.success('Rekap kas berhasil diekspor')
+    } catch {
+      toast.error('Gagal mengekspor rekap kas')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   if (isLoadingStudents || isLoadingRekap) {
     return <RekapKasSkeleton />
   }
@@ -150,9 +178,9 @@ export default function BendaharaRekapkas() {
                 />
               </div>
 
-              <Button className="w-full sm:w-auto">
+              <Button className="w-full sm:w-auto" onClick={handleExport} disabled={isExporting}>
                 <Export className="h-5 w-5" />
-                Export
+                {isExporting ? 'Mengekspor...' : 'Export'}
               </Button>
             </div>
           </div>

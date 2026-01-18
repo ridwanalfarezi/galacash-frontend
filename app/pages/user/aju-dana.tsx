@@ -4,7 +4,6 @@ import { ChevronDown, ChevronRight, ChevronUp, Filter, HandCoins } from 'lucide-
 import { useMemo, useState } from 'react'
 
 import { AjuDanaUserSkeleton, EmptyState, StatusBadge } from '~/components/data-display'
-import Export from '~/components/icons/export'
 import Plus from '~/components/icons/plus'
 import Sort from '~/components/icons/sort'
 import { BuatAjuDanaModal } from '~/components/modals/BuatAjuDana'
@@ -311,10 +310,6 @@ export default function AjuDanaPage() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button className="w-full sm:w-auto">
-                  <Export className="h-5 w-5" />
-                  Export
-                </Button>
                 <Button
                   onClick={() => setIsApplicationModalOpen(true)}
                   className="w-full sm:w-auto"
@@ -542,10 +537,6 @@ export default function AjuDanaPage() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button className="w-full sm:w-auto">
-                  <Export className="h-5 w-5" />
-                  Export
-                </Button>
               </div>
             </div>
           </CardHeader>

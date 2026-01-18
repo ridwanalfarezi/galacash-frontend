@@ -107,6 +107,8 @@ export default function KasKelasPage() {
   const handleExport = async () => {
     try {
       setIsExporting(true)
+      toast.info('Mengekspor transaksi...', { duration: 2000 })
+
       const blob = await transactionService.exportTransactions({
         type: filterType === 'all' ? undefined : filterType,
       })

@@ -13,7 +13,6 @@ import {
 import { useMemo, useState } from 'react'
 
 import { AjuDanaBendaharaSkeleton } from '~/components/data-display'
-import Export from '~/components/icons/export'
 import Sort from '~/components/icons/sort'
 import { BuatAjuDanaModal } from '~/components/modals/BuatAjuDana'
 import { DetailAjuDanaBendahara } from '~/components/modals/DetailAjuDanaBendahara'
@@ -292,10 +291,6 @@ export default function BendaharaAjuDana() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button className="w-full sm:w-auto">
-                  <Export className="h-5 w-5" />
-                  Export
-                </Button>
               </div>
             </div>
           </CardHeader>
