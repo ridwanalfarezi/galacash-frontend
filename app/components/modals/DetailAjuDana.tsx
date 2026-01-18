@@ -9,6 +9,7 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
+import { formatCurrency, getFilenameFromUrl } from '~/lib/utils'
 
 interface Application {
   id: string
@@ -30,10 +31,6 @@ interface DetailAjuDanaModalProps {
 
 export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDanaModalProps) {
   const { data: detailData } = useQuery(fundApplicationQueries.detail(application.id))
-
-  const formatCurrency = (amount: number) => {
-    return `Rp. ${amount.toLocaleString('id-ID')}`
-  }
 
   const handleOpenAttachment = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -87,13 +84,17 @@ export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDa
               }`}
             >
               <span
-                className={`${
+                className={`truncate ${
                   detailData?.attachmentUrl || application.attachment
                     ? 'text-gray-900 hover:text-blue-600'
                     : 'text-gray-500'
                 }`}
               >
-                {detailData?.attachmentUrl || application.attachment || 'Tidak ada lampiran'}
+                {detailData?.attachmentUrl
+                  ? getFilenameFromUrl(detailData.attachmentUrl)
+                  : application.attachment
+                    ? getFilenameFromUrl(application.attachment)
+                    : 'Tidak ada lampiran'}
               </span>
               <File
                 className={`h-5 w-5 ${

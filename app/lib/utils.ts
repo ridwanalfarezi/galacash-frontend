@@ -48,3 +48,8 @@ export const groupTransactionsByDate = (transactions: TransactionDisplay[]): Tra
     .sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime())
     .map(([date, items]) => ({ date, items }))
 }
+
+export const getFilenameFromUrl = (url: string): string => {
+  const parts = url.split('/')
+  return parts[parts.length - 1]
+}

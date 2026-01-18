@@ -27,6 +27,7 @@ import {
 } from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
+import { formatCurrency } from '~/lib/utils'
 import type { components } from '~/types/api'
 
 interface Application {
@@ -125,10 +126,6 @@ export default function BendaharaAjuDana() {
       default:
         return status
     }
-  }
-
-  const formatCurrency = (amount: number) => {
-    return `Rp ${amount.toLocaleString('id-ID')}`
   }
 
   const getStatusBadge = (status: string) => {

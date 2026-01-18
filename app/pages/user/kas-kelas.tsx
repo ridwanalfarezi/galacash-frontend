@@ -364,8 +364,8 @@ export default function KasKelasPage() {
                             {app.type === 'income' ? '+' : '-'}
                             {formatCurrency(app.amount)}
                           </td>
-                          <td className="px-4 py-3" onClick={() => openDetailModal(app)}>
-                            <Button variant="ghost" size="sm">
+                          <td className="px-4 py-3">
+                            <Button variant="ghost" size="sm" onClick={() => openDetailModal(app)}>
                               <ChevronRight className="h-4 w-4" />
                             </Button>
                           </td>

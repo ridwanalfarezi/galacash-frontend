@@ -2,13 +2,20 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { File } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
-import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
+import {
+  bendaharaQueries,
+  useApproveFundApplication,
+  useRejectFundApplication,
+} from '~/lib/queries/bendahara.queries'
+import { formatCurrency, getFilenameFromUrl } from '~/lib/utils'
 
 interface Application {
   id: string
@@ -30,10 +37,11 @@ interface DetailAjuDanaModalProps {
 
 export function DetailAjuDanaBendahara({ isOpen, onClose, application }: DetailAjuDanaModalProps) {
   const { data: detailData } = useQuery(bendaharaQueries.fundApplicationDetail(application.id))
+  const [rejectionReason, setRejectionReason] = useState('')
+  const [showRejectInput, setShowRejectInput] = useState(false)
 
-  const formatCurrency = (amount: number) => {
-    return `Rp. ${amount.toLocaleString('id-ID')}`
-  }
+  const approveMutation = useApproveFundApplication()
+  const rejectMutation = useRejectFundApplication()
 
   const handleOpenAttachment = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -42,6 +50,56 @@ export function DetailAjuDanaBendahara({ isOpen, onClose, application }: DetailA
       window.open(attachmentUrl, '_blank', 'noopener,noreferrer')
     }
   }
+
+  const handleApprove = async () => {
+    if (application.status !== 'pending') {
+      toast.error('Hanya pengajuan dengan status pending yang bisa disetujui')
+      return
+    }
+
+    try {
+      await approveMutation.mutateAsync(application.id)
+      onClose()
+    } catch (error) {
+      // Error is already handled by mutation
+      console.error(error)
+    }
+  }
+
+  const handleReject = async () => {
+    if (application.status !== 'pending') {
+      toast.error('Hanya pengajuan dengan status pending yang bisa ditolak')
+      return
+    }
+
+    if (!showRejectInput) {
+      setShowRejectInput(true)
+      return
+    }
+
+    if (!rejectionReason.trim()) {
+      toast.error('Alasan penolakan harus diisi')
+      return
+    }
+
+    try {
+      await rejectMutation.mutateAsync({ id: application.id, rejectionReason })
+      setShowRejectInput(false)
+      setRejectionReason('')
+      onClose()
+    } catch (error) {
+      // Error is already handled by mutation
+      console.error(error)
+    }
+  }
+
+  const handleCancelReject = () => {
+    setShowRejectInput(false)
+    setRejectionReason('')
+  }
+
+  const isProcessing = approveMutation.isPending || rejectMutation.isPending
+  const isPending = application.status === 'pending'
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -87,13 +145,17 @@ export function DetailAjuDanaBendahara({ isOpen, onClose, application }: DetailA
               }`}
             >
               <span
-                className={`${
+                className={`truncate ${
                   detailData?.attachmentUrl || application.attachment
                     ? 'text-gray-900 hover:text-blue-600'
                     : 'text-gray-500'
                 }`}
               >
-                {detailData?.attachmentUrl || application.attachment || 'Tidak ada lampiran'}
+                {detailData?.attachmentUrl
+                  ? getFilenameFromUrl(detailData.attachmentUrl)
+                  : application.attachment
+                    ? getFilenameFromUrl(application.attachment)
+                    : 'Tidak ada lampiran'}
               </span>
               <File
                 className={`h-5 w-5 ${
@@ -105,11 +167,60 @@ export function DetailAjuDanaBendahara({ isOpen, onClose, application }: DetailA
             </div>
           </div>
 
-          <div className="flex justify-end pt-4">
-            <div className="flex gap-2">
-              <Button className="bg-red-700 text-white hover:bg-red-800">Tolak</Button>
-              <Button className="bg-green-700 text-white hover:bg-green-800">Terima</Button>
+          {showRejectInput && (
+            <div className="space-y-1">
+              <Label className="text-lg font-normal sm:text-xl">Alasan Penolakan</Label>
+              <Textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Masukkan alasan penolakan..."
+                rows={3}
+                disabled={isProcessing}
+              />
             </div>
+          )}
+
+          <div className="flex justify-end gap-2 pt-4">
+            {showRejectInput ? (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleCancelReject}
+                  disabled={isProcessing}
+                  className="border-gray-300"
+                >
+                  Batal
+                </Button>
+                <Button
+                  onClick={handleReject}
+                  disabled={isProcessing || !rejectionReason.trim()}
+                  className="bg-red-700 text-white hover:bg-red-800"
+                >
+                  {rejectMutation.isPending ? 'Memproses...' : 'Konfirmasi Tolak'}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  onClick={handleReject}
+                  disabled={isProcessing || !isPending}
+                  className="bg-red-700 text-white hover:bg-red-800 disabled:bg-gray-400"
+                >
+                  {!isPending ? 'Sudah Diproses' : 'Tolak'}
+                </Button>
+                <Button
+                  onClick={handleApprove}
+                  disabled={isProcessing || !isPending}
+                  className="bg-green-700 text-white hover:bg-green-800 disabled:bg-gray-400"
+                >
+                  {approveMutation.isPending
+                    ? 'Memproses...'
+                    : !isPending
+                      ? 'Sudah Diproses'
+                      : 'Terima'}
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </DialogContent>
