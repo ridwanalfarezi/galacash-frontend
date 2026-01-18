@@ -1,8 +1,21 @@
-# GalaCash
+# GalaCash Frontend
 
-A modern financial management application built with React Router and TypeScript, designed to make managing finances more efficient and accessible.
+> **Modern financial management application for class treasurers**  
+> Built with React Router v7, TypeScript, TailwindCSS, and TanStack Query  
+> **Last Updated:** January 19, 2026
 
-GalaCash is a full-stack application that enables treasurers to track and manage both income and expenses while providing complete transparency on financial activities. Features include fund requests (Aju Dana), cash bill management (Tagihan Kas), and financial recaps.
+---
+
+A full-stack application that enables treasurers and students to track and manage both income and expenses with complete transparency across the entire batch. Features include fund requests (Aju Dana), cash bill management (Tagihan Kas), and comprehensive financial recaps.
+
+## 🎯 Key Highlights
+
+- **Multi-Class Transparency**: View financial data across all classes in the angkatan (batch)
+- **Role-Based Access**: Separate interfaces for students (user) and treasurers (bendahara)
+- **Real-Time Data**: TanStack Query for optimized server state management with caching
+- **Date Filtering**: Dynamic date range filtering for dashboard summaries and transactions
+- **Type Safety**: End-to-end TypeScript with generated API types
+- **Performance First**: Route lazy loading, skeleton screens, and optimized assets
 
 ## 🛠 Tech Stack
 
@@ -12,7 +25,7 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 - 🎯 [TypeScript](https://www.typescriptlang.org/) for type safety
 - 📦 [Vite](https://vitejs.dev/) for fast builds
 - 🎭 [Shadcn UI](https://ui.shadcn.com/) - Accessible components built on Radix UI
-- 🏗️ [Zustand](https://zustand-demo.pmnd.rs/) for state management
+- 🏗️ [Zustand](https://zustand-demo.pmnd.rs/) for auth state management
 - 📡 [TanStack Query](https://tanstack.com/query/latest) for server state & caching
 - ✨ [Zod](https://zod.dev/) for schema validation
 - 📝 [React Hook Form](https://react-hook-form.com/) for form handling
@@ -236,6 +249,103 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 - **Bendahara**: Treasurer-specific functionality (rekap kas, approvals)
 - **User**: Student-specific functionality (tagihan kas, submissions)
 
+**Data Transparency Architecture:**
+
+- Dashboard summaries aggregate data across all classes in the batch
+- Date range filtering for real-time data updates
+- Automatic query invalidation and refetch on data changes
+- Optimistic updates with error rollback
+
+## 🏗️ Architecture Deep Dive
+
+### Data Flow & State Management
+
+**Server State (TanStack Query)**:
+
+- Query keys organized by feature (dashboard, transactions, bills, applications)
+- Automatic refetching on window focus and network reconnection
+- Optimistic updates for mutations with rollback on error
+- Prefetching in route loaders for instant page loads
+
+**Client State (Zustand)**:
+
+- Authentication state (user, role, tokens)
+- Persisted to localStorage for session management
+- Used for role-based routing and UI rendering
+
+**Query Key Factory Pattern**:
+
+```typescript
+// Centralized, type-safe query keys
+const queryKeys = {
+  dashboard: {
+    all: ['dashboard'] as const,
+    summary: (params?: DashboardParams) => [...queryKeys.dashboard.all, 'summary', params] as const,
+  },
+  transactions: {
+    all: ['transactions'] as const,
+    list: (filters?: TransactionFilters) =>
+      [...queryKeys.transactions.all, 'list', filters] as const,
+    recent: (limit: number) => [...queryKeys.transactions.all, 'recent', limit] as const,
+  },
+}
+```
+
+### Route Protection
+
+**Role-Based Access Control**:
+
+```typescript
+// In route loaders
+export async function clientLoader() {
+  await requireRole('bendahara') // Only bendahara can access
+  // ... prefetch data
+}
+
+// Or for any authenticated user
+export async function clientLoader() {
+  await requireAuth() // Any logged-in user
+  // ... prefetch data
+}
+```
+
+### API Integration
+
+**Service Layer Pattern**:
+
+- Services encapsulate all API calls
+- Consistent error handling with `APIError` class
+- Automatic token refresh on 401 responses
+- Type-safe responses from generated OpenAPI types
+
+**Date Filtering**:
+
+```typescript
+// Dashboard with date range
+const { data: summary } = useQuery(
+  dashboardQueries.summary({
+    startDate: date?.from?.toISOString().split('T')[0],
+    endDate: date?.to?.toISOString().split('T')[0],
+  })
+)
+```
+
+### Component Patterns
+
+**Composition over Inheritance**:
+
+- Small, focused components with single responsibility
+- Compound components for complex UI (e.g., StatCard, TransactionItem)
+- Shared utilities (formatCurrency, formatDate, groupTransactionsByDate)
+
+**Null Safety**:
+
+```typescript
+// Use nullish coalescing for proper 0 and negative handling
+const totalBalance = summary?.totalBalance ?? 0 // ✅ Correct
+const totalBalance = summary?.totalBalance || 0 // ❌ Fails for 0
+```
+
 **Component Organization:**
 
 - **UI Components**: Reusable design system components
@@ -243,6 +353,96 @@ GalaCash is a full-stack application that enables treasurers to track and manage
 - **Icons**: Custom icon components
 - **Modals**: Modal dialog components
 - **Chart**: Data visualization components
+
+## 🏗️ Architecture Deep Dive
+
+### Data Flow & State Management
+
+**Server State (TanStack Query)**:
+
+- Query keys organized by feature (dashboard, transactions, bills, applications)
+- Automatic refetching on window focus and network reconnection
+- Optimistic updates for mutations with rollback on error
+- Prefetching in route loaders for instant page loads
+
+**Client State (Zustand)**:
+
+- Authentication state (user, role, tokens)
+- Persisted to localStorage for session management
+- Used for role-based routing and UI rendering
+
+**Query Key Factory Pattern**:
+
+```typescript
+// Centralized, type-safe query keys
+const queryKeys = {
+  dashboard: {
+    all: ['dashboard'] as const,
+    summary: (params?: DashboardParams) => [...queryKeys.dashboard.all, 'summary', params] as const,
+  },
+  transactions: {
+    all: ['transactions'] as const,
+    list: (filters?: TransactionFilters) =>
+      [...queryKeys.transactions.all, 'list', filters] as const,
+    recent: (limit: number) => [...queryKeys.transactions.all, 'recent', limit] as const,
+  },
+}
+```
+
+### Route Protection
+
+**Role-Based Access Control**:
+
+```typescript
+// In route loaders
+export async function clientLoader() {
+  await requireRole('bendahara') // Only bendahara can access
+  // ... prefetch data
+}
+
+// Or for any authenticated user
+export async function clientLoader() {
+  await requireAuth() // Any logged-in user
+  // ... prefetch data
+}
+```
+
+### API Integration
+
+**Service Layer Pattern**:
+
+- Services encapsulate all API calls
+- Consistent error handling with `APIError` class
+- Automatic token refresh on 401 responses
+- Type-safe responses from generated OpenAPI types
+
+**Date Filtering**:
+
+```typescript
+// Dashboard with date range
+const { data: summary } = useQuery(
+  dashboardQueries.summary({
+    startDate: date?.from?.toISOString().split('T')[0],
+    endDate: date?.to?.toISOString().split('T')[0],
+  })
+)
+```
+
+### Component Patterns
+
+**Composition over Inheritance**:
+
+- Small, focused components with single responsibility
+- Compound components for complex UI (e.g., StatCard, TransactionItem)
+- Shared utilities (formatCurrency, formatDate, groupTransactionsByDate)
+
+**Null Safety**:
+
+```typescript
+// Use nullish coalescing for proper 0 and negative handling
+const totalBalance = summary?.totalBalance ?? 0 // ✅ Correct
+const totalBalance = summary?.totalBalance || 0 // ❌ Fails for 0
+```
 
 ## 🛠 Development Tools
 

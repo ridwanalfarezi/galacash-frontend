@@ -8,6 +8,7 @@ import { dashboardQueries } from '~/lib/queries/dashboard.queries'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { queryClient } from '~/lib/query-client'
+import { formatDateForAPI } from '~/lib/utils'
 
 import type { Route } from './+types/dashboard'
 
@@ -23,10 +24,8 @@ export async function clientLoader() {
   await requireAuth()
 
   // Calculate initial date range (current month)
-  const startDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-    .toISOString()
-    .split('T')[0]
-  const endDate = new Date().toISOString().split('T')[0]
+  const startDate = formatDateForAPI(new Date(new Date().getFullYear(), new Date().getMonth(), 1))
+  const endDate = formatDateForAPI(new Date())
 
   // Prefetch critical queries
   await Promise.all([

@@ -23,7 +23,7 @@ import {
   useApproveFundApplication,
   useRejectFundApplication,
 } from '~/lib/queries/bendahara.queries'
-import { formatCurrency, formatDate, groupTransactionsByDate } from '~/lib/utils'
+import { formatCurrency, formatDate, formatDateForAPI, groupTransactionsByDate } from '~/lib/utils'
 import { toTransactionDisplayList, type TransactionDisplay } from '~/types/domain'
 
 export default function DashboardPage() {
@@ -38,8 +38,8 @@ export default function DashboardPage() {
   // Fetch rekap kas with date filter for summary cards
   const { data: rekapKasData, isLoading: isLoadingRekap } = useQuery(
     bendaharaQueries.rekapKas({
-      startDate: date?.from?.toISOString().split('T')[0],
-      endDate: date?.to?.toISOString().split('T')[0],
+      startDate: date?.from ? formatDateForAPI(date.from) : undefined,
+      endDate: date?.to ? formatDateForAPI(date.to) : undefined,
     })
   )
 

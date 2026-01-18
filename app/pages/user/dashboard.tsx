@@ -24,7 +24,7 @@ import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { dashboardQueries } from '~/lib/queries/dashboard.queries'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
-import { formatCurrency, formatDate, groupTransactionsByDate } from '~/lib/utils'
+import { formatCurrency, formatDate, formatDateForAPI, groupTransactionsByDate } from '~/lib/utils'
 import type { components } from '~/types/api'
 import { toTransactionDisplayList } from '~/types/domain'
 
@@ -37,8 +37,8 @@ export default function DashboardPage() {
   // Fetch dashboard data using React Query
   const { data: summary, isLoading: isSummaryLoading } = useQuery(
     dashboardQueries.summary({
-      startDate: date?.from?.toISOString().split('T')[0],
-      endDate: date?.to?.toISOString().split('T')[0],
+      startDate: date?.from ? formatDateForAPI(date.from) : undefined,
+      endDate: date?.to ? formatDateForAPI(date.to) : undefined,
     })
   )
 
@@ -46,8 +46,8 @@ export default function DashboardPage() {
     transactionQueries.list({
       limit: 5,
       page: 1,
-      startDate: date?.from?.toISOString().split('T')[0],
-      endDate: date?.to?.toISOString().split('T')[0],
+      startDate: date?.from ? formatDateForAPI(date.from) : undefined,
+      endDate: date?.to ? formatDateForAPI(date.to) : undefined,
     })
   )
 
