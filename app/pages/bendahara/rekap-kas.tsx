@@ -73,7 +73,7 @@ export default function BendaharaRekapkas() {
         nim: student.nim || '',
         nama: student.name || '',
         status,
-        biayaPerBulan: ((rekapData as Record<string, unknown>)?.monthlyAmount as number) || 16000,
+        biayaPerBulan: ((rekapData as Record<string, unknown>)?.monthlyAmount as number) ?? 16000,
         userId: student.id || '',
       }
     })

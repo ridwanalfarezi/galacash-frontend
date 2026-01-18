@@ -35,6 +35,14 @@ export default function DashboardPage() {
   // Fetch dashboard data from API
   const { data: dashboardData, isLoading } = useQuery(bendaharaQueries.dashboard())
 
+  // Fetch rekap kas with date filter for summary cards
+  const { data: rekapKasData, isLoading: isLoadingRekap } = useQuery(
+    bendaharaQueries.rekapKas({
+      startDate: date?.from?.toISOString().split('T')[0],
+      endDate: date?.to?.toISOString().split('T')[0],
+    })
+  )
+
   // Mutations for approve/reject
   const approveMutation = useApproveFundApplication()
   const rejectMutation = useRejectFundApplication()
@@ -56,11 +64,11 @@ export default function DashboardPage() {
 
   const groupedTransactions = groupTransactionsByDate(filteredTransactions)
 
-  // Summary from API with fallback
+  // Summary from rekap kas API with date filter
   const filteredSummary = {
-    totalBalance: dashboardData?.totalBalance || 0,
-    totalIncome: dashboardData?.totalIncome || 0,
-    totalExpense: dashboardData?.totalExpense || 0,
+    totalBalance: rekapKasData?.summary?.balance ?? 0,
+    totalIncome: rekapKasData?.summary?.totalIncome ?? 0,
+    totalExpense: rekapKasData?.summary?.totalExpense ?? 0,
   }
 
   // Fund applications from API
@@ -97,7 +105,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat Cards - With skeleton loading */}
-      {isLoading ? (
+      {isLoading || isLoadingRekap ? (
         <div className="mb-8">
           <StatCardsGridSkeleton count={3} />
         </div>

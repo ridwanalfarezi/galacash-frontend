@@ -22,10 +22,16 @@ export async function clientLoader() {
   // Check authentication
   await requireAuth()
 
+  // Calculate initial date range (current month)
+  const startDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+    .toISOString()
+    .split('T')[0]
+  const endDate = new Date().toISOString().split('T')[0]
+
   // Prefetch critical queries
   await Promise.all([
-    queryClient.prefetchQuery(dashboardQueries.summary()),
-    queryClient.prefetchQuery(transactionQueries.recent(5)),
+    queryClient.prefetchQuery(dashboardQueries.summary({ startDate, endDate })),
+    queryClient.prefetchQuery(transactionQueries.list({ limit: 5, page: 1, startDate, endDate })),
     queryClient.prefetchQuery(cashBillQueries.my({ status: 'belum_dibayar', limit: 5 })),
     queryClient.prefetchQuery(fundApplicationQueries.my({ status: 'pending', limit: 5 })),
   ])

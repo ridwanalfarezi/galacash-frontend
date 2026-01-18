@@ -43,7 +43,12 @@ export default function DashboardPage() {
   )
 
   const { data: transactionsData, isLoading: isTransactionsLoading } = useQuery(
-    transactionQueries.recent(5)
+    transactionQueries.list({
+      limit: 5,
+      page: 1,
+      startDate: date?.from?.toISOString().split('T')[0],
+      endDate: date?.to?.toISOString().split('T')[0],
+    })
   )
 
   const { data: billsData } = useQuery(
@@ -65,9 +70,9 @@ export default function DashboardPage() {
   const groupedTransactions = groupTransactionsByDate(filteredTransactions)
 
   const filteredSummary = {
-    totalBalance: summary?.totalBalance || 0,
-    totalIncome: summary?.totalIncome || 0,
-    totalExpense: summary?.totalExpense || 0,
+    totalBalance: summary?.totalBalance ?? 0,
+    totalIncome: summary?.totalIncome ?? 0,
+    totalExpense: summary?.totalExpense ?? 0,
   }
 
   // Handle flat data response for bills
