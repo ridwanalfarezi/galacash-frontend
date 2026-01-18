@@ -73,9 +73,15 @@ export default function AjuDanaPage() {
   const applicationsA: Application[] = useMemo(() => {
     // API returns array directly now
     const data = Array.isArray(myApplicationsDataA) ? myApplicationsDataA : []
-    return data.map((app) => ({
+    return data.map((app: any) => ({
       id: app.id || '',
-      date: app.date || '',
+      date: app.createdAt
+        ? new Date(app.createdAt).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })
+        : '',
       purpose: app.purpose || '',
       category: app.category || '',
       status: (app.status || 'pending') as 'pending' | 'approved' | 'rejected',
@@ -88,14 +94,20 @@ export default function AjuDanaPage() {
   const applicationsB: Application[] = useMemo(() => {
     // API returns array directly now
     const data = Array.isArray(myApplicationsDataB) ? myApplicationsDataB : []
-    return data.map((app) => ({
+    return data.map((app: any) => ({
       id: app.id || '',
-      date: app.date || '',
+      date: app.createdAt
+        ? new Date(app.createdAt).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })
+        : '',
       purpose: app.purpose || '',
       category: app.category || '',
       status: (app.status || 'pending') as 'pending' | 'approved' | 'rejected',
       amount: app.amount || 0,
-      applicant: app.applicant?.name || 'Unknown',
+      applicant: app.user?.name || 'Unknown',
     }))
   }, [myApplicationsDataB])
 
@@ -171,16 +183,36 @@ export default function AjuDanaPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    <DropdownMenuItem onClick={() => setStatusFilterA(undefined)}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setStatusFilterA(undefined)
+                      }}
+                    >
                       Semua Status
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilterA('pending')}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setStatusFilterA('pending')
+                      }}
+                    >
                       Menunggu
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilterA('approved')}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setStatusFilterA('approved')
+                      }}
+                    >
                       Disetujui
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilterA('rejected')}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setStatusFilterA('rejected')
+                      }}
+                    >
                       Ditolak
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -194,7 +226,8 @@ export default function AjuDanaPage() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
-                      onClick={() => {
+                      onSelect={(e) => {
+                        e.preventDefault()
                         setSortByA('date')
                         setSortOrderA('desc')
                       }}
@@ -202,7 +235,8 @@ export default function AjuDanaPage() {
                       Terbaru
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => {
+                      onSelect={(e) => {
+                        e.preventDefault()
                         setSortByA('date')
                         setSortOrderA('asc')
                       }}
@@ -210,7 +244,8 @@ export default function AjuDanaPage() {
                       Terlama
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => {
+                      onSelect={(e) => {
+                        e.preventDefault()
                         setSortByA('amount')
                         setSortOrderA('desc')
                       }}
@@ -218,7 +253,8 @@ export default function AjuDanaPage() {
                       Nominal Tertinggi
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => {
+                      onSelect={(e) => {
+                        e.preventDefault()
                         setSortByA('amount')
                         setSortOrderA('asc')
                       }}
@@ -378,16 +414,36 @@ export default function AjuDanaPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    <DropdownMenuItem onClick={() => setStatusFilterB(undefined)}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setStatusFilterB(undefined)
+                      }}
+                    >
                       Semua Status
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilterB('pending')}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setStatusFilterB('pending')
+                      }}
+                    >
                       Menunggu
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilterB('approved')}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setStatusFilterB('approved')
+                      }}
+                    >
                       Disetujui
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilterB('rejected')}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setStatusFilterB('rejected')
+                      }}
+                    >
                       Ditolak
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -401,7 +457,8 @@ export default function AjuDanaPage() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
-                      onClick={() => {
+                      onSelect={(e) => {
+                        e.preventDefault()
                         setSortByB('date')
                         setSortOrderB('desc')
                       }}
@@ -409,7 +466,8 @@ export default function AjuDanaPage() {
                       Terbaru
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => {
+                      onSelect={(e) => {
+                        e.preventDefault()
                         setSortByB('date')
                         setSortOrderB('asc')
                       }}
@@ -417,7 +475,8 @@ export default function AjuDanaPage() {
                       Terlama
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => {
+                      onSelect={(e) => {
+                        e.preventDefault()
                         setSortByB('amount')
                         setSortOrderB('desc')
                       }}
@@ -425,7 +484,8 @@ export default function AjuDanaPage() {
                       Nominal Tertinggi
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => {
+                      onSelect={(e) => {
+                        e.preventDefault()
                         setSortByB('amount')
                         setSortOrderB('asc')
                       }}

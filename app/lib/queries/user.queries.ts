@@ -55,9 +55,16 @@ export function useUpdateProfile() {
  * Hook to change password
  */
 export function useChangePassword() {
+  const logout = useAuthStore.getState().logout
   return useMutation({
     mutationFn: ({ oldPassword, newPassword }: { oldPassword: string; newPassword: string }) =>
       userService.changePassword(oldPassword, newPassword),
+    onSuccess: () => {
+      // Clear all queries
+      queryClient.clear()
+      // Logout user
+      logout()
+    },
   })
 }
 

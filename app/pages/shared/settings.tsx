@@ -1,6 +1,6 @@
 import { Eye, EyeClosed, Upload } from 'lucide-react'
 import React, { useState } from 'react'
-import { useLocation } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
 import { SettingsSkeleton } from '~/components/data-display'
@@ -16,6 +16,7 @@ import {
 
 const SettingsPage = () => {
   const location = useLocation()
+  const navigate = useNavigate()
   const isBendahara = location.pathname.startsWith('/bendahara')
 
   // Queries and mutations
@@ -84,6 +85,10 @@ const SettingsPage = () => {
       })
       setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' })
       toast.success('Kata sandi berhasil diubah. Silakan login kembali.')
+      // Redirect to login and replace history to prevent back navigation
+      setTimeout(() => {
+        navigate('/auth/sign-in', { replace: true })
+      }, 1500)
     } catch {
       toast.error('Gagal mengubah kata sandi')
     }
