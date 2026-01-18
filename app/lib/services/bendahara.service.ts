@@ -28,7 +28,7 @@ export interface BendaharaFilters {
   endDate?: string
   groupBy?: 'day' | 'week' | 'month' | 'year'
   userId?: string // Filter by specific user ID for student-specific queries
-  sortBy?: 'createdAt' | 'amount' | 'status'
+  sortBy?: 'date' | 'amount' | 'status'
   sortOrder?: 'asc' | 'desc'
   category?: string
 }
@@ -64,10 +64,11 @@ export const bendaharaService = {
   async getFundApplications(params?: BendaharaFilters) {
     const response = await apiClient.get<{
       success: boolean
-      data: {
-        applications: FundApplication[]
-        pagination: components['schemas']['Pagination']
-      }
+      data: FundApplication[]
+      page?: number
+      limit?: number
+      total?: number
+      totalPages?: number
     }>('/bendahara/fund-applications', { params })
     return response.data.data
   },
@@ -102,10 +103,11 @@ export const bendaharaService = {
   async getCashBills(params?: BendaharaFilters) {
     const response = await apiClient.get<{
       success: boolean
-      data: {
-        bills: CashBill[]
-        pagination: components['schemas']['Pagination']
-      }
+      data: CashBill[]
+      page?: number
+      limit?: number
+      total?: number
+      totalPages?: number
     }>('/bendahara/cash-bills', { params })
     return response.data.data
   },

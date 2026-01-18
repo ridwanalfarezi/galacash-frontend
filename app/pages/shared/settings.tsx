@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useLocation } from 'react-router'
 import { toast } from 'sonner'
 
+import { SettingsSkeleton } from '~/components/data-display'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -116,6 +117,10 @@ const SettingsPage = () => {
     }
   }
 
+  if (isLoading) {
+    return <SettingsSkeleton />
+  }
+
   return (
     <div className="p-8">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
@@ -123,183 +128,177 @@ const SettingsPage = () => {
         <div className="flex items-center gap-2"></div>
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-8">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-500"></div>
-        </div>
-      ) : (
-        <div className="bg-card flex flex-col gap-15 rounded-2xl p-10 shadow-lg md:flex-row md:gap-10">
-          <div className="flex-1">
-            <div className="mb-4 flex flex-col items-center justify-center gap-y-11">
-              <div className="relative flex size-64 items-center justify-center overflow-hidden rounded-full bg-gray-200">
-                {user?.avatarUrl ? (
-                  <img src={user.avatarUrl} className="size-full object-cover" />
-                ) : (
-                  <div className="text-4xl font-bold text-gray-500">
-                    {user?.name
-                      ?.split(' ')
-                      .map((n) => n[0])
-                      .join('')
-                      .toUpperCase()
-                      .slice(0, 2) || 'N/A'}
-                  </div>
-                )}
-              </div>
-              <Button disabled={uploadAvatarMutation.isPending}>
-                {uploadAvatarMutation.isPending ? (
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                    <span>Mengunggah...</span>
-                  </div>
-                ) : (
-                  <label htmlFor="photo" className="flex cursor-pointer items-center gap-2">
-                    <Upload size={18} />
-                    Ubah Foto Profil
-                  </label>
-                )}
-              </Button>
-              <input
-                type="file"
-                accept="image/*"
-                id="photo"
-                hidden
-                onChange={handleAvatarChange}
-                disabled={uploadAvatarMutation.isPending}
-              />
-            </div>
-            <form className="space-y-4" onSubmit={handleProfileSubmit}>
-              <div className="space-y-1">
-                <Label className="text-xl">Nama</Label>
-                <Input
-                  type="text"
-                  placeholder="Masukkan nama Anda"
-                  value={profileData.name}
-                  onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                />
-              </div>
-
-              {isBendahara ? (
-                <div className="space-y-1">
-                  <Label className="text-xl">Email</Label>
-                  <Input
-                    type="email"
-                    placeholder="Masukkan email Anda"
-                    value={profileData.email}
-                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                  />
-                </div>
+      <div className="bg-card flex flex-col gap-15 rounded-2xl p-10 shadow-lg md:flex-row md:gap-10">
+        <div className="flex-1">
+          <div className="mb-4 flex flex-col items-center justify-center gap-y-11">
+            <div className="relative flex size-64 items-center justify-center overflow-hidden rounded-full bg-gray-200">
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} className="size-full object-cover" />
               ) : (
-                <div className="space-y-1">
-                  <Label className="text-xl">NIM</Label>
-                  <Input type="text" placeholder={user?.nim} disabled className="bg-gray-100" />
+                <div className="text-4xl font-bold text-gray-500">
+                  {user?.name
+                    ?.split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2) || 'N/A'}
                 </div>
               )}
+            </div>
+            <Button disabled={uploadAvatarMutation.isPending}>
+              {uploadAvatarMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  <span>Mengunggah...</span>
+                </div>
+              ) : (
+                <label htmlFor="photo" className="flex cursor-pointer items-center gap-2">
+                  <Upload size={18} />
+                  Ubah Foto Profil
+                </label>
+              )}
+            </Button>
+            <input
+              type="file"
+              accept="image/*"
+              id="photo"
+              hidden
+              onChange={handleAvatarChange}
+              disabled={uploadAvatarMutation.isPending}
+            />
+          </div>
+          <form className="space-y-4" onSubmit={handleProfileSubmit}>
+            <div className="space-y-1">
+              <Label className="text-xl">Nama</Label>
+              <Input
+                type="text"
+                placeholder="Masukkan nama Anda"
+                value={profileData.name}
+                onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+              />
+            </div>
 
+            {isBendahara ? (
               <div className="space-y-1">
-                <Label className="text-xl">Kelas</Label>
+                <Label className="text-xl">Email</Label>
                 <Input
-                  type="text"
-                  value={user?.className || 'N/A'}
-                  disabled
-                  className="bg-gray-100"
+                  type="email"
+                  placeholder="Masukkan email Anda"
+                  value={profileData.email}
+                  onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                 />
               </div>
-
-              <div className="mt-5 text-end">
-                <Button
-                  type="submit"
-                  className="w-full px-0 sm:w-auto sm:px-10"
-                  disabled={updateProfileMutation.isPending}
-                >
-                  {updateProfileMutation.isPending ? 'Menyimpan...' : 'Simpan'}
-                </Button>
-              </div>
-            </form>
-          </div>
-          <div className="hidden h-auto w-px bg-gray-500 md:block"></div>
-          <div className="flex-1">
-            <h2 className="mb-4 text-2xl font-medium">Ubah Kata Sandi</h2>
-            <form className="space-y-4" onSubmit={handlePasswordSubmit}>
+            ) : (
               <div className="space-y-1">
-                <Label className="text-xl">Kata Sandi Lama</Label>
-                <div className="relative">
-                  <Input
-                    type={showPassword.old ? 'text' : 'password'}
-                    placeholder="Kata Sandi Lama"
-                    value={passwordData.oldPassword}
-                    onChange={(e) =>
-                      setPasswordData({ ...passwordData, oldPassword: e.target.value })
-                    }
-                  />
-                  <Button
-                    className="absolute top-1/2 right-2 -translate-y-1/2"
-                    variant="ghost"
-                    type="button"
-                    onClick={() => setShowPassword({ ...showPassword, old: !showPassword.old })}
-                  >
-                    {showPassword.old ? <Eye /> : <EyeClosed />}
-                  </Button>
-                </div>
+                <Label className="text-xl">NIM</Label>
+                <Input type="text" placeholder={user?.nim} disabled className="bg-gray-100" />
               </div>
+            )}
 
-              <div className="space-y-1">
-                <Label className="text-xl">Kata Sandi Baru</Label>
-                <div className="relative">
-                  <Input
-                    type={showPassword.new ? 'text' : 'password'}
-                    placeholder="Kata Sandi Baru"
-                    value={passwordData.newPassword}
-                    onChange={(e) =>
-                      setPasswordData({ ...passwordData, newPassword: e.target.value })
-                    }
-                  />
-                  <Button
-                    className="absolute top-1/2 right-2 -translate-y-1/2"
-                    variant="ghost"
-                    type="button"
-                    onClick={() => {
-                      setShowPassword({
-                        ...showPassword,
-                        new: !showPassword.new,
-                        confirm: !showPassword.confirm,
-                      })
-                    }}
-                  >
-                    {showPassword.new ? <Eye /> : <EyeClosed />}
-                  </Button>
-                </div>
-              </div>
+            <div className="space-y-1">
+              <Label className="text-xl">Kelas</Label>
+              <Input
+                type="text"
+                value={user?.className || 'N/A'}
+                disabled
+                className="bg-gray-100"
+              />
+            </div>
 
-              <div className="space-y-1">
-                <Label className="text-xl">Konfirmasi Kata Sandi Baru</Label>
+            <div className="mt-5 text-end">
+              <Button
+                type="submit"
+                className="w-full px-0 sm:w-auto sm:px-10"
+                disabled={updateProfileMutation.isPending}
+              >
+                {updateProfileMutation.isPending ? 'Menyimpan...' : 'Simpan'}
+              </Button>
+            </div>
+          </form>
+        </div>
+        <div className="hidden h-auto w-px bg-gray-500 md:block"></div>
+        <div className="flex-1">
+          <h2 className="mb-4 text-2xl font-medium">Ubah Kata Sandi</h2>
+          <form className="space-y-4" onSubmit={handlePasswordSubmit}>
+            <div className="space-y-1">
+              <Label className="text-xl">Kata Sandi Lama</Label>
+              <div className="relative">
                 <Input
-                  type={showPassword.confirm ? 'text' : 'password'}
-                  placeholder="Konfirmasi Password Baru"
-                  value={passwordData.confirmPassword}
+                  type={showPassword.old ? 'text' : 'password'}
+                  placeholder="Kata Sandi Lama"
+                  value={passwordData.oldPassword}
                   onChange={(e) =>
-                    setPasswordData({ ...passwordData, confirmPassword: e.target.value })
+                    setPasswordData({ ...passwordData, oldPassword: e.target.value })
                   }
                 />
-              </div>
-              <div className="mt-5 space-y-5 text-end">
-                <p className="text-justify text-sm font-medium text-blue-500 sm:text-base">
-                  Pastikan kata sandi baru Anda berbeda dari kata sandi lama.
-                </p>
-                <p className="text-justify text-sm font-medium text-blue-500 sm:text-base">
-                  Setelah mengubah kata sandi, Anda harus masuk kembali untuk melanjutkan.
-                </p>
                 <Button
-                  type="submit"
-                  className="w-full px-0 sm:w-auto sm:px-10"
-                  disabled={changePasswordMutation.isPending}
+                  className="absolute top-1/2 right-2 -translate-y-1/2"
+                  variant="ghost"
+                  type="button"
+                  onClick={() => setShowPassword({ ...showPassword, old: !showPassword.old })}
                 >
-                  {changePasswordMutation.isPending ? 'Menyimpan...' : 'Simpan'}
+                  {showPassword.old ? <Eye /> : <EyeClosed />}
                 </Button>
               </div>
-            </form>
-          </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xl">Kata Sandi Baru</Label>
+              <div className="relative">
+                <Input
+                  type={showPassword.new ? 'text' : 'password'}
+                  placeholder="Kata Sandi Baru"
+                  value={passwordData.newPassword}
+                  onChange={(e) =>
+                    setPasswordData({ ...passwordData, newPassword: e.target.value })
+                  }
+                />
+                <Button
+                  className="absolute top-1/2 right-2 -translate-y-1/2"
+                  variant="ghost"
+                  type="button"
+                  onClick={() => {
+                    setShowPassword({
+                      ...showPassword,
+                      new: !showPassword.new,
+                      confirm: !showPassword.confirm,
+                    })
+                  }}
+                >
+                  {showPassword.new ? <Eye /> : <EyeClosed />}
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xl">Konfirmasi Kata Sandi Baru</Label>
+              <Input
+                type={showPassword.confirm ? 'text' : 'password'}
+                placeholder="Konfirmasi Password Baru"
+                value={passwordData.confirmPassword}
+                onChange={(e) =>
+                  setPasswordData({ ...passwordData, confirmPassword: e.target.value })
+                }
+              />
+            </div>
+            <div className="mt-5 space-y-5 text-end">
+              <p className="text-justify text-sm font-medium text-blue-500 sm:text-base">
+                Pastikan kata sandi baru Anda berbeda dari kata sandi lama.
+              </p>
+              <p className="text-justify text-sm font-medium text-blue-500 sm:text-base">
+                Setelah mengubah kata sandi, Anda harus masuk kembali untuk melanjutkan.
+              </p>
+              <Button
+                type="submit"
+                className="w-full px-0 sm:w-auto sm:px-10"
+                disabled={changePasswordMutation.isPending}
+              >
+                {changePasswordMutation.isPending ? 'Menyimpan...' : 'Simpan'}
+              </Button>
+            </div>
+          </form>
         </div>
-      )}
+      </div>
     </div>
   )
 }

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { AjuDanaBendaharaSkeleton } from '~/components/data-display'
 import Export from '~/components/icons/export'
 import Sort from '~/components/icons/sort'
 import { BuatAjuDanaModal } from '~/components/modals/BuatAjuDana'
@@ -55,7 +56,7 @@ export default function BendaharaAjuDana() {
   const isMobile = useIsMobile()
   const [isButtonsBVisible, setIsButtonsBVisible] = useState(!isMobile)
   const [statusFilter, setStatusFilter] = useState<string | undefined>()
-  const [sortBy, setSortBy] = useState<'createdAt' | 'amount'>('createdAt')
+  const [sortBy, setSortBy] = useState<'date' | 'amount' | 'status'>('date')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   // Fetch fund applications from API
@@ -69,8 +70,10 @@ export default function BendaharaAjuDana() {
 
   // Map API data to Application interface
   const applications: Application[] = useMemo(() => {
-    if (!fundApplicationsData?.applications) return []
-    return fundApplicationsData.applications.map((app: FundApplicationAPI) => ({
+    // API returns array directly now
+    const data = Array.isArray(fundApplicationsData) ? fundApplicationsData : []
+
+    return data.map((app: FundApplicationAPI) => ({
       id: app?.id ?? '',
       date: app?.createdAt
         ? new Date(app.createdAt).toLocaleDateString('id-ID', {
@@ -91,7 +94,7 @@ export default function BendaharaAjuDana() {
 
   // Helper functions
   const getSortLabel = () => {
-    if (sortBy === 'createdAt') {
+    if (sortBy === 'date') {
       return sortOrder === 'desc' ? 'Terbaru' : 'Terlama'
     }
     return sortOrder === 'desc' ? 'Nominal Tertinggi' : 'Nominal Terendah'
@@ -145,6 +148,10 @@ export default function BendaharaAjuDana() {
   const handleViewDetail = (app: Application) => {
     setSelectedApplication(app)
     setIsDetailModalOpen(true)
+  }
+
+  if (isLoading) {
+    return <AjuDanaBendaharaSkeleton />
   }
 
   return (
@@ -214,7 +221,7 @@ export default function BendaharaAjuDana() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       onClick={() => {
-                        setSortBy('createdAt')
+                        setSortBy('date')
                         setSortOrder('desc')
                       }}
                     >
@@ -222,7 +229,7 @@ export default function BendaharaAjuDana() {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
-                        setSortBy('createdAt')
+                        setSortBy('date')
                         setSortOrder('asc')
                       }}
                     >

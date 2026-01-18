@@ -231,3 +231,220 @@ export function KasKelasSkeleton() {
     </div>
   )
 }
+
+/**
+ * Skeleton for Filter and Action buttons bar
+ */
+export function FilterBarSkeleton() {
+  return (
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <Skeleton className="h-8 w-48" /> {/* Title or Left side */}
+      <div className="flex gap-2">
+        <Skeleton className="h-9 w-24 rounded" />
+        <Skeleton className="h-9 w-24 rounded" />
+        <Skeleton className="hidden h-9 w-24 rounded sm:block" />
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Skeleton structure for a generic data card (used in AjuDana, TagihanKas)
+ */
+export function DataCardSkeleton({ titleWidth = 'w-48' }: { titleWidth?: string }) {
+  return (
+    <Card className="rounded-4xl border-0">
+      <CardHeader className="flex flex-col gap-4 space-y-0 sm:flex-row sm:items-center sm:justify-between">
+        <Skeleton className={`h-8 ${titleWidth} md:text-2xl`} />
+        <div className="flex gap-2">
+          <Skeleton className="h-9 w-20 rounded lg:w-24" />
+          <Skeleton className="h-9 w-20 rounded lg:w-24" />
+          <Skeleton className="hidden h-9 w-24 rounded sm:block" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        {/* Desktop table */}
+        <div className="hidden sm:block">
+          <div className="space-y-4">
+            <div className="flex justify-between border-b pb-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+            <TableBodySkeleton rows={5} columns={6} />
+          </div>
+        </div>
+        {/* Mobile cards */}
+        <div className="sm:hidden">
+          <MobileCardListSkeleton count={3} />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+/**
+ * Skeleton for user/aju-dana page (Double card layout)
+ */
+export function AjuDanaUserSkeleton() {
+  return (
+    <div className="mx-auto max-w-360 space-y-8 p-6">
+      <DataCardSkeleton titleWidth="w-56" />
+      <DataCardSkeleton titleWidth="w-56" />
+    </div>
+  )
+}
+
+/**
+ * Skeleton for bendahara/aju-dana page (Single card layout)
+ */
+export function AjuDanaBendaharaSkeleton() {
+  return (
+    <div className="mx-auto max-w-360 p-6">
+      <DataCardSkeleton titleWidth="w-56" />
+    </div>
+  )
+}
+
+/**
+ * Skeleton for Tagihan Kas page
+ */
+export function TagihanKasSkeleton() {
+  return (
+    <div className="mx-auto max-w-360 p-6">
+      <DataCardSkeleton titleWidth="w-40" />
+    </div>
+  )
+}
+
+/**
+ * Skeleton for Rekap Kas page (complex table)
+ */
+export function RekapKasSkeleton() {
+  return (
+    <div className="p-6">
+      <Card className="mx-auto max-w-360 rounded-4xl border-0">
+        <CardHeader className="flex flex-col gap-4 space-y-0 sm:flex-row sm:items-center sm:justify-between">
+          <Skeleton className="h-8 w-48 md:text-2xl" />
+          <div className="flex gap-2">
+            <Skeleton className="h-10 w-full rounded sm:w-64" /> {/* Search */}
+            <Skeleton className="h-10 w-24 rounded" /> {/* Export */}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Desktop Table */}
+          <div className="hidden sm:block">
+            <div className="mb-4 flex space-x-4 border-b pb-2">
+              <Skeleton className="h-4 w-20" /> {/* NIM */}
+              <Skeleton className="h-4 w-48" /> {/* Nama */}
+              <Skeleton className="h-4 w-16" /> {/* Month 1 */}
+              <Skeleton className="h-4 w-16" /> {/* Month 2 */}
+              <Skeleton className="h-4 w-16" /> {/* Month 3 */}
+              <Skeleton className="h-4 w-16" /> {/* Month 4 */}
+              <Skeleton className="h-4 w-32" /> {/* Total */}
+            </div>
+            <div className="space-y-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="flex space-x-4 border-b pb-3">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-48" />
+                  <Skeleton className="h-5 w-5 rounded-full" />
+                  <Skeleton className="h-5 w-5 rounded-full" />
+                  <Skeleton className="h-5 w-5 rounded-full" />
+                  <Skeleton className="h-5 w-5 rounded-full" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Mobile Cards */}
+          <div className="space-y-4 sm:hidden">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="rounded-xl border border-gray-200 p-4">
+                <div className="flex justify-between">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                </div>
+                <div className="mt-4 flex justify-between gap-2">
+                  <Skeleton className="h-4 w-8" />
+                  <Skeleton className="h-4 w-8" />
+                  <Skeleton className="h-4 w-8" />
+                  <Skeleton className="h-4 w-8" />
+                </div>
+                <div className="mt-4 flex justify-between">
+                  <Skeleton className="h-5 w-24" />
+                  <Skeleton className="h-8 w-8 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * Skeleton for Settings Page
+ */
+export function SettingsSkeleton() {
+  return (
+    <div className="p-8">
+      <Skeleton className="mb-4 h-8 w-40" />
+      <div className="bg-card flex flex-col gap-15 rounded-2xl p-10 shadow-lg md:flex-row md:gap-10">
+        {/* Profile Section */}
+        <div className="flex-1 space-y-8">
+          <div className="flex flex-col items-center gap-y-11">
+            <Skeleton className="size-64 rounded-full" />
+            <Skeleton className="h-10 w-40" />
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="flex justify-end">
+              <Skeleton className="h-10 w-24" />
+            </div>
+          </div>
+        </div>
+
+        <div className="hidden w-px bg-gray-200 md:block" />
+
+        {/* Password Section */}
+        <div className="flex-1 space-y-4">
+          <Skeleton className="mb-6 h-7 w-48" />
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="mt-8 space-y-2">
+            <Skeleton className="ml-auto h-4 w-3/4" />
+            <Skeleton className="ml-auto h-4 w-1/2" />
+          </div>
+          <div className="flex justify-end pt-4">
+            <Skeleton className="h-10 w-24" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

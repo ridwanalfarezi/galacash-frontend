@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, ChevronUp, Filter, HandCoins } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { EmptyState, StatusBadge } from '~/components/data-display'
+import { AjuDanaUserSkeleton, EmptyState, StatusBadge } from '~/components/data-display'
 import Export from '~/components/icons/export'
 import Plus from '~/components/icons/plus'
 import Sort from '~/components/icons/sort'
@@ -71,8 +71,9 @@ export default function AjuDanaPage() {
 
   // Map API data for Section A
   const applicationsA: Application[] = useMemo(() => {
-    if (!myApplicationsDataA?.applications) return []
-    return myApplicationsDataA.applications.map((app) => ({
+    // API returns array directly now
+    const data = Array.isArray(myApplicationsDataA) ? myApplicationsDataA : []
+    return data.map((app) => ({
       id: app.id || '',
       date: app.date || '',
       purpose: app.purpose || '',
@@ -85,8 +86,9 @@ export default function AjuDanaPage() {
 
   // Map API data for Section B
   const applicationsB: Application[] = useMemo(() => {
-    if (!myApplicationsDataB?.applications) return []
-    return myApplicationsDataB.applications.map((app) => ({
+    // API returns array directly now
+    const data = Array.isArray(myApplicationsDataB) ? myApplicationsDataB : []
+    return data.map((app) => ({
       id: app.id || '',
       date: app.date || '',
       purpose: app.purpose || '',
@@ -119,6 +121,10 @@ export default function AjuDanaPage() {
   const handleViewDetail = (app: Application) => {
     setSelectedApplication(app)
     setIsDetailModalOpen(true)
+  }
+
+  if (isLoadingA || isLoadingB) {
+    return <AjuDanaUserSkeleton />
   }
 
   return (

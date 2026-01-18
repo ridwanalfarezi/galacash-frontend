@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, ChevronUp, Filter, Receipt } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { BillStatusBadge, EmptyState } from '~/components/data-display'
+import { BillStatusBadge, EmptyState, TagihanKasSkeleton } from '~/components/data-display'
 import { Icons } from '~/components/icons'
 import { DetailTagihanKas } from '~/components/modals/DetailTagihanKas'
 import { Button } from '~/components/ui/button'
@@ -37,11 +37,11 @@ export default function TagihanKasPage() {
 
   // Filter and sort state
   const [statusFilter, setStatusFilter] = useState<string | undefined>()
-  const [sortBy, setSortBy] = useState<'createdAt' | 'amount' | 'month'>('createdAt')
+  const [sortBy, setSortBy] = useState<'dueDate' | 'month' | 'status'>('dueDate')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   // Fetch cash bills with filters
-  const { data: billsData } = useQuery(
+  const { data: billsData, isLoading } = useQuery(
     cashBillQueries.my({
       status: statusFilter as 'belum_dibayar' | 'menunggu_konfirmasi' | 'sudah_dibayar' | undefined,
       sortBy,
@@ -93,13 +93,17 @@ export default function TagihanKasPage() {
   }
 
   const getSortLabel = (sortBy: string, sortOrder: string) => {
-    if (sortBy === 'createdAt') {
-      return sortOrder === 'desc' ? 'Terbaru' : 'Terlama'
+    if (sortBy === 'dueDate') {
+      return sortOrder === 'desc' ? 'Tenggat Waktu Terbaru' : 'Tenggat Waktu Terlama'
     }
     if (sortBy === 'month') {
       return 'Bulan'
     }
     return sortOrder === 'desc' ? 'Nominal Tertinggi' : 'Nominal Terendah'
+  }
+
+  if (isLoading) {
+    return <TagihanKasSkeleton />
   }
 
   return (
@@ -169,35 +173,19 @@ export default function TagihanKasPage() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       onClick={() => {
-                        setSortBy('createdAt')
+                        setSortBy('dueDate')
                         setSortOrder('desc')
                       }}
                     >
-                      Terbaru
+                      Tenggat Waktu Terbaru
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
-                        setSortBy('createdAt')
+                        setSortBy('dueDate')
                         setSortOrder('asc')
                       }}
                     >
-                      Terlama
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSortBy('amount')
-                        setSortOrder('desc')
-                      }}
-                    >
-                      Nominal Tertinggi
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSortBy('amount')
-                        setSortOrder('asc')
-                      }}
-                    >
-                      Nominal Terendah
+                      Tenggat Waktu Terlama
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

@@ -5,6 +5,7 @@ import { Check, ChevronDown, ChevronRight, ChevronUp, Receipt, Search, X } from 
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 
+import { RekapKasSkeleton } from '~/components/data-display'
 import Export from '~/components/icons/export'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -27,14 +28,14 @@ export default function BendaharaRekapkas() {
   const [searchQuery, setSearchQuery] = useState('')
 
   // Fetch students data from API with search filter
-  const { data: studentsData } = useQuery(
+  const { data: studentsData, isLoading: isLoadingStudents } = useQuery(
     bendaharaQueries.students({
       search: searchQuery || undefined,
     })
   )
 
   // Fetch rekap kas summary from API
-  const { data: rekapData } = useQuery(bendaharaQueries.rekapKas())
+  const { data: rekapData, isLoading: isLoadingRekap } = useQuery(bendaharaQueries.rekapKas())
 
   // Generate month list for the current semester
   const bulanList = useMemo(() => {
@@ -102,6 +103,10 @@ export default function BendaharaRekapkas() {
     ) : (
       <X className={`mx-auto h-5 w-5 ${getMonthStatusColor(false)}`} />
     )
+  }
+
+  if (isLoadingStudents || isLoadingRekap) {
+    return <RekapKasSkeleton />
   }
 
   return (

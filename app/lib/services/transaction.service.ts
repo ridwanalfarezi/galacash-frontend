@@ -30,12 +30,38 @@ export const transactionService = {
    * Get list of transactions with filters
    */
   async getTransactions(filters?: TransactionFilters): Promise<TransactionListResult> {
-    const response = await apiClient.get<TransactionListResponse>('/transactions', {
+    const response = await apiClient.get<
+      TransactionListResponse & {
+        data: Transaction[]
+        page?: number
+        limit?: number
+        total?: number
+        totalPages?: number
+      }
+    >('/transactions', {
       params: filters,
     })
+
+    // Check if data is array (structure: { success: true, data: [...], page: 1, ... })
+    // or nested object (structure: { success: true, data: { transactions: [...], pagination: {...} } })
+    const responseData = response.data.data
+
+    if (Array.isArray(responseData)) {
+      return {
+        transactions: responseData,
+        pagination: {
+          page: response.data.page!,
+          limit: response.data.limit!,
+          totalItems: response.data.total!,
+          totalPages: response.data.totalPages!,
+        },
+      }
+    }
+
+    // Fallback to legacy nested structure if API hasn't changed
     return {
-      transactions: response.data.data!.transactions!,
-      pagination: response.data.data!.pagination!,
+      transactions: (responseData as any)?.transactions || [],
+      pagination: (responseData as any)?.pagination || {},
     }
   },
 
