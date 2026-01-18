@@ -1,5 +1,6 @@
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import { File } from 'lucide-react'
 
 import { Button } from '~/components/ui/button'
@@ -7,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/u
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
+import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 
 interface Application {
   id: string
@@ -27,14 +29,17 @@ interface DetailAjuDanaModalProps {
 }
 
 export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDanaModalProps) {
+  const { data: detailData } = useQuery(fundApplicationQueries.detail(application.id))
+
   const formatCurrency = (amount: number) => {
     return `Rp. ${amount.toLocaleString('id-ID')}`
   }
 
   const handleOpenAttachment = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (application.attachment) {
-      window.open(application.attachment, '_blank', 'noopener,noreferrer')
+    const attachmentUrl = detailData?.attachmentUrl || application.attachment
+    if (attachmentUrl) {
+      window.open(attachmentUrl, '_blank', 'noopener,noreferrer')
     }
   }
 
@@ -76,21 +81,25 @@ export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDa
             <div
               onClick={handleOpenAttachment}
               className={`flex w-full items-center justify-between rounded-md border-2 px-3 py-2 transition-colors ${
-                application.attachment
+                detailData?.attachmentUrl || application.attachment
                   ? 'cursor-pointer border-gray-500 hover:border-blue-500 hover:bg-blue-50'
                   : 'cursor-default border-gray-300 bg-gray-100'
               }`}
             >
               <span
                 className={`${
-                  application.attachment ? 'text-gray-900 hover:text-blue-600' : 'text-gray-500'
+                  detailData?.attachmentUrl || application.attachment
+                    ? 'text-gray-900 hover:text-blue-600'
+                    : 'text-gray-500'
                 }`}
               >
-                {application.attachment || 'Tidak ada lampiran'}
+                {detailData?.attachmentUrl || application.attachment || 'Tidak ada lampiran'}
               </span>
               <File
                 className={`h-5 w-5 ${
-                  application.attachment ? 'text-gray-900 hover:text-blue-600' : 'text-gray-400'
+                  detailData?.attachmentUrl || application.attachment
+                    ? 'text-gray-900 hover:text-blue-600'
+                    : 'text-gray-400'
                 }`}
               />
             </div>

@@ -41,6 +41,18 @@ export const bendaharaQueries = {
     }),
 
   /**
+   * Get fund application detail by ID
+   * staleTime: 300s
+   */
+  fundApplicationDetail: (id: string) =>
+    queryOptions({
+      queryKey: [...queryKeys.bendahara.fundApplications(), 'detail', id] as const,
+      queryFn: () => bendaharaService.getFundApplicationDetail(id),
+      staleTime: 300 * 1000,
+      enabled: !!id,
+    }),
+
+  /**
    * Get cash bills for review
    * staleTime: 120s
    */

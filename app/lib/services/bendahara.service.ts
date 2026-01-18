@@ -76,6 +76,17 @@ export const bendaharaService = {
   },
 
   /**
+   * Get fund application detail by ID
+   */
+  async getFundApplicationDetail(id: string) {
+    const response = await apiClient.get<{
+      success: boolean
+      data: components['schemas']['FundApplicationDetail']
+    }>(`/bendahara/fund-applications/${id}`)
+    return response.data.data
+  },
+
+  /**
    * Approve fund application
    */
   async approveFundApplication(id: string) {
