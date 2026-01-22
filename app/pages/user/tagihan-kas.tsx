@@ -79,9 +79,9 @@ export default function TagihanKasPage() {
       return {
         id: String(bill.id || ''),
         month: displayMonth,
-        status: (bill.status === 'paid'
+        status: (bill.status === 'sudah_dibayar'
           ? 'Sudah Dibayar'
-          : bill.status === 'pending_payment'
+          : bill.status === 'menunggu_konfirmasi'
             ? 'Menunggu Konfirmasi'
             : 'Belum Dibayar') as 'Belum Dibayar' | 'Menunggu Konfirmasi' | 'Sudah Dibayar',
         billId: String(bill.billId || ''),
