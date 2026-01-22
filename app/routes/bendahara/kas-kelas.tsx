@@ -3,7 +3,6 @@ import { lazy, Suspense } from 'react'
 
 import { KasKelasSkeleton } from '~/components/data-display'
 import { requireRole } from '~/lib/auth'
-import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { queryClient } from '~/lib/query-client'
 
@@ -21,13 +20,7 @@ export async function clientLoader() {
 
   // Prefetch with error handling
   try {
-    await Promise.all([
-      queryClient.prefetchQuery(
-        bendaharaQueries.cashBills({ status: 'menunggu_konfirmasi', limit: 10 })
-      ),
-      queryClient.prefetchQuery(transactionQueries.list({ limit: 10 })),
-      queryClient.prefetchQuery(bendaharaQueries.rekapKas()),
-    ])
+    await Promise.all([queryClient.prefetchQuery(transactionQueries.list({ limit: 10 }))])
   } catch (error) {
     // Silently catch prefetch errors - the page will refetch on mount
     console.debug('Kas kelas prefetch failed:', error)
