@@ -2,12 +2,12 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { Check, ChevronDown, ChevronRight, ChevronUp, Receipt, Search, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 
 import { RekapKasSkeleton } from '~/components/data-display'
-import Export from '~/components/icons/export'
+import { Icons } from '~/components/icons'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
@@ -16,95 +16,34 @@ import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { transactionService } from '~/lib/services/transaction.service'
 import { formatCurrency } from '~/lib/utils'
 
-interface StudentBill {
-  nim: string
-  nama: string
-  status: Record<string, boolean>
-  biayaPerBulan: number
-  userId: string
-}
-
 export default function BendaharaRekapkas() {
   const isMobile = useIsMobile()
   const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
   const [searchQuery, setSearchQuery] = useState('')
   const [isExporting, setIsExporting] = useState(false)
 
-  // Fetch students data from API with search filter
-  const { data: studentsData, isLoading: isLoadingStudents } = useQuery(
-    bendaharaQueries.students({
+  // Fetch rekap kas data from API with search filter
+  const { data: rekapData, isLoading } = useQuery(
+    bendaharaQueries.rekapKas({
       search: searchQuery || undefined,
     })
   )
 
-  // Fetch rekap kas summary from API
-  const { data: rekapData, isLoading: isLoadingRekap } = useQuery(bendaharaQueries.rekapKas())
-
-  // Generate month list for the current semester
-  const bulanList = useMemo(() => {
-    const months = []
-    const now = new Date()
-    const startMonth = now.getMonth() >= 6 ? 6 : 0 // July-Dec or Jan-June
-    const year = now.getFullYear()
-
-    for (let i = 0; i < 6; i++) {
-      const monthIndex = (startMonth + i) % 12
-      const monthYear = monthIndex < startMonth ? year + 1 : year
-      const date = new Date(monthYear, monthIndex, 1)
-      const monthStr = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-      months.push(monthStr)
+  // Color for paid/unpaid status
+  function getStatusBadge(status: 'up-to-date' | 'has-arrears') {
+    if (status === 'up-to-date') {
+      return (
+        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+          <Check className="mr-1 h-3 w-3" />
+          Lunas
+        </span>
+      )
     }
-    return months.slice(0, 4) // Show only 4 months
-  }, [])
-
-  // Map API data to local format
-  const dataTagihan: StudentBill[] = useMemo(() => {
-    if (!studentsData?.students) return []
-    return studentsData.students.map((student) => {
-      // Create status object - placeholder until we fetch actual bill data
-      // TODO: Fetch actual bill status per student when API supports it
-      const status: Record<string, boolean> = {}
-      bulanList.forEach((bulan) => {
-        // For now, use the student's paymentStatus if available, otherwise default to false
-        status[bulan] = (student as Record<string, unknown>).paymentStatus === 'up-to-date'
-      })
-
-      return {
-        nim: student.nim || '',
-        nama: student.name || '',
-        status,
-        biayaPerBulan: ((rekapData as Record<string, unknown>)?.monthlyAmount as number) ?? 16000,
-        userId: student.id || '',
-      }
-    })
-  }, [studentsData, rekapData, bulanList])
-
-  // Calculate total unpaid
-  function hitungTotalBelumBayar(tagihan: StudentBill, bulanList: string[]): number {
-    const belumLunasCount = bulanList.filter((bulan) => !tagihan.status[bulan]).length
-    return tagihan.biayaPerBulan * belumLunasCount
-  }
-
-  // Check if all months are paid
-  function getStatusLunas(tagihan: StudentBill, bulanList: string[]): boolean {
-    return hitungTotalBelumBayar(tagihan, bulanList) === 0
-  }
-
-  // Color for paid/unpaid badge
-  function getStatusColor(statusLunas: boolean): string {
-    return statusLunas ? 'bg-green-100 text-green-500' : 'bg-red-100 text-red-500'
-  }
-
-  // Icon color for month status
-  function getMonthStatusColor(isPaid: boolean): string {
-    return isPaid ? 'text-green-500' : 'text-red-500'
-  }
-
-  function renderStatusBulan(isLunas: boolean) {
-    return isLunas ? (
-      <Check className={`mx-auto h-5 w-5 ${getMonthStatusColor(true)}`} />
-    ) : (
-      <X className={`mx-auto h-5 w-5 ${getMonthStatusColor(false)}`} />
+    return (
+      <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+        <X className="mr-1 h-3 w-3" />
+        Menunggak
+      </span>
     )
   }
 
@@ -133,9 +72,11 @@ export default function BendaharaRekapkas() {
     }
   }
 
-  if (isLoadingStudents || isLoadingRekap) {
+  if (isLoading) {
     return <RekapKasSkeleton />
   }
+
+  const students = rekapData?.students || []
 
   return (
     <div className="p-6">
@@ -168,7 +109,7 @@ export default function BendaharaRekapkas() {
             }`}
           >
             <div className="flex w-full flex-wrap items-center justify-center gap-4 sm:w-auto sm:gap-2">
-              <div className="relative w-full sm:w-48">
+              <div className="relative w-full sm:w-56">
                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <Input
                   placeholder="Cari nama atau NIM..."
@@ -179,7 +120,7 @@ export default function BendaharaRekapkas() {
               </div>
 
               <Button className="w-full sm:w-auto" onClick={handleExport} disabled={isExporting}>
-                <Export className="h-5 w-5" />
+                <Icons.Export className="h-5 w-5" />
                 {isExporting ? 'Mengekspor...' : 'Export'}
               </Button>
             </div>
@@ -194,20 +135,17 @@ export default function BendaharaRekapkas() {
                 <tr className="border-b text-base font-semibold">
                   <th className="px-4 py-3 text-left font-medium">NIM</th>
                   <th className="w-72 px-4 py-3 text-left font-medium">Nama</th>
-                  {bulanList.map((bulan) => (
-                    <th key={bulan} className="px-4 py-3 text-center font-medium">
-                      {bulan}
-                    </th>
-                  ))}
-                  <th className="px-4 py-3 text-left font-medium">Belum Terbayar</th>
+                  <th className="px-4 py-3 text-right font-medium">Total Terbayar</th>
+                  <th className="px-4 py-3 text-right font-medium">Belum Terbayar</th>
+                  <th className="px-4 py-3 text-center font-medium">Status</th>
                   <th className="w-12" />
                 </tr>
               </thead>
 
               <tbody className="text-sm">
-                {dataTagihan.length === 0 ? (
+                {students.length === 0 ? (
                   <tr>
-                    <td colSpan={bulanList.length + 4} className="py-12">
+                    <td colSpan={6} className="py-12">
                       <div className="flex flex-col items-center justify-center text-center">
                         <div className="mb-4 text-gray-400">
                           <Receipt className="mx-auto size-12" />
@@ -220,37 +158,39 @@ export default function BendaharaRekapkas() {
                     </td>
                   </tr>
                 ) : (
-                  dataTagihan.map((item) => {
-                    const totalBelum = hitungTotalBelumBayar(item, bulanList)
-
-                    return (
-                      <tr key={item.nim} className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium">{item.nim}</td>
-                        <td className="px-4 py-3">{item.nama}</td>
-
-                        {bulanList.map((bulan) => (
-                          <td key={bulan} className="px-4 py-3 text-center">
-                            {renderStatusBulan(item.status[bulan])}
-                          </td>
-                        ))}
-
-                        <td className="px-4 py-3 font-bold text-blue-500">
-                          {formatCurrency(totalBelum)}
-                        </td>
-
-                        <td className="px-4 py-3">
-                          <Button variant="ghost" size="sm" asChild>
-                            <Link
-                              to={`/bendahara/rekap-kas/${item.userId}`}
-                              state={{ nama: item.nama }}
-                            >
-                              <ChevronRight className="h-4 w-4" />
-                            </Link>
-                          </Button>
-                        </td>
-                      </tr>
-                    )
-                  })
+                  students.map((item) => (
+                    <tr
+                      key={item.userId}
+                      className="border-b border-gray-200 transition-colors hover:bg-gray-50"
+                    >
+                      <td className="px-4 py-4 font-medium">{item.nim}</td>
+                      <td className="px-4 py-4 font-semibold">{item.name}</td>
+                      <td className="px-4 py-4 text-right font-medium whitespace-nowrap text-green-600">
+                        {formatCurrency(item.totalPaid)}
+                      </td>
+                      <td className="px-4 py-4 text-right font-bold whitespace-nowrap text-red-600">
+                        {formatCurrency(item.totalUnpaid)}
+                      </td>
+                      <td className="px-4 py-4 text-center">
+                        {getStatusBadge(item.paymentStatus)}
+                      </td>
+                      <td className="px-4 py-4 text-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          asChild
+                          className="hover:bg-blue-50 hover:text-blue-600"
+                        >
+                          <Link
+                            to={`/bendahara/rekap-kas/${item.userId}`}
+                            state={{ nama: item.name }}
+                          >
+                            <ChevronRight className="h-5 w-5" />
+                          </Link>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>
@@ -258,7 +198,7 @@ export default function BendaharaRekapkas() {
 
           {/* display mobile */}
           <div className="space-y-4 sm:hidden">
-            {dataTagihan.length === 0 ? (
+            {students.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="mb-4 text-gray-400">
                   <Receipt className="mx-auto size-12" />
@@ -267,63 +207,45 @@ export default function BendaharaRekapkas() {
                 <p className="text-sm text-gray-500">Belum ada data tagihan kas</p>
               </div>
             ) : (
-              dataTagihan.map((tagihan) => {
-                const totalBelum = hitungTotalBelumBayar(tagihan, bulanList)
-                const statusLunas = getStatusLunas(tagihan, bulanList)
-
-                return (
-                  <div
-                    key={tagihan.nim}
-                    className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-                  >
-                    <div className="mb-2 flex items-center justify-between">
-                      <h3 className="text-base font-semibold">{tagihan.nama}</h3>
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(statusLunas)}`}
-                      >
-                        {statusLunas ? 'sudah Lunas' : 'Belum Lunas'}
-                      </span>
+              students.map((student) => (
+                <Link
+                  key={student.userId}
+                  to={`/bendahara/rekap-kas/${student.userId}`}
+                  state={{ nama: student.name }}
+                  className="block"
+                >
+                  <div className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all active:scale-[0.98]">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="line-clamp-1 text-base font-bold text-gray-900">
+                          {student.name}
+                        </h3>
+                        <p className="text-xs text-gray-500">{student.nim}</p>
+                      </div>
+                      {getStatusBadge(student.paymentStatus)}
                     </div>
 
-                    {/* Mini month table */}
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-gray-200 text-center text-xs">
-                        <thead>
-                          <tr>
-                            {bulanList.map((bulan) => (
-                              <th key={bulan} className="border-b px-2 py-2 font-medium">
-                                {bulan}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            {bulanList.map((bulan) => (
-                              <td key={bulan} className="border-b px-4 py-3 text-center">
-                                {renderStatusBulan(tagihan.status[bulan])}
-                              </td>
-                            ))}
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Total and button */}
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="font-bold text-blue-500">{formatCurrency(totalBelum)}</span>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link
-                          to={`/bendahara/rekap-kas/${tagihan.userId}`}
-                          state={{ nama: tagihan.nama }}
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Link>
-                      </Button>
+                    <div className="grid grid-cols-2 gap-4 border-t border-gray-50 pt-3">
+                      <div>
+                        <p className="text-[10px] font-bold tracking-wider text-gray-400 uppercase">
+                          Terbayar
+                        </p>
+                        <p className="text-sm font-semibold text-green-600">
+                          {formatCurrency(student.totalPaid)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold tracking-wider text-gray-400 uppercase">
+                          Tunggakan
+                        </p>
+                        <p className="text-sm font-bold text-red-600">
+                          {formatCurrency(student.totalUnpaid)}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                )
-              })
+                </Link>
+              ))
             )}
           </div>
         </CardContent>
