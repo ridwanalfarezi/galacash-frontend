@@ -1,13 +1,15 @@
 'use client'
 
-import { Copy, Upload } from 'lucide-react'
-import { useState } from 'react'
+import { Copy, Upload, X } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
 import { Label } from '~/components/ui/label'
 import { Separator } from '~/components/ui/separator'
+import { useCancelPayment, usePayBill } from '~/lib/queries/cash-bill.queries'
 import { formatCurrency } from '~/lib/utils'
 
 import { Icons } from '../icons'
@@ -31,11 +33,91 @@ interface DetailTagihanKasProps {
 }
 
 export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   // Initialize payment method based on status - only auto-select for waiting confirmation
   const initialMethod = tagihan.status === 'Menunggu Konfirmasi' ? ('bank' as const) : undefined
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     'ewallet' | 'bank' | 'cash' | undefined
   >(initialMethod)
+  const [paymentProof, setPaymentProof] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
+  const { mutate: payBill, isPending: isPaying } = usePayBill()
+  const { mutate: cancelPayment, isPending: isCanceling } = useCancelPayment()
+
+  const handleUploadProof = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Ukuran file maksimal 5MB')
+        return
+      }
+      setPaymentProof(file)
+      setPreviewUrl(URL.createObjectURL(file))
+    }
+  }
+
+  const handleRemoveFile = () => {
+    setPaymentProof(null)
+    setPreviewUrl(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const handlePayNow = () => {
+    if (!selectedPaymentMethod) {
+      toast.error('Pilih metode pembayaran terlebih dahulu')
+      return
+    }
+    // Only require proof if it's NOT cash (or based on business logic)
+    // Assuming proof is required for bank/ewallet
+    if (selectedPaymentMethod !== 'cash' && !paymentProof) {
+      toast.error('Upload bukti pembayaran terlebih dahulu')
+      return
+    }
+
+    payBill(
+      {
+        billId: tagihan.id,
+        data: {
+          paymentMethod: selectedPaymentMethod,
+          paymentProof: paymentProof!, // Non-null assertion safe if check passed
+        },
+      },
+      {
+        onSuccess: () => {
+          onClose()
+        },
+      }
+    )
+  }
+
+  const handleCancelPayment = () => {
+    if (confirm('Apakah Anda yakin ingin membatalkan pembayaran ini?')) {
+      cancelPayment(tagihan.id, {
+        onSuccess: () => {
+          onClose()
+        },
+      })
+    }
+  }
+
+  const handleClose = () => {
+    onClose()
+  }
+
+  const handleViewProof = () => {
+    // In a real app, this would open the uploaded proof URL
+    // Since we don't have the URL in the summarized tagihan object here,
+    // we would generally need to fetch the detail or pass it in.
+    toast.info('Fitur lihat bukti pembayaran belum tersedia di demo ini')
+  }
 
   const getStatusBadge = (status: TagihanKasDetail['status']) => {
     switch (status) {
@@ -64,37 +146,11 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
 
   const handleCopyAccountNumber = (accountNumber: string) => {
     navigator.clipboard.writeText(accountNumber)
-    // Could add toast notification here
+    toast.success('Nomor rekening disalin')
   }
 
   const handlePaymentMethodSelect = (method: 'ewallet' | 'bank' | 'cash') => {
     setSelectedPaymentMethod(method)
-  }
-
-  const handleUploadProof = () => {
-    // Handle upload proof logic
-    console.log('Upload proof clicked')
-  }
-
-  const handlePayNow = () => {
-    // Handle pay now logic
-    console.log('Pay now clicked')
-  }
-
-  const handleCancelPayment = () => {
-    // Handle cancel payment logic
-    console.log('Cancel payment clicked')
-  }
-
-  const handleViewProof = () => {
-    // Handle view proof logic
-    console.log('View proof clicked')
-  }
-
-  const handleClose = () => {
-    // Handle close logic
-    console.log('Close clicked')
-    onClose()
   }
 
   const renderPaymentMethods = () => {
@@ -275,8 +331,8 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Bukti Pembayaran
               </Button>
-              <Button className="w-full" onClick={handlePayNow}>
-                Bayar Sekarang
+              <Button className="w-full" onClick={handlePayNow} disabled={isPaying || isCanceling}>
+                {isPaying ? 'Memproses...' : 'Bayar Sekarang'}
               </Button>
             </>
           )}
@@ -287,8 +343,13 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
                 <Upload className="mr-2 h-4 w-4" />
                 Lihat Bukti Pembayaran
               </Button>
-              <Button variant="outline" className="w-full" onClick={handleCancelPayment}>
-                Batalkan Pembayaran
+              <Button
+                variant="outline"
+                className="w-full text-red-600 hover:bg-red-50 hover:text-red-700"
+                onClick={handleCancelPayment}
+                disabled={isPaying || isCanceling}
+              >
+                {isCanceling ? 'Membatalkan...' : 'Batalkan Pembayaran'}
               </Button>
               <Button className="w-full" onClick={handleClose}>
                 Tutup
@@ -327,6 +388,15 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
         <DialogHeader className="space-y-4">
           <DialogTitle className="text-2xl font-semibold">Detail Tagihan Kas</DialogTitle>
         </DialogHeader>
+
+        {/* Hidden File Input */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="hidden"
+          accept="image/*"
+          onChange={handleFileChange}
+        />
 
         <div className="space-y-6">
           {/* Bill Information */}
@@ -381,6 +451,32 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
           {/* Payment Methods or Paid Status */}
           {renderPaymentMethods()}
           {renderPaidStatus()}
+
+          {/* File Preview Section */}
+          {paymentProof && (
+            <div className="rounded-lg border border-gray-200 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {previewUrl && (
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
+                      className="h-12 w-12 rounded object-cover"
+                    />
+                  )}
+                  <div>
+                    <p className="text-sm font-medium">{paymentProof.name}</p>
+                    <p className="text-xs text-gray-500">
+                      {(paymentProof.size / 1024).toFixed(0)} KB
+                    </p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm" onClick={handleRemoveFile}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

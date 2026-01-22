@@ -84,12 +84,16 @@ export default function TagihanKasPage() {
           : bill.status === 'pending_payment'
             ? 'Menunggu Konfirmasi'
             : 'Belum Dibayar') as 'Belum Dibayar' | 'Menunggu Konfirmasi' | 'Sudah Dibayar',
-        billId: String(bill.billNumber || ''),
-        dueDate: new Date(dueDateValue).toLocaleDateString('id-ID'),
+        billId: String(bill.billId || ''),
+        dueDate: new Date(dueDateValue).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }),
         totalAmount: Number(bill.totalAmount || 0),
         name: String(user?.name || ''),
-        kasKelas: Number(bill.amount || 0),
-        biayaAdmin: Number(bill.adminFee || 0),
+        kasKelas: Number(bill.kasKelas || 0),
+        biayaAdmin: Number(bill.biayaAdmin || 0),
       }
     })
   }, [billsData])
