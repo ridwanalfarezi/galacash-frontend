@@ -1,12 +1,14 @@
 'use client'
 
 import { Upload } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
 import { Label } from '~/components/ui/label'
 import { Separator } from '~/components/ui/separator'
+import { useConfirmPayment } from '~/lib/queries/bendahara.queries'
 import { formatCurrency } from '~/lib/utils'
 
 import { Icons } from '../icons'
@@ -21,7 +23,8 @@ interface TagihanKasDetail {
   name: string
   kasKelas: number
   biayaAdmin: number
-  metodePembayaran?: 'bank' | 'ewallet' | 'cash' // ditambahkan untuk info metode
+  metodePembayaran?: 'bank' | 'ewallet' | 'cash'
+  paymentProofUrl?: string | null
 }
 
 interface DetailTagihanKasProps {
@@ -31,6 +34,8 @@ interface DetailTagihanKasProps {
 }
 
 export function DetailTagihanKasBendahara({ isOpen, onClose, tagihan }: DetailTagihanKasProps) {
+  const { mutate: confirmPayment, isPending: isConfirming } = useConfirmPayment()
+
   const getStatusBadge = (status: TagihanKasDetail['status']) => {
     switch (status) {
       case 'Belum Dibayar':
@@ -57,15 +62,28 @@ export function DetailTagihanKasBendahara({ isOpen, onClose, tagihan }: DetailTa
   }
 
   const handleClose = () => onClose()
+
   const handleConfirmPayment = () => {
-    console.log('Konfirmasi pembayaran diklik')
+    if (confirm('Apakah Anda yakin ingin mengonfirmasi pembayaran ini?')) {
+      confirmPayment(tagihan.id, {
+        onSuccess: () => {
+          onClose()
+        },
+      })
+    }
   }
+
   const handleViewProof = () => {
-    console.log('Lihat bukti pembayaran diklik')
+    if (tagihan.paymentProofUrl) {
+      window.open(tagihan.paymentProofUrl, '_blank')
+    } else {
+      toast.info('Bukti pembayaran tidak tersedia (atau belum diimplementasikan di backend)')
+    }
   }
 
   const renderPaymentInfo = () => {
-    if (tagihan?.status === 'Menunggu Konfirmasi') {
+    // Show payment info if waiting confirmation OR already paid
+    if (tagihan?.status === 'Menunggu Konfirmasi' || tagihan?.status === 'Sudah Dibayar') {
       const metode = tagihan?.metodePembayaran ?? 'cash'
 
       const metodeLabel =
@@ -113,10 +131,10 @@ export function DetailTagihanKasBendahara({ isOpen, onClose, tagihan }: DetailTa
               <Upload className="mr-2 h-4 w-4" />
               Lihat Bukti Pembayaran
             </Button>
-            <Button variant="outline" className="w-full" onClick={handleConfirmPayment}>
-              Konfirmasi Pembayaran
+            <Button className="w-full" onClick={handleConfirmPayment} disabled={isConfirming}>
+              {isConfirming ? 'Memproses...' : 'Konfirmasi Pembayaran'}
             </Button>
-            <Button className="w-full" onClick={handleClose}>
+            <Button className="w-full" variant="outline" onClick={handleClose}>
               Tutup
             </Button>
           </div>

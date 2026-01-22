@@ -7,6 +7,11 @@ import { Link, useLocation, useParams } from 'react-router'
 
 type CashBill = components['schemas']['CashBill']
 
+type ExtendedCashBill = CashBill & {
+  paymentMethod?: string
+  paymentProofUrl?: string
+}
+
 import { Icons } from '~/components/icons'
 import { DetailTagihanKasBendahara } from '~/components/modals/DetailTagihanKasBendahara'
 import { Button } from '~/components/ui/button'
@@ -38,6 +43,8 @@ interface Tagihan {
   kasKelas: number
   biayaAdmin: number
   totalAmount: number
+  metodePembayaran?: 'bank' | 'ewallet' | 'cash'
+  paymentProofUrl?: string | null
 }
 
 const statusColor: Record<Tagihan['status'], string> = {
@@ -69,7 +76,7 @@ export default function BendaharaDetailRekapKas() {
   // Map API data to local Tagihan format
   const dataTagihan: Tagihan[] = useMemo(() => {
     // API returns array directly or fallback to empty array
-    const bills = (Array.isArray(billsData) ? billsData : []) as CashBill[]
+    const bills = (Array.isArray(billsData) ? billsData : []) as ExtendedCashBill[]
 
     return bills.map((bill) => {
       const monthDate = bill.month ? new Date(bill.month) : new Date()
@@ -100,6 +107,8 @@ export default function BendaharaDetailRekapKas() {
         kasKelas: bill.totalAmount ? Math.round(bill.totalAmount * 0.9375) : 15000, // ~93.75% of total
         biayaAdmin: bill.totalAmount ? Math.round(bill.totalAmount * 0.0625) : 1000, // ~6.25% of total
         totalAmount: bill.totalAmount || 16000,
+        metodePembayaran: bill.paymentMethod as 'bank' | 'ewallet' | 'cash' | undefined,
+        paymentProofUrl: bill.paymentProofUrl,
       }
     })
   }, [billsData, nama])
