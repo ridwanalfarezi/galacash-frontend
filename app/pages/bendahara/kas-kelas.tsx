@@ -23,7 +23,6 @@ import {
 } from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
 import { getChartColor } from '~/lib/constants'
-import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { transactionService } from '~/lib/services/transaction.service'
 import { formatCurrency, formatDate } from '~/lib/utils'
@@ -68,9 +67,6 @@ export default function BendaharaKasKelas() {
     })
   )
 
-  // Fetch rekap kas for chart data
-  const { data: rekapKasData } = useQuery(bendaharaQueries.rekapKas())
-
   // Map API transactions to local type
   const transactions: HistoryTransaction[] = useMemo(() => {
     if (!transactionsData?.transactions) return []
@@ -100,17 +96,11 @@ export default function BendaharaKasKelas() {
   const incomeData = useMemo(() => {
     // If we have rekap kas data (summary for charts), use it.
     // Otherwise fallback to current page transactions (less accurate for charts but better than nothing)
-    const txs = rekapKasData?.transactions
-      ? rekapKasData.transactions.map((t) => ({
-          description: t.description || 'Lainnya',
-          type: (t.type || 'income') as 'income' | 'expense',
-          amount: t.amount || 0,
-        }))
-      : transactions.map((t) => ({
-          description: t.purpose || 'Lainnya',
-          type: t.type,
-          amount: t.amount,
-        }))
+    const txs = transactions.map((t) => ({
+      description: t.purpose || 'Lainnya',
+      type: t.type,
+      amount: t.amount,
+    }))
 
     const incomeTransactions = txs.filter((t) => t.type === 'income')
     if (incomeTransactions.length === 0) {
@@ -129,20 +119,14 @@ export default function BendaharaKasKelas() {
       value,
       fill: getChartColor('income', index),
     }))
-  }, [rekapKasData, transactions])
+  }, [transactions])
 
   const expenseData = useMemo(() => {
-    const txs = rekapKasData?.transactions
-      ? rekapKasData.transactions.map((t) => ({
-          description: t.description || 'Lainnya',
-          type: (t.type || 'income') as 'income' | 'expense',
-          amount: t.amount || 0,
-        }))
-      : transactions.map((t) => ({
-          description: t.purpose || 'Lainnya',
-          type: t.type,
-          amount: t.amount,
-        }))
+    const txs = transactions.map((t) => ({
+      description: t.purpose || 'Lainnya',
+      type: t.type,
+      amount: t.amount,
+    }))
 
     const expenseTransactions = txs.filter((t) => t.type === 'expense')
     if (expenseTransactions.length === 0) {
@@ -161,7 +145,7 @@ export default function BendaharaKasKelas() {
       value,
       fill: getChartColor('expense', index),
     }))
-  }, [rekapKasData, transactions])
+  }, [transactions])
 
   const openDetailModal = (transaction: HistoryTransaction) => {
     setDetailModal(transaction)
