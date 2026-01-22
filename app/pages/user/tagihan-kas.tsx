@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
 import { useIsMobile } from '~/hooks/use-mobile'
-import { STATUS_LABELS } from '~/lib/constants'
+import { MONTH_NAMES, STATUS_LABELS } from '~/lib/constants'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { formatCurrency } from '~/lib/utils'
 
@@ -52,12 +52,33 @@ export default function TagihanKasPage() {
   const tagihanKasList: TagihanKas[] = useMemo(() => {
     if (!Array.isArray(billsData)) return []
     return billsData.map((bill: Record<string, unknown>) => {
-      const monthValue = (bill.month as string | undefined) || ''
+      const rawMonth = bill.month as string | number | undefined
       const dueDateValue = (bill.dueDate as string | undefined) || ''
       const user = bill.user as Record<string, unknown> | undefined
+
+      let displayMonth = ''
+      if (typeof rawMonth === 'number') {
+        // Handle 1-12 integer
+        displayMonth = MONTH_NAMES[(rawMonth - 1) % 12] || String(rawMonth)
+        // Add year if available to make it "Januari 2026"
+        if (bill.year) displayMonth += ` ${bill.year}`
+      } else {
+        // Fallback for string
+        const monthValue = String(rawMonth || '')
+        const date = new Date(monthValue)
+        // If valid date, format it. If "Januari", keep it.
+        displayMonth = !isNaN(date.getTime())
+          ? date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+          : monthValue
+        // Append year if not present in string and year field exists
+        if (bill.year && !displayMonth.includes(String(bill.year))) {
+          displayMonth += ` ${bill.year}`
+        }
+      }
+
       return {
         id: String(bill.id || ''),
-        month: new Date(monthValue).toLocaleDateString('id-ID', { month: 'long' }),
+        month: displayMonth,
         status: (bill.status === 'paid'
           ? 'Sudah Dibayar'
           : bill.status === 'pending_payment'
