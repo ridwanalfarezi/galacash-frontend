@@ -79,7 +79,7 @@ function BendaharaDetailRekapKasContent() {
         ? {
             userId,
             status: statusFilter,
-            sortBy,
+            sortBy: sortBy === 'date' ? undefined : sortBy,
             sortOrder,
           }
         : undefined
