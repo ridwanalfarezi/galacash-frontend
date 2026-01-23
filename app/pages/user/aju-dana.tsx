@@ -508,14 +508,14 @@ export default function AjuDanaPage() {
     <div className="p-6">
       <div className="mx-auto max-w-360 space-y-8">
         <ExplorerProvider<ApplicationParams>
-          defaultLimit={5}
+          defaultLimit={25}
           defaultSort={{ key: 'date', direction: 'desc' }}
         >
           <UserMyApplicationsContent />
         </ExplorerProvider>
 
         <ExplorerProvider<ApplicationParams>
-          defaultLimit={20}
+          defaultLimit={25}
           defaultSort={{ key: 'date', direction: 'desc' }}
         >
           <UserAllApplicationsContent />

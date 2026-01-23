@@ -357,6 +357,7 @@ export default function BendaharaDetailRekapKas() {
     <div className="p-6">
       <Card className="mx-auto max-w-360 rounded-4xl border-0">
         <ExplorerProvider<{ status: string | undefined }>
+          defaultLimit={25}
           defaultSort={{ key: 'date', direction: 'desc' }}
         >
           <BendaharaDetailRekapKasContent />

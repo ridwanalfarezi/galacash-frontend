@@ -32,16 +32,19 @@ export function DataTablePagination({ totalPages = 1, total = 0 }: DataTablePagi
 
   return (
     <div className="mt-4 flex flex-col items-center justify-between gap-4 py-2 sm:flex-row">
-      <div className="flex items-center gap-6">
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:justify-start sm:gap-6">
         <Field orientation="horizontal" className="w-fit">
-          <FieldLabel htmlFor="select-rows-per-page" className="font-normal text-gray-500">
+          <FieldLabel
+            htmlFor="select-rows-per-page"
+            className="hidden text-xs font-normal text-gray-500 min-[400px]:inline sm:text-sm"
+          >
             Rows per page
           </FieldLabel>
           <Select
             value={pagination.limit.toString()}
             onValueChange={(value) => setLimit(Number(value))}
           >
-            <SelectTrigger className="h-8 w-16" id="select-rows-per-page">
+            <SelectTrigger className="h-8 w-18 px-3 sm:w-20" id="select-rows-per-page">
               <SelectValue placeholder={pagination.limit.toString()} />
             </SelectTrigger>
             <SelectContent align="start" side="top">
@@ -56,15 +59,15 @@ export function DataTablePagination({ totalPages = 1, total = 0 }: DataTablePagi
           </Select>
         </Field>
         {total > 0 && (
-          <span className="hidden text-sm text-gray-500 sm:inline">
+          <span className="text-xs text-gray-500 sm:text-sm">
             {start}-{end} of {total}
           </span>
         )}
       </div>
 
-      <div className="flex items-center gap-4">
-        <span className="text-sm font-medium">
-          Page {pagination.page} of {totalPages}
+      <div className="flex items-center gap-2 sm:gap-4">
+        <span className="text-xs font-medium sm:text-sm">
+          Page {pagination.page} <span className="hidden min-[360px]:inline">of {totalPages}</span>
         </span>
         <Pagination className="mx-0 w-auto">
           <PaginationContent>

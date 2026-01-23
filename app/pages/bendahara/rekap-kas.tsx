@@ -273,7 +273,7 @@ export default function BendaharaRekapkas() {
   return (
     <div className="p-6">
       <Card className="mx-auto max-w-360 rounded-4xl border-0">
-        <ExplorerProvider defaultLimit={50}>
+        <ExplorerProvider defaultLimit={25}>
           <BendaharaRekapKasContent />
         </ExplorerProvider>
       </Card>

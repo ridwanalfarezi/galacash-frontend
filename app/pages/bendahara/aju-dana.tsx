@@ -233,7 +233,7 @@ export default function BendaharaAjuDana() {
     <div className="p-6">
       <div className="mx-auto max-w-7xl">
         <ExplorerProvider<BendaharaAjuDanaParams>
-          defaultLimit={20}
+          defaultLimit={25}
           defaultSort={{ key: 'date', direction: 'desc' }}
         >
           <BendaharaAjuDanaContent />

@@ -48,7 +48,7 @@ export function ExplorerProvider<TFilters extends Record<string, unknown>>({
   children,
   defaultFilters = {} as TFilters,
   defaultSort,
-  defaultLimit = 50,
+  defaultLimit = 25,
 }: ExplorerProviderProps<TFilters>) {
   const [search, setSearchState] = useState('')
   const [filters, setFiltersState] = useState<TFilters>(defaultFilters)

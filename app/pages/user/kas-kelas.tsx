@@ -409,7 +409,7 @@ export default function KasKelasPage() {
   return (
     <div className="p-6">
       <ExplorerProvider<{ type: 'all' | 'income' | 'expense' }>
-        defaultLimit={20}
+        defaultLimit={25}
         defaultFilters={{ type: 'all' }}
         defaultSort={{ key: 'date', direction: 'desc' }}
       >

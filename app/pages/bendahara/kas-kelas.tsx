@@ -436,7 +436,7 @@ export default function BendaharaKasKelas() {
   return (
     <div className="p-6">
       <ExplorerProvider<{ type: 'all' | 'income' | 'expense' }>
-        defaultLimit={50}
+        defaultLimit={25}
         defaultFilters={{ type: 'all' }}
         defaultSort={{ key: 'date', direction: 'desc' }}
       >

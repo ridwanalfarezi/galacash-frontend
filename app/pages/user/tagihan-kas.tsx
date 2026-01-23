@@ -343,7 +343,7 @@ export default function TagihanKasPage() {
   return (
     <div className="p-6">
       <ExplorerProvider<TagihanKasParams>
-        defaultLimit={50}
+        defaultLimit={25}
         defaultSort={{ key: 'dueDate', direction: 'desc' }}
       >
         <TagihanKasContent />
