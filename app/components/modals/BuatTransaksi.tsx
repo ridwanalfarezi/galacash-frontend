@@ -1,6 +1,4 @@
-'use client'
-
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { CurrencyInput, FileUpload } from '~/components/form'
 import { Icons } from '~/components/icons'
@@ -16,6 +14,7 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { SingleDatePicker } from '~/components/ui/single-date-picker'
+import { getTransactionCategoryOptions } from '~/lib/constants'
 import { useCreateTransaction } from '~/lib/queries/bendahara.queries'
 
 interface BuatTransaksiProps {
@@ -28,10 +27,17 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
     date: new Date().toISOString(),
     purpose: '',
     type: 'income' as 'income' | 'expense',
+    category: '', // Starts empty to force selection
     amount: 0,
     attachment: null as File | null,
     attachmentPreview: '' as string,
   })
+
+  // Get options based on selected type
+  const categoryOptions = useMemo(
+    () => getTransactionCategoryOptions(transaction.type),
+    [transaction.type]
+  )
 
   const createTransaction = useCreateTransaction()
 
@@ -48,7 +54,7 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
   }
 
   const handleSubmit = async () => {
-    if (!transaction.purpose || !transaction.amount) {
+    if (!transaction.purpose || !transaction.amount || !transaction.category) {
       return
     }
 
@@ -57,7 +63,7 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
       description: transaction.purpose,
       type: transaction.type,
       amount: transaction.amount,
-      category: 'other',
+      category: transaction.category,
       attachment: transaction.attachment || undefined,
     })
 
@@ -66,6 +72,7 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
       date: new Date().toISOString(),
       purpose: '',
       type: 'income',
+      category: '',
       amount: 0,
       attachment: null,
       attachmentPreview: '',
@@ -111,11 +118,15 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
               <Select
                 value={transaction.type}
                 onValueChange={(value) =>
-                  setTransaction((prev) => ({ ...prev, type: value as 'income' | 'expense' }))
+                  setTransaction((prev) => ({
+                    ...prev,
+                    type: value as 'income' | 'expense',
+                    category: '', // Reset category on type change
+                  }))
                 }
               >
                 <SelectTrigger className="w-full rounded-md border-2 border-gray-500 py-4.5 text-base focus:border-gray-900">
-                  <SelectValue placeholder="Pilih Kategori" />
+                  <SelectValue placeholder="Pilih Tipe" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="income">
@@ -131,13 +142,32 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-lg font-normal sm:text-xl">Nominal</Label>
-              <CurrencyInput
-                value={transaction.amount}
-                onValueChange={(value) => setTransaction((prev) => ({ ...prev, amount: value }))}
-                placeholder="Rp 0"
-              />
+              <Label className="text-lg font-normal sm:text-xl">Kategori</Label>
+              <Select
+                value={transaction.category}
+                onValueChange={(value) => setTransaction((prev) => ({ ...prev, category: value }))}
+              >
+                <SelectTrigger className="w-full rounded-md border-2 border-gray-500 py-4.5 text-base focus:border-gray-900">
+                  <SelectValue placeholder="Pilih Kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-lg font-normal sm:text-xl">Nominal</Label>
+            <CurrencyInput
+              value={transaction.amount}
+              onValueChange={(value) => setTransaction((prev) => ({ ...prev, amount: value }))}
+              placeholder="Rp 0"
+            />
           </div>
 
           <div className="space-y-1">
@@ -164,7 +194,10 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
               <Button
                 onClick={handleSubmit}
                 disabled={
-                  !transaction.purpose || !transaction.amount || createTransaction.isPending
+                  !transaction.purpose ||
+                  !transaction.amount ||
+                  !transaction.category ||
+                  createTransaction.isPending
                 }
                 className="sm:flex-1 sm:px-10"
               >

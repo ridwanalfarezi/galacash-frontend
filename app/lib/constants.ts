@@ -54,6 +54,41 @@ export const getFundCategoryOptions = () =>
   }))
 
 // ============================================================================
+// Transaction Categories
+// ============================================================================
+
+export const TRANSACTION_CATEGORIES = {
+  // Income
+  kas_kelas: { label: 'Kas Kelas', type: 'income' },
+  donation: { label: 'Donasi', type: 'income' },
+  fundraising: { label: 'Fundraising', type: 'income' },
+  event: { label: 'Acara', type: 'both' }, // Events can store revenue or cost
+  // Expense (Aligned with Fund Categories + Extras)
+  education: { label: 'Pendidikan', type: 'expense' },
+  health: { label: 'Kesehatan', type: 'expense' },
+  emergency: { label: 'Darurat', type: 'expense' },
+  equipment: { label: 'Peralatan', type: 'expense' },
+  office_supplies: { label: 'Alat Tulis Kantor', type: 'expense' },
+  consumption: { label: 'Konsumsi', type: 'expense' },
+  maintenance: { label: 'Pemeliharaan', type: 'expense' },
+  other: { label: 'Lainnya', type: 'both' },
+} as const
+
+export type TransactionCategoryKey = keyof typeof TRANSACTION_CATEGORIES
+
+/**
+ * Get transaction category options by type
+ */
+export const getTransactionCategoryOptions = (type: 'income' | 'expense') =>
+  Object.entries(TRANSACTION_CATEGORIES)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    .filter(([_, config]) => config.type === type || config.type === 'both')
+    .map(([value, config]) => ({
+      value,
+      label: config.label,
+    }))
+
+// ============================================================================
 // Chart Colors
 // ============================================================================
 
