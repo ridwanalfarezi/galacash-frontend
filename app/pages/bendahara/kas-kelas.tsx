@@ -84,8 +84,8 @@ function BendaharaKasKelasContent() {
 
   // Map API transactions to local type
   const transactions: HistoryTransaction[] = useMemo(() => {
-    const data = (transactionsData as any)?.transactions || []
-    return data.map((t: any) => ({
+    const data = transactionsData?.transactions || []
+    return data.map((t) => ({
       id: t.id || '',
       date: t.date || '',
       purpose: t.description || '',

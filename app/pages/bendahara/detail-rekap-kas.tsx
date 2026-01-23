@@ -87,8 +87,8 @@ function BendaharaDetailRekapKasContent() {
 
   // Data extraction
   const result = useMemo(() => {
-    const data = (billsData as any)?.data || []
-    const totalPages = (billsData as any)?.totalPages || 1
+    const data = billsData?.data || []
+    const totalPages = billsData?.totalPages || 1
     return { data, totalPages }
   }, [billsData])
 
