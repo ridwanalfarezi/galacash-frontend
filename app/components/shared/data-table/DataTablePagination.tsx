@@ -44,7 +44,7 @@ export function DataTablePagination({ totalPages = 1, total = 0 }: DataTablePagi
             value={pagination.limit.toString()}
             onValueChange={(value) => setLimit(Number(value))}
           >
-            <SelectTrigger className="h-8 w-18 px-3 sm:w-20" id="select-rows-per-page">
+            <SelectTrigger className="h-8 min-w-[70px] px-3" id="select-rows-per-page">
               <SelectValue placeholder={pagination.limit.toString()} />
             </SelectTrigger>
             <SelectContent align="start" side="top">
