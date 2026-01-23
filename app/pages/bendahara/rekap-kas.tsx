@@ -262,7 +262,7 @@ function BendaharaRekapKasContent() {
 
         <DataTablePagination
           total={rekapData?.total || 0}
-          totalPages={rekapData?.totalPages || 0}
+          totalPages={rekapData?.totalPages || 1}
         />
       </CardContent>
     </>

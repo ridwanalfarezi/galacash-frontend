@@ -100,14 +100,25 @@ export const bendaharaService = {
     const response = await apiClient.get<{
       success: boolean
       data: {
-        data: CashBill[]
-        page?: number
-        limit?: number
-        total?: number
-        totalPages?: number
+        bills: CashBill[]
+        pagination: {
+          page: number
+          limit: number
+          totalItems: number
+          totalPages: number
+        }
       }
     }>('/bendahara/cash-bills', { params })
-    return response.data.data
+
+    // Map backend pagination to frontend format
+    const { bills, pagination } = response.data.data
+    return {
+      data: bills,
+      page: pagination.page,
+      limit: pagination.limit,
+      total: pagination.totalItems,
+      totalPages: pagination.totalPages,
+    }
   },
 
   /**
@@ -159,13 +170,26 @@ export const bendaharaService = {
           startDate: string
           endDate: string
         }
-        total?: number
-        page?: number
-        limit?: number
-        totalPages?: number
+        pagination: {
+          page: number
+          limit: number
+          totalItems: number
+          totalPages: number
+        }
       }
     }>('/bendahara/rekap-kas', { params })
-    return response.data.data
+
+    const { summary, students, transactions, period, pagination } = response.data.data
+    return {
+      summary,
+      students,
+      transactions,
+      period,
+      page: pagination?.page,
+      limit: pagination?.limit,
+      total: pagination?.totalItems,
+      totalPages: pagination?.totalPages,
+    }
   },
 
   /**

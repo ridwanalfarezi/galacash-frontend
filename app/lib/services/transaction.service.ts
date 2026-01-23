@@ -32,27 +32,18 @@ export const transactionService = {
     const response = await apiClient.get<{
       success: boolean
       data: {
-        data: Transaction[]
-        page: number
-        limit: number
-        total: number
-        totalPages: number
+        transactions: Transaction[]
+        pagination: Pagination
       }
     }>('/transactions', {
       params: filters,
     })
 
-    // Handle nested data structure: { success: true, data: { data: [...], page: 1, ... } }
-    const dataContainer = response.data.data
+    const { transactions, pagination } = response.data.data
 
     return {
-      transactions: dataContainer.data || [],
-      pagination: {
-        page: dataContainer.page,
-        limit: dataContainer.limit,
-        totalItems: dataContainer.total,
-        totalPages: dataContainer.totalPages,
-      },
+      transactions: transactions || [],
+      pagination: pagination,
     }
   },
 

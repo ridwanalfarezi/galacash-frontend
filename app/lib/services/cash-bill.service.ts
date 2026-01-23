@@ -32,15 +32,19 @@ export const cashBillService = {
     const response = await apiClient.get<{
       success: boolean
       data: {
-        data: CashBill[]
-        pagination?: components['schemas']['Pagination']
-        total?: number
-        page?: number
-        limit?: number
-        totalPages?: number
+        bills: CashBill[]
+        pagination: components['schemas']['Pagination']
       }
     }>('/cash-bills/my', { params: filters })
-    return response.data.data
+
+    const { bills, pagination } = response.data.data
+    return {
+      data: bills,
+      page: pagination.page,
+      limit: pagination.limit,
+      total: pagination.totalItems,
+      totalPages: pagination.totalPages,
+    }
   },
 
   /**

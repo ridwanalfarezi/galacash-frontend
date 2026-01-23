@@ -70,6 +70,8 @@ function BendaharaDetailRekapKasContent() {
   const sortBy = sort?.key as 'date' | 'amount' | 'status' | undefined
   const sortOrder = (sort?.direction as 'asc' | 'desc') || 'desc'
 
+  const { pagination } = useExplorer()
+
   const { data: billsData } = useQuery({
     ...bendaharaQueries.cashBills(
       userId
@@ -78,6 +80,8 @@ function BendaharaDetailRekapKasContent() {
             status: statusFilter,
             sortBy: sortBy === 'date' ? undefined : sortBy,
             sortOrder,
+            page: pagination.page,
+            limit: pagination.limit,
           }
         : undefined
     ),
@@ -85,23 +89,12 @@ function BendaharaDetailRekapKasContent() {
     placeholderData: keepPreviousData,
   })
 
-  // Data extraction
-  const result = useMemo(() => {
-    const data = billsData?.data || []
-    const totalPages = billsData?.totalPages || 1
-    return { data, totalPages }
-  }, [billsData])
-
-  const { data: billsDataArray, totalPages } = result
-
   // Map API data to local Tagihan format
   const dataTagihan: Tagihan[] = useMemo(() => {
-    // API returns array directly or fallback to empty array
-    const bills = (Array.isArray(billsDataArray) ? billsDataArray : []) as ExtendedCashBill[]
-    // Temporary workaround: Filter bills client-side if API returns all bills
-    const filteredBills = userId ? bills.filter((bill) => bill.userId === userId) : bills
+    // API returns data in .data (due to service mapping)
+    const bills = (Array.isArray(billsData?.data) ? billsData.data : []) as ExtendedCashBill[]
 
-    return filteredBills.map((bill) => {
+    return bills.map((bill) => {
       const monthDate = bill.month ? new Date(bill.month) : new Date()
       const monthName = monthDate.toLocaleDateString('id-ID', { month: 'long' })
       const dueDate = bill.dueDate
@@ -134,7 +127,7 @@ function BendaharaDetailRekapKasContent() {
         paymentProofUrl: bill.paymentProofUrl,
       }
     })
-  }, [billsDataArray, nama, userId])
+  }, [billsData, nama])
 
   const handleViewDetail = (tagihan: Tagihan) => {
     setSelectedTagihan(tagihan)
@@ -354,7 +347,7 @@ function BendaharaDetailRekapKasContent() {
         />
       )}
 
-      <DataTablePagination totalPages={totalPages} />
+      <DataTablePagination total={billsData?.total || 0} totalPages={billsData?.totalPages || 1} />
     </>
   )
 }
