@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 
-import { RekapKasSkeleton } from '~/components/data-display'
+import { MobileCardListSkeleton, TableBodySkeleton } from '~/components/data-display'
 import {
   DataCard,
   DataCardContainer,
@@ -90,10 +90,6 @@ function BendaharaRekapKasContent() {
     }
   }
 
-  if (isLoading) {
-    return <RekapKasSkeleton />
-  }
-
   const students = rekapData?.students || []
 
   return (
@@ -152,7 +148,9 @@ function BendaharaRekapKasContent() {
             </DataTableHeader>
 
             <DataTableBody>
-              {students.length === 0 ? (
+              {isLoading ? (
+                <TableBodySkeleton columns={6} />
+              ) : students.length === 0 ? (
                 <DataTableRow>
                   <DataTableCell colSpan={6} className="h-48 text-center text-gray-400">
                     <EmptyState
@@ -197,7 +195,9 @@ function BendaharaRekapKasContent() {
 
         {/* Mobile Cards */}
         <DataCardContainer className="px-6 pb-6 sm:px-0 sm:pb-0">
-          {students.length === 0 ? (
+          {isLoading ? (
+            <MobileCardListSkeleton count={5} />
+          ) : students.length === 0 ? (
             <EmptyState
               icon={Receipt}
               title="Tidak ada data"

@@ -5,7 +5,11 @@ import { ChevronLeft, ChevronRight, Receipt } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 
-import { BillStatusBadge } from '~/components/data-display'
+import {
+  BillStatusBadge,
+  MobileCardListSkeleton,
+  TableBodySkeleton,
+} from '~/components/data-display'
 import { DetailTagihanKasBendahara } from '~/components/modals/DetailTagihanKasBendahara'
 import {
   DataCard,
@@ -124,8 +128,6 @@ function BendaharaDetailRekapKasContent() {
     setIsDetailModalOpen(true)
   }
 
-  if (isLoading) return <div className="p-8 text-center text-gray-400">Memuat data tagihan...</div>
-
   return (
     <Card className="overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
       <CardHeader className="flex flex-col border-b border-gray-50 md:flex-row md:items-center">
@@ -201,7 +203,9 @@ function BendaharaDetailRekapKasContent() {
               </DataTableRow>
             </DataTableHeader>
             <DataTableBody>
-              {dataTagihan.length > 0 ? (
+              {isLoading ? (
+                <TableBodySkeleton columns={6} />
+              ) : dataTagihan.length > 0 ? (
                 dataTagihan.map((t) => (
                   <DataTableRow
                     key={t.id}
@@ -243,7 +247,9 @@ function BendaharaDetailRekapKasContent() {
 
         {/* Mobile Cards */}
         <DataCardContainer className="px-6 pb-6 sm:px-0 sm:pb-0">
-          {dataTagihan.length === 0 ? (
+          {isLoading ? (
+            <MobileCardListSkeleton count={5} />
+          ) : dataTagihan.length === 0 ? (
             <EmptyState
               icon={Receipt}
               title="Tidak ada tagihan"

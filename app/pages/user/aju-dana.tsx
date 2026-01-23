@@ -4,7 +4,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ChevronRight, HandCoins, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { AjuDanaUserSkeleton, StatusBadge } from '~/components/data-display'
+import { MobileCardListSkeleton, StatusBadge, TableBodySkeleton } from '~/components/data-display'
 import { BuatAjuDanaModal } from '~/components/modals/BuatAjuDana'
 import { DetailAjuDanaModal } from '~/components/modals/DetailAjuDana'
 import {
@@ -117,8 +117,6 @@ function ApplicationListContent({
     setIsDetailModalOpen(true)
   }
 
-  if (isLoading) return <AjuDanaUserSkeleton />
-
   return (
     <>
       <Card className="overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
@@ -178,7 +176,9 @@ function ApplicationListContent({
                 </DataTableRow>
               </DataTableHeader>
               <DataTableBody>
-                {applications.length > 0 ? (
+                {isLoading ? (
+                  <TableBodySkeleton columns={7} />
+                ) : applications.length > 0 ? (
                   applications.map((app) => (
                     <DataTableRow
                       key={app.id}
@@ -225,7 +225,9 @@ function ApplicationListContent({
 
           {/* Mobile Card View */}
           <DataCardContainer className="px-6 pb-6 sm:px-0 sm:pb-0">
-            {applications.length === 0 ? (
+            {isLoading ? (
+              <MobileCardListSkeleton count={5} />
+            ) : applications.length === 0 ? (
               <EmptyState
                 icon={HandCoins}
                 title="Tidak ada pengajuan"

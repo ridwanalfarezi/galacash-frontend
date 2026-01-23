@@ -4,7 +4,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ChevronRight, HandCoins } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { AjuDanaBendaharaSkeleton, StatusBadge } from '~/components/data-display'
+import { MobileCardListSkeleton, StatusBadge, TableBodySkeleton } from '~/components/data-display'
 import { DetailAjuDanaBendahara } from '~/components/modals/DetailAjuDanaBendahara'
 import {
   DataCard,
@@ -94,10 +94,6 @@ function BendaharaAjuDanaContent() {
     setIsDetailModalOpen(true)
   }
 
-  if (isLoading) {
-    return <AjuDanaBendaharaSkeleton />
-  }
-
   return (
     <Card className="gap-0 overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
       <CardHeader className="flex flex-col border-b border-gray-50 md:flex-row md:items-center md:justify-between">
@@ -153,7 +149,9 @@ function BendaharaAjuDanaContent() {
               </DataTableRow>
             </DataTableHeader>
             <DataTableBody>
-              {applications.length > 0 ? (
+              {isLoading ? (
+                <TableBodySkeleton columns={7} />
+              ) : applications.length > 0 ? (
                 applications.map((app) => (
                   <DataTableRow
                     key={app.id}
@@ -200,7 +198,9 @@ function BendaharaAjuDanaContent() {
 
         {/* Mobile Cards */}
         <DataCardContainer className="px-6 pb-6 sm:px-0 sm:pb-0">
-          {applications.length > 0 ? (
+          {isLoading ? (
+            <MobileCardListSkeleton count={5} />
+          ) : applications.length > 0 ? (
             applications.map((app) => (
               <DataCard key={app.id} onClick={() => handleViewDetail(app)}>
                 <div className="flex items-start justify-between">
