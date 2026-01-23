@@ -1,4 +1,5 @@
 import { apiClient } from '~/lib/api/client'
+import { mapPaginatedResponse } from '~/lib/utils/api-helper'
 import type { components } from '~/types/api'
 
 type Transaction = components['schemas']['Transaction']
@@ -29,21 +30,20 @@ export const transactionService = {
    * Get list of transactions with filters
    */
   async getTransactions(filters?: TransactionFilters): Promise<TransactionListResult> {
-    const response = await apiClient.get<{
-      success: boolean
-      data: {
-        transactions: Transaction[]
-        pagination: Pagination
-      }
-    }>('/transactions', {
+    const response = await apiClient.get('/transactions', {
       params: filters,
     })
 
-    const { transactions, pagination } = response.data.data
+    const mapped = mapPaginatedResponse<Transaction>(response.data.data)
 
     return {
-      transactions: transactions || [],
-      pagination: pagination,
+      transactions: mapped.data,
+      pagination: {
+        page: mapped.page,
+        limit: mapped.limit,
+        totalItems: mapped.total,
+        totalPages: mapped.totalPages,
+      },
     }
   },
 

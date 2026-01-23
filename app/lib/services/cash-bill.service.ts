@@ -1,4 +1,5 @@
 import { apiClient, uploadFile } from '~/lib/api/client'
+import { mapPaginatedResponse } from '~/lib/utils/api-helper'
 import type { components } from '~/types/api'
 
 type CashBill = components['schemas']['CashBill']
@@ -29,22 +30,8 @@ export const cashBillService = {
    * Get user's cash bills
    */
   async getMyBills(filters?: CashBillFilters) {
-    const response = await apiClient.get<{
-      success: boolean
-      data: {
-        bills: CashBill[]
-        pagination: components['schemas']['Pagination']
-      }
-    }>('/cash-bills/my', { params: filters })
-
-    const { bills, pagination } = response.data.data
-    return {
-      data: bills,
-      page: pagination.page,
-      limit: pagination.limit,
-      total: pagination.totalItems,
-      totalPages: pagination.totalPages,
-    }
+    const response = await apiClient.get('/cash-bills/my', { params: filters })
+    return mapPaginatedResponse<CashBill>(response.data.data)
   },
 
   /**

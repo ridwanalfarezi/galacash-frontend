@@ -1,4 +1,4 @@
-import { MoreHorizontal } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react'
 import * as React from 'react'
 
 import { type ButtonProps, buttonVariants } from '~/components/ui/button'
@@ -29,15 +29,21 @@ PaginationItem.displayName = 'PaginationItem'
 
 type PaginationLinkProps = {
   isActive?: boolean
-} & Pick<ButtonProps, 'size'> &
+} & Pick<ButtonProps, 'size' | 'variant'> &
   React.ComponentProps<'a'>
 
-const PaginationLink = ({ className, isActive, size = 'icon', ...props }: PaginationLinkProps) => (
+const PaginationLink = ({
+  className,
+  isActive,
+  size = 'icon',
+  variant,
+  ...props
+}: PaginationLinkProps) => (
   <a
     aria-current={isActive ? 'page' : undefined}
     className={cn(
       buttonVariants({
-        variant: isActive ? 'outline' : 'ghost',
+        variant: variant || (isActive ? 'outline' : 'ghost'),
         size,
       }),
       className
@@ -54,9 +60,13 @@ const PaginationPrevious = ({
   <PaginationLink
     aria-label="Go to previous page"
     size="default"
-    className={cn('gap-1 pl-2.5', className)}
+    variant="outline"
+    className={cn('gap-1 px-3', className)}
     {...props}
-  />
+  >
+    <ChevronLeft className="size-4" />
+    <span className="hidden sm:inline">Sebelumnya</span>
+  </PaginationLink>
 )
 PaginationPrevious.displayName = 'PaginationPrevious'
 
@@ -64,9 +74,13 @@ const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof Pag
   <PaginationLink
     aria-label="Go to next page"
     size="default"
-    className={cn('gap-1 pr-2.5', className)}
+    variant="outline"
+    className={cn('gap-1 px-3', className)}
     {...props}
-  />
+  >
+    <span className="hidden sm:inline">Berikutnya</span>
+    <ChevronRight className="size-4" />
+  </PaginationLink>
 )
 PaginationNext.displayName = 'PaginationNext'
 

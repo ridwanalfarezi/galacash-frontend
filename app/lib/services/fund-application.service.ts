@@ -1,4 +1,5 @@
 import { apiClient, uploadFile } from '~/lib/api/client'
+import { mapPaginatedResponse } from '~/lib/utils/api-helper'
 import type { components } from '~/types/api'
 
 type FundApplication = components['schemas']['FundApplication']
@@ -30,44 +31,16 @@ export const fundApplicationService = {
    * Get list of fund applications
    */
   async getApplications(filters?: FundApplicationFilters) {
-    const response = await apiClient.get<{
-      success: boolean
-      data: {
-        applications: FundApplication[]
-        pagination: components['schemas']['Pagination']
-      }
-    }>('/fund-applications', { params: filters })
-
-    const { applications, pagination } = response.data.data
-    return {
-      data: applications,
-      page: pagination.page,
-      limit: pagination.limit,
-      total: pagination.totalItems,
-      totalPages: pagination.totalPages,
-    }
+    const response = await apiClient.get('/fund-applications', { params: filters })
+    return mapPaginatedResponse<FundApplication>(response.data.data)
   },
 
   /**
    * Get user's own fund applications
    */
   async getMyApplications(filters?: FundApplicationFilters) {
-    const response = await apiClient.get<{
-      success: boolean
-      data: {
-        applications: FundApplication[]
-        pagination: components['schemas']['Pagination']
-      }
-    }>('/fund-applications/my', { params: filters })
-
-    const { applications, pagination } = response.data.data
-    return {
-      data: applications,
-      page: pagination.page,
-      limit: pagination.limit,
-      total: pagination.totalItems,
-      totalPages: pagination.totalPages,
-    }
+    const response = await apiClient.get('/fund-applications/my', { params: filters })
+    return mapPaginatedResponse<FundApplication>(response.data.data)
   },
 
   /**

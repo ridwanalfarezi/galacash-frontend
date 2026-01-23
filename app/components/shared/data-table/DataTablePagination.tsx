@@ -1,8 +1,16 @@
-import { PaginationControls } from '~/components/shared/PaginationControls'
 import { useExplorer } from '~/components/shared/explorer/ExplorerContext'
+import { Field, FieldLabel } from '~/components/ui/field'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '~/components/ui/pagination'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -19,40 +27,75 @@ export function DataTablePagination({ totalPages = 1, total = 0 }: DataTablePagi
   const start = (pagination.page - 1) * pagination.limit + 1
   const end = Math.min(pagination.page * pagination.limit, total)
 
+  // Only hide if there's absolutely no data
+  if (total === 0 && totalPages <= 1) return null
+
   return (
     <div className="mt-4 flex flex-col items-center justify-between gap-4 py-2 sm:flex-row">
-      <div className="flex items-center gap-4 text-sm text-gray-500">
-        <div className="flex items-center gap-2">
-          <span>Baris per halaman:</span>
+      <div className="flex items-center gap-6">
+        <Field orientation="horizontal" className="w-fit">
+          <FieldLabel htmlFor="select-rows-per-page" className="font-normal text-gray-500">
+            Rows per page
+          </FieldLabel>
           <Select
             value={pagination.limit.toString()}
             onValueChange={(value) => setLimit(Number(value))}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-8 w-16" id="select-rows-per-page">
               <SelectValue placeholder={pagination.limit.toString()} />
             </SelectTrigger>
-            <SelectContent side="top">
-              {[10, 20, 30, 40, 50, 100].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
-                </SelectItem>
-              ))}
+            <SelectContent align="start" side="top">
+              <SelectGroup>
+                {[10, 25, 50, 100].map((pageSize) => (
+                  <SelectItem key={pageSize} value={pageSize.toString()}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
             </SelectContent>
           </Select>
-        </div>
+        </Field>
         {total > 0 && (
-          <span className="hidden sm:inline">
-            Menampilkan {start}-{end} dari {total}
+          <span className="hidden text-sm text-gray-500 sm:inline">
+            {start}-{end} of {total}
           </span>
         )}
       </div>
 
-      <div className="flex justify-center">
-        <PaginationControls
-          currentPage={pagination.page}
-          totalPages={totalPages}
-          onPageChange={setPage}
-        />
+      <div className="flex items-center gap-4">
+        <span className="text-sm font-medium">
+          Page {pagination.page} of {totalPages}
+        </span>
+        <Pagination className="mx-0 w-auto">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  if (pagination.page > 1) setPage(pagination.page - 1)
+                }}
+                className={
+                  pagination.page <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+                }
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  if (pagination.page < totalPages) setPage(pagination.page + 1)
+                }}
+                className={
+                  pagination.page >= totalPages
+                    ? 'pointer-events-none opacity-50'
+                    : 'cursor-pointer'
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   )
