@@ -38,7 +38,7 @@ export function DataTablePagination({ totalPages = 1, total = 0 }: DataTablePagi
             htmlFor="select-rows-per-page"
             className="hidden text-xs font-normal text-gray-500 min-[400px]:inline sm:text-sm"
           >
-            Rows per page
+            Baris per halaman
           </FieldLabel>
           <Select
             value={pagination.limit.toString()}
@@ -60,14 +60,15 @@ export function DataTablePagination({ totalPages = 1, total = 0 }: DataTablePagi
         </Field>
         {total > 0 && (
           <span className="text-xs text-gray-500 sm:text-sm">
-            {start}-{end} of {total}
+            {start}-{end} dari {total}
           </span>
         )}
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4">
         <span className="text-xs font-medium sm:text-sm">
-          Page {pagination.page} <span className="hidden min-[360px]:inline">of {totalPages}</span>
+          Halaman {pagination.page}{' '}
+          <span className="hidden min-[360px]:inline">dari {totalPages}</span>
         </span>
         <Pagination className="mx-0 w-auto">
           <PaginationContent>

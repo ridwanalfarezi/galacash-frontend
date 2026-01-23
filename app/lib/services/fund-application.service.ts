@@ -12,6 +12,7 @@ export interface FundApplicationFilters {
   category?: 'education' | 'health' | 'emergency' | 'equipment'
   sortBy?: 'date' | 'amount' | 'status'
   sortOrder?: 'asc' | 'desc'
+  search?: string
 }
 
 export interface CreateFundApplicationData {

@@ -14,6 +14,7 @@ export interface BendaharaFilters {
   search?: string
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
+  paymentStatus?: 'up-to-date' | 'has-arrears'
 }
 
 export interface CreateTransactionData {

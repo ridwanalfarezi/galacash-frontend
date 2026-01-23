@@ -11,8 +11,9 @@ export interface CashBillFilters {
   status?: 'belum_dibayar' | 'menunggu_konfirmasi' | 'sudah_dibayar'
   month?: number
   year?: number
-  sortBy?: 'dueDate' | 'month' | 'status'
+  sortBy?: 'dueDate' | 'month' | 'status' | 'totalAmount'
   sortOrder?: 'asc' | 'desc'
+  search?: string
 }
 
 export interface PayBillData {

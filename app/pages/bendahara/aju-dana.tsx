@@ -1,12 +1,15 @@
 'use client'
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { Filter, HandCoins } from 'lucide-react'
+import { ChevronRight, HandCoins } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { AjuDanaBendaharaSkeleton, StatusBadge } from '~/components/data-display'
 import { DetailAjuDanaBendahara } from '~/components/modals/DetailAjuDanaBendahara'
 import {
+  DataCard,
+  DataCardContainer,
+  DataMobileFilters,
   DataTable,
   DataTableBody,
   DataTableCell,
@@ -18,12 +21,6 @@ import { DataTablePagination } from '~/components/shared/data-table/DataTablePag
 import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/ExplorerContext'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import { formatCurrency } from '~/lib/utils'
 import type { components } from '~/types/api'
@@ -49,11 +46,13 @@ interface Application {
 
 interface BendaharaAjuDanaParams {
   status?: 'pending' | 'approved' | 'rejected'
+  search?: string
   [key: string]: unknown
 }
 
 function BendaharaAjuDanaContent() {
-  const { filters, setFilters, sort, setSort, pagination } = useExplorer<BendaharaAjuDanaParams>()
+  const { search, setSearch, filters, setFilters, sort, setSort, pagination } =
+    useExplorer<BendaharaAjuDanaParams>()
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
@@ -62,8 +61,9 @@ function BendaharaAjuDanaContent() {
       page: pagination.page,
       limit: pagination.limit,
       status: filters.status,
+      search: search || undefined,
       sortBy: (sort?.key as 'date' | 'amount' | 'status') ?? 'date',
-      sortOrder: sort?.direction ?? 'desc',
+      sortOrder: (sort?.direction as 'asc' | 'desc') ?? 'desc',
     }),
     placeholderData: keepPreviousData,
   })
@@ -94,56 +94,28 @@ function BendaharaAjuDanaContent() {
     setIsDetailModalOpen(true)
   }
 
-  const getStatusLabel = (status?: string) => {
-    switch (status) {
-      case 'pending':
-        return 'Menunggu'
-      case 'approved':
-        return 'Disetujui'
-      case 'rejected':
-        return 'Ditolak'
-      default:
-        return 'Filter Status'
-    }
-  }
-
   if (isLoading) {
     return <AjuDanaBendaharaSkeleton />
   }
 
   return (
-    <Card className="rounded-4xl border-0">
-      <CardHeader className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
-        <CardTitle className="text-xl font-semibold md:text-2xl xl:text-3xl">
+    <Card className="overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
+      <CardHeader className="flex flex-col border-b border-gray-50 pb-6 md:flex-row md:items-center md:justify-between">
+        <CardTitle className="text-xl font-bold text-gray-900 md:text-2xl">
           Rekap Pengajuan Dana
         </CardTitle>
-        <div className="flex gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant={filters.status ? 'default' : 'secondary'}>
-                <Filter className="mr-2 size-4" />
-                {getStatusLabel(filters.status)}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setFilters({ status: undefined })}>
-                Semua Status
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilters({ status: 'pending' })}>
-                Menunggu
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilters({ status: 'approved' })}>
-                Disetujui
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilters({ status: 'rejected' })}>
-                Ditolak
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="rounded-md border">
+      <CardContent className="space-y-6 p-0 sm:p-6">
+        <div className="px-6 pt-6 sm:px-0 sm:pt-0">
+          <DataMobileFilters
+            search={search}
+            onSearchChange={setSearch}
+            placeholder="Cari pengajuan..."
+          />
+        </div>
+
+        {/* Desktop Table */}
+        <div className="hidden lg:block">
           <DataTable>
             <DataTableHeader>
               <DataTableRow>
@@ -152,13 +124,32 @@ function BendaharaAjuDanaContent() {
                 </DataTableHead>
                 <DataTableHead>Keperluan</DataTableHead>
                 <DataTableHead>Kategori</DataTableHead>
-                <DataTableHead sortKey="status" currentSort={sort} onSort={setSort}>
+                <DataTableHead
+                  filterValue={filters.status}
+                  onFilterChange={(v) => {
+                    const params = v as 'pending' | 'approved' | 'rejected'
+                    setFilters({ status: params })
+                  }}
+                  filterOptions={[
+                    { label: 'Semua Status', value: '' },
+                    { label: 'Pending', value: 'pending' },
+                    { label: 'Approved', value: 'approved' },
+                    { label: 'Rejected', value: 'rejected' },
+                  ]}
+                  filterOnly
+                >
                   Status
                 </DataTableHead>
-                <DataTableHead sortKey="amount" currentSort={sort} onSort={setSort}>
+                <DataTableHead
+                  sortKey="amount"
+                  currentSort={sort}
+                  onSort={setSort}
+                  className="text-right"
+                >
                   Nominal
                 </DataTableHead>
                 <DataTableHead>Pengaju</DataTableHead>
+                <DataTableHead className="w-10"></DataTableHead>
               </DataTableRow>
             </DataTableHeader>
             <DataTableBody>
@@ -166,22 +157,35 @@ function BendaharaAjuDanaContent() {
                 applications.map((app) => (
                   <DataTableRow
                     key={app.id}
-                    className="hover:bg-muted/50 cursor-pointer"
+                    className="cursor-pointer"
                     onClick={() => handleViewDetail(app)}
                   >
-                    <DataTableCell>{app.date}</DataTableCell>
-                    <DataTableCell>{app.purpose}</DataTableCell>
-                    <DataTableCell>🎯 {app.category}</DataTableCell>
+                    <DataTableCell className="text-gray-500">{app.date}</DataTableCell>
+                    <DataTableCell className="max-w-[200px] truncate font-medium text-gray-900">
+                      {app.purpose}
+                    </DataTableCell>
+                    <DataTableCell>
+                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                        {app.category}
+                      </span>
+                    </DataTableCell>
                     <DataTableCell>
                       <StatusBadge status={app.status} />
                     </DataTableCell>
-                    <DataTableCell>{formatCurrency(app.amount)}</DataTableCell>
-                    <DataTableCell>{app.applicant}</DataTableCell>
+                    <DataTableCell className="text-right font-bold text-gray-900">
+                      {formatCurrency(app.amount)}
+                    </DataTableCell>
+                    <DataTableCell className="text-gray-600">{app.applicant}</DataTableCell>
+                    <DataTableCell>
+                      <Button variant="ghost" size="icon" className="size-8 text-gray-400">
+                        <ChevronRight className="size-4" />
+                      </Button>
+                    </DataTableCell>
                   </DataTableRow>
                 ))
               ) : (
                 <DataTableRow>
-                  <DataTableCell colSpan={6} className="h-24 text-center">
+                  <DataTableCell colSpan={7} className="h-48 text-center text-gray-400">
                     <EmptyState
                       icon={HandCoins}
                       title="Tidak ada pengajuan"
@@ -194,7 +198,50 @@ function BendaharaAjuDanaContent() {
           </DataTable>
         </div>
 
-        <DataTablePagination total={response?.total || 0} totalPages={response?.totalPages || 0} />
+        {/* Mobile Cards */}
+        <DataCardContainer className="px-6 pb-6 sm:px-0 sm:pb-0">
+          {applications.length > 0 ? (
+            applications.map((app) => (
+              <DataCard key={app.id} onClick={() => handleViewDetail(app)}>
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <h3 className="line-clamp-1 leading-tight font-bold text-gray-900">
+                      {app.purpose}
+                    </h3>
+                    <p className="text-xs text-gray-400">{app.date}</p>
+                  </div>
+                  <StatusBadge status={app.status} size="sm" />
+                </div>
+
+                <div className="mt-1 flex items-center justify-between border-t border-gray-50 pt-2">
+                  <div className="space-y-0.5">
+                    <p className="text-[10px] font-medium tracking-wider text-gray-400 uppercase">
+                      Nominal
+                    </p>
+                    <p className="font-bold text-blue-600">{formatCurrency(app.amount)}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 rounded-lg bg-gray-50 px-2 py-1">
+                    <div className="size-1.5 rounded-full bg-gray-400" />
+                    <span className="text-[10px] font-medium text-gray-600">{app.applicant}</span>
+                  </div>
+                </div>
+              </DataCard>
+            ))
+          ) : (
+            <EmptyState
+              icon={HandCoins}
+              title="Tidak ada pengajuan"
+              description="Belum ada data yang sesuai"
+            />
+          )}
+        </DataCardContainer>
+
+        <div className="px-6 pb-6 sm:px-0 sm:pb-0">
+          <DataTablePagination
+            total={response?.total || 0}
+            totalPages={response?.totalPages || 0}
+          />
+        </div>
       </CardContent>
 
       {selectedApplication && (
@@ -218,12 +265,12 @@ function EmptyState({
   description: string
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-6 text-center">
-      <div className="mb-4 text-gray-400">
-        <Icon className="mx-auto size-12" />
+    <div className="flex flex-col items-center justify-center py-10 text-center">
+      <div className="mb-4 rounded-full bg-gray-50 p-4 text-gray-400">
+        <Icon className="size-12" />
       </div>
-      <h3 className="mb-2 text-lg font-medium text-gray-900">{title}</h3>
-      <p className="text-sm text-gray-500">{description}</p>
+      <h3 className="mb-1 text-lg font-bold text-gray-900">{title}</h3>
+      <p className="max-w-[200px] text-sm text-gray-500">{description}</p>
     </div>
   )
 }

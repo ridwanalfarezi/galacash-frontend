@@ -1,18 +1,18 @@
 'use client'
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { ChevronDown, ChevronRight, ChevronUp, Clock, Filter } from 'lucide-react'
+import { ChevronRight, Download, Plus, Wallet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 import { FinancialPieChart } from '~/components/chart/financial-pie-chart'
-import { EmptyState, KasKelasSkeleton, TransactionTypeBadge } from '~/components/data-display'
-import { Icons } from '~/components/icons'
-import Export from '~/components/icons/export'
-import Sort from '~/components/icons/sort'
+import { TransactionTypeBadge } from '~/components/data-display'
 import { BuatTransaksi } from '~/components/modals/BuatTransaksi'
 import { DetailTransaksi } from '~/components/modals/DetailTransaksi'
 import {
+  DataCard,
+  DataCardContainer,
+  DataMobileFilters,
   DataTable,
   DataTableBody,
   DataTableCell,
@@ -24,17 +24,10 @@ import { DataTablePagination } from '~/components/shared/data-table/DataTablePag
 import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/ExplorerContext'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu'
-import { useIsMobile } from '~/hooks/use-mobile'
 import { getChartColor } from '~/lib/constants'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { transactionService } from '~/lib/services/transaction.service'
-import { formatCurrency, formatDate } from '~/lib/utils'
+import { cn, formatCurrency, formatDate } from '~/lib/utils'
 
 interface HistoryTransaction {
   id: string
@@ -45,47 +38,34 @@ interface HistoryTransaction {
 }
 
 interface KasKelasParams {
-  type: 'all' | 'income' | 'expense'
+  type?: 'income' | 'expense'
   [key: string]: unknown
 }
 
 function BendaharaKasKelasContent() {
-  const { filters, setFilters, sort, setSort, pagination } = useExplorer<KasKelasParams>()
+  const { search, setSearch, filters, setFilters, sort, setSort, pagination } =
+    useExplorer<KasKelasParams>()
   const [detailModal, setDetailModal] = useState<HistoryTransaction | null>(null)
-  const [BuatTransaksiModal, setBuatTransaksiModal] = useState(false)
-  const [isChartVisible, setIsChartVisible] = useState(true)
+  const [isBuatModalOpen, setIsBuatModalOpen] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
 
-  const isDetailModalOpen = detailModal !== null
-
-  const isMobile = useIsMobile()
-  const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
-
-  // Map filters
-  const filterType = filters.type || 'all'
-  const sortBy = (sort?.key as 'date' | 'amount') || 'date'
-  const sortOrder = (sort?.direction as 'asc' | 'desc') || 'desc'
-
-  // Fetch transactions from API with sorting and pagination
-  const {
-    data: transactionsData,
-    isLoading,
-    isFetching,
-  } = useQuery({
+  // Fetch transactions
+  const { data: transactionsData } = useQuery({
     ...transactionQueries.list({
       page: pagination.page,
       limit: pagination.limit,
-      type: filterType === 'all' ? undefined : filterType,
-      sortBy,
-      sortOrder,
+      type: filters.type,
+      search: search || undefined,
+      sortBy: (sort?.key as 'date' | 'amount') || 'date',
+      sortOrder: (sort?.direction as 'asc' | 'desc') || 'desc',
     }),
     placeholderData: keepPreviousData,
   })
 
-  // Map API transactions to local type
-  const transactions: HistoryTransaction[] = useMemo(() => {
-    const data = transactionsData?.transactions || []
-    return data.map((t) => ({
+  // Convert API transactions to local format
+  const historyTransaction: HistoryTransaction[] = useMemo(() => {
+    if (!transactionsData?.transactions) return []
+    return transactionsData.transactions.map((t) => ({
       id: t.id || '',
       date: t.date || '',
       purpose: t.description || '',
@@ -94,350 +74,263 @@ function BendaharaKasKelasContent() {
     }))
   }, [transactionsData])
 
-  // Chart logic preserved
-  const incomeData = useMemo(() => {
-    const incomeTransactions = transactions.filter((t) => t.type === 'income')
-    if (incomeTransactions.length === 0) return []
+  // Chart data logic
+  const { incomeData, expenseData } = useMemo(() => {
+    const incomeTransactions = historyTransaction.filter((t) => t.type === 'income')
+    const expenseTransactions = historyTransaction.filter((t) => t.type === 'expense')
 
-    const grouped = incomeTransactions.reduce(
-      (acc, t) => {
-        const key = t.purpose || 'Lainnya'
-        acc[key] = (acc[key] || 0) + t.amount
-        return acc
-      },
-      {} as Record<string, number>
-    )
-    return Object.entries(grouped).map(([name, value], index) => ({
-      name,
-      value,
-      fill: getChartColor('income', index),
-    }))
-  }, [transactions])
+    const aggregate = (txs: HistoryTransaction[], type: 'income' | 'expense') => {
+      const grouped = txs.reduce(
+        (acc, t) => {
+          const key = t.purpose || 'Lainnya'
+          acc[key] = (acc[key] || 0) + t.amount
+          return acc
+        },
+        {} as Record<string, number>
+      )
+      return Object.entries(grouped).map(([name, value], index) => ({
+        name,
+        value,
+        fill: getChartColor(type, index),
+      }))
+    }
+    return {
+      incomeData: aggregate(incomeTransactions, 'income'),
+      expenseData: aggregate(expenseTransactions, 'expense'),
+    }
+  }, [historyTransaction])
 
-  const expenseData = useMemo(() => {
-    const expenseTransactions = transactions.filter((t) => t.type === 'expense')
-    if (expenseTransactions.length === 0) return []
-
-    const grouped = expenseTransactions.reduce(
-      (acc, t) => {
-        const key = t.purpose || 'Lainnya'
-        acc[key] = (acc[key] || 0) + t.amount
-        return acc
-      },
-      {} as Record<string, number>
-    )
-    return Object.entries(grouped).map(([name, value], index) => ({
-      name,
-      value,
-      fill: getChartColor('expense', index),
-    }))
-  }, [transactions])
-
-  const openDetailModal = (transaction: HistoryTransaction) => setDetailModal(transaction)
-  const closeDetailModal = () => setDetailModal(null)
-  const openBuatTransaksiModal = () => setBuatTransaksiModal(true)
-  const closeBuatTransaksiModal = () => setBuatTransaksiModal(false)
-
-  // Handle export
   const handleExport = async () => {
     try {
       setIsExporting(true)
-      toast.info('Mengekspor transaksi...', { duration: 2000 })
-
-      const blob = await transactionService.exportTransactions({
-        type: filterType === 'all' ? undefined : filterType,
-      })
-
+      const blob = await transactionService.exportTransactions({ type: filters.type })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `transactions-${new Date().toISOString().split('T')[0]}.xlsx`
+      a.download = `bendahara-kas-kelas-${new Date().toISOString().split('T')[0]}.xlsx`
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-
-      toast.success('Transaksi berhasil diekspor')
+      toast.success('Berhasil mengekspor data')
     } catch {
-      toast.error('Gagal mengekspor transaksi')
+      toast.error('Gagal mengekspor data')
     } finally {
       setIsExporting(false)
     }
   }
 
-  const getSortLabel = () => {
-    if (sortBy === 'date') {
-      return sortOrder === 'desc' ? 'Tanggal Terbaru' : 'Tanggal Terlama'
-    }
-    return sortOrder === 'desc' ? 'Nominal Tertinggi' : 'Nominal Terendah'
-  }
-
-  const getFilterLabel = () => {
-    switch (filterType) {
-      case 'income':
-        return 'Pemasukan'
-      case 'expense':
-        return 'Pengeluaran'
-      default:
-        return 'Filter'
-    }
-  }
-
-  if (isLoading || isFetching) {
-    return <KasKelasSkeleton />
-  }
-
   return (
-    <>
-      <div className="mx-auto max-w-360 space-y-8">
-        <Card className="relative rounded-4xl border-0">
-          <CardHeader className="flex items-center justify-between space-y-0">
-            <CardTitle className="xl:text-3.75 text-xl font-semibold md:text-2xl">
-              Rekap Keuangan Kas
-            </CardTitle>
+    <div className="mx-auto max-w-7xl space-y-6">
+      {/* Charts Section */}
+      <Card className="rounded-4xl border-0 shadow-lg shadow-gray-100">
+        <CardHeader>
+          <CardTitle className="text-xl font-bold text-gray-900 md:text-2xl">
+            Visualisasi Keuangan
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <FinancialPieChart data={incomeData} title="Sumber Pemasukan" type="income" />
+            <FinancialPieChart data={expenseData} title="Alokasi Pengeluaran" type="expense" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Transactions Section */}
+      <Card className="overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
+        <CardHeader className="flex flex-col gap-4 border-b border-gray-50 pb-6 md:flex-row md:items-center md:justify-between md:space-y-0">
+          <CardTitle className="text-xl font-bold text-gray-900 md:text-2xl">
+            Kelola Transaksi
+          </CardTitle>
+          <div className="flex flex-wrap items-center gap-3">
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsChartVisible(!isChartVisible)}
-              className="p-1 transition-transform duration-200 hover:scale-110"
+              onClick={handleExport}
+              disabled={isExporting}
+              variant="outline"
+              className="border-gray-200 px-5 py-2 shadow-sm hover:bg-gray-50"
             >
-              <div className="transition-transform duration-300">
-                {isChartVisible ? (
-                  <ChevronUp className="size-6" />
-                ) : (
-                  <ChevronDown className="size-6" />
-                )}
-              </div>
+              <Download className="mr-2 size-4" />
+              Export
             </Button>
-          </CardHeader>
-          {isChartVisible && (
-            <CardContent>
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                <FinancialPieChart
-                  data={incomeData}
-                  title="Pemasukan"
-                  type="income"
-                  className="flex justify-center"
-                />
-                <FinancialPieChart
-                  data={expenseData}
-                  title="Pengeluaran"
-                  type="expense"
-                  className="flex justify-center"
-                />
-              </div>
-            </CardContent>
-          )}
-        </Card>
-        <Card className="rounded-4xl border-0">
-          <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
-            <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start">
-              <CardTitle className="xl:text-3.75 text-xl font-semibold md:text-2xl">
-                Riwayat Transaksi
-              </CardTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsButtonsVisible(!isButtonsVisible)}
-                className="p-1 transition-transform duration-200 hover:scale-110 sm:hidden"
-              >
-                <div className="transition-transform duration-300">
-                  {isButtonsVisible ? (
-                    <ChevronUp className="size-6" />
-                  ) : (
-                    <ChevronDown className="size-6" />
-                  )}
-                </div>
-              </Button>
-            </div>
-            <div
-              className={`transition-all duration-300 ease-in-out sm:block sm:w-auto sm:translate-y-0 sm:opacity-100 ${
-                !isButtonsVisible
-                  ? 'max-h-0 w-full translate-y-2 overflow-hidden opacity-0'
-                  : 'max-h-96 w-full translate-y-0 overflow-visible opacity-100'
-              }`}
+            <Button
+              onClick={() => setIsBuatModalOpen(true)}
+              className="bg-blue-600 px-5 py-2 shadow-md hover:bg-blue-700"
             >
-              <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant={filterType !== 'all' ? 'default' : 'secondary'}
-                      className="w-full sm:w-auto"
-                    >
-                      <Filter className="h-5 w-5" />
-                      {getFilterLabel()}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-auto sm:w-50">
-                    <DropdownMenuItem
+              <Plus className="mr-2 size-4" />
+              Buat Transaksi
+            </Button>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-4 p-0 sm:p-6">
+          <div className="px-6 pt-4 sm:px-0 sm:pt-0">
+            <DataMobileFilters
+              search={search}
+              onSearchChange={setSearch}
+              placeholder="Cari transaksi..."
+            />
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden lg:block">
+            <DataTable>
+              <DataTableHeader>
+                <DataTableRow>
+                  <DataTableHead sortKey="date" currentSort={sort} onSort={setSort}>
+                    Tanggal
+                  </DataTableHead>
+                  <DataTableHead>Keperluan</DataTableHead>
+                  <DataTableHead
+                    filterValue={filters.type}
+                    onFilterChange={(v) => setFilters({ type: v as 'income' | 'expense' })}
+                    filterOptions={[
+                      { label: 'Semua Tipe', value: '' },
+                      { label: 'Pemasukan', value: 'income' },
+                      { label: 'Pengeluaran', value: 'expense' },
+                    ]}
+                    filterOnly
+                  >
+                    Tipe
+                  </DataTableHead>
+                  <DataTableHead
+                    sortKey="amount"
+                    currentSort={sort}
+                    onSort={setSort}
+                    className="text-right"
+                  >
+                    Nominal
+                  </DataTableHead>
+                  <DataTableHead className="w-10"></DataTableHead>
+                </DataTableRow>
+              </DataTableHeader>
+              <DataTableBody>
+                {historyTransaction.length > 0 ? (
+                  historyTransaction.map((t) => (
+                    <DataTableRow
+                      key={t.id}
+                      onClick={() => setDetailModal(t)}
                       className="cursor-pointer"
-                      onClick={() => setFilters({ type: 'all' })}
                     >
-                      <span>Semua</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="cursor-pointer hover:text-green-700 focus:bg-green-50"
-                      onClick={() => setFilters({ type: 'income' })}
-                    >
-                      <Icons.ArrowUpCircle className="h-5 w-5 text-green-700" />
-                      <span className="text-green-700">Pemasukan</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="cursor-pointer hover:text-red-700 focus:bg-red-50"
-                      onClick={() => setFilters({ type: 'expense' })}
-                    >
-                      <Icons.ArrowDownCircle className="h-5 w-5 text-red-700" />
-                      <span className="text-red-700">Pengeluaran</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="secondary" className="w-full sm:w-auto">
-                      <Sort className="h-5 w-5" />
-                      {getSortLabel()}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-auto">
-                    <DropdownMenuItem onClick={() => setSort({ key: 'date', direction: 'desc' })}>
-                      Tanggal Terbaru
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSort({ key: 'date', direction: 'asc' })}>
-                      Tanggal Terlama
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSort({ key: 'amount', direction: 'desc' })}>
-                      Nominal Tertinggi
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSort({ key: 'amount', direction: 'asc' })}>
-                      Nominal Terendah
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Button className="w-full sm:w-auto" onClick={handleExport} disabled={isExporting}>
-                  <Export className="h-5 w-5" />
-                  {isExporting ? 'Mengekspor...' : 'Export'}
-                </Button>
-                <Button className="w-full sm:w-auto" onClick={openBuatTransaksiModal}>
-                  <Icons.Plus className="size-6" />
-                  Buat Transaksi
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {/* Desktop Table View */}
-            <div className="hidden overflow-x-auto sm:block">
-              <DataTable>
-                <DataTableHeader>
-                  <DataTableRow>
-                    <DataTableHead>Tanggal</DataTableHead>
-                    <DataTableHead>Keperluan</DataTableHead>
-                    <DataTableHead>Status</DataTableHead>
-                    <DataTableHead>Nominal</DataTableHead>
-                    <DataTableHead className="w-12" />
-                  </DataTableRow>
-                </DataTableHeader>
-                <DataTableBody>
-                  {transactions.length === 0 ? (
-                    <DataTableRow>
-                      <DataTableCell colSpan={5} className="py-12">
-                        <EmptyState
-                          icon={Clock}
-                          title="Tidak ada transaksi"
-                          description="Belum ada data transaksi"
-                        />
+                      <DataTableCell className="text-gray-500">{formatDate(t.date)}</DataTableCell>
+                      <DataTableCell className="font-medium text-gray-900">
+                        {t.purpose}
+                      </DataTableCell>
+                      <DataTableCell>
+                        <TransactionTypeBadge type={t.type} />
+                      </DataTableCell>
+                      <DataTableCell
+                        className={cn(
+                          'text-right font-bold',
+                          t.type === 'income' ? 'text-green-600' : 'text-red-600'
+                        )}
+                      >
+                        {t.type === 'income' ? '+' : '-'}
+                        {formatCurrency(t.amount)}
+                      </DataTableCell>
+                      <DataTableCell>
+                        <Button variant="ghost" size="icon" className="size-8 text-gray-400">
+                          <ChevronRight className="size-4" />
+                        </Button>
                       </DataTableCell>
                     </DataTableRow>
-                  ) : (
-                    transactions.map((app) => (
-                      <DataTableRow key={app.id}>
-                        <DataTableCell className="text-sm">{formatDate(app.date)}</DataTableCell>
-                        <DataTableCell className="text-sm">{app.purpose}</DataTableCell>
-                        <DataTableCell>
-                          <TransactionTypeBadge type={app.type} />
-                        </DataTableCell>
-                        <DataTableCell
-                          className={`text-sm font-medium ${app.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
-                        >
-                          {app.type === 'income' ? '+' : '-'}
-                          {formatCurrency(app.amount)}
-                        </DataTableCell>
-                        <DataTableCell>
-                          <Button variant="ghost" size="sm" onClick={() => openDetailModal(app)}>
-                            <ChevronRight className="h-4 w-4" />
-                          </Button>
-                        </DataTableCell>
-                      </DataTableRow>
-                    ))
-                  )}
-                </DataTableBody>
-              </DataTable>
-            </div>
+                  ))
+                ) : (
+                  <DataTableRow>
+                    <DataTableCell colSpan={5} className="h-48 text-center text-gray-400">
+                      <EmptyState
+                        icon={Wallet}
+                        title="Tidak ada transaksi"
+                        description="Coba gunakan filter lain atau buat transaksi baru"
+                      />
+                    </DataTableCell>
+                  </DataTableRow>
+                )}
+              </DataTableBody>
+            </DataTable>
+          </div>
 
-            {/* Mobile Card View */}
-            <div className="space-y-4 sm:hidden">
-              {transactions.length === 0 ? (
-                <EmptyState
-                  icon={Clock}
-                  title="Tidak ada transaksi"
-                  description="Belum ada data transaksi"
-                  className="py-12"
-                />
-              ) : (
-                transactions.map((app) => (
-                  <div
-                    key={app.id}
-                    className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">{app.date}</span>
-                      <TransactionTypeBadge type={app.type} size="sm" />
+          {/* Mobile Cards View */}
+          <DataCardContainer className="px-6 pb-6 sm:px-0 sm:pb-0">
+            {historyTransaction.length > 0 ? (
+              historyTransaction.map((t) => (
+                <DataCard key={t.id} onClick={() => setDetailModal(t)}>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <h3 className="leading-tight font-bold text-gray-900">{t.purpose}</h3>
+                      <p className="text-xs text-gray-400">{formatDate(t.date)}</p>
                     </div>
-                    <div className="font-semibold">{app.purpose}</div>
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`font-bold ${app.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
-                      >
-                        {app.type === 'income' ? '+' : '-'}
-                        {formatCurrency(app.amount)}
-                      </span>
-                      <Button variant="ghost" size="sm" onClick={() => openDetailModal(app)}>
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <TransactionTypeBadge type={t.type} size="sm" />
                   </div>
-                ))
-              )}
-            </div>
+                  <div className="mt-1 flex items-center justify-between border-t border-gray-50 pt-2">
+                    <p className="text-[10px] font-medium tracking-wider text-gray-400 uppercase">
+                      Nominal
+                    </p>
+                    <p
+                      className={cn(
+                        'font-bold',
+                        t.type === 'income' ? 'text-green-600' : 'text-red-600'
+                      )}
+                    >
+                      {t.type === 'income' ? '+' : '-'}
+                      {formatCurrency(t.amount)}
+                    </p>
+                  </div>
+                </DataCard>
+              ))
+            ) : (
+              <EmptyState icon={Wallet} title="Tidak ada transaksi" description="Belum ada data" />
+            )}
+          </DataCardContainer>
 
+          <div className="px-6 pb-6 sm:px-0 sm:pb-0">
             <DataTablePagination
               total={transactionsData?.pagination?.totalItems || 0}
               totalPages={transactionsData?.pagination?.totalPages || 0}
             />
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {isDetailModalOpen && detailModal && (
+      {detailModal && (
         <DetailTransaksi
-          isOpen={isDetailModalOpen}
-          onClose={closeDetailModal}
+          isOpen={!!detailModal}
+          onClose={() => setDetailModal(null)}
           transaction={detailModal}
         />
       )}
-      {BuatTransaksiModal && (
-        <BuatTransaksi isOpen={BuatTransaksiModal} onClose={closeBuatTransaksiModal} />
+      {isBuatModalOpen && (
+        <BuatTransaksi isOpen={isBuatModalOpen} onClose={() => setIsBuatModalOpen(false)} />
       )}
-    </>
+    </div>
   )
 }
 
-export default function BendaharaKasKelas() {
+function EmptyState({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: React.ElementType
+  title: string
+  description: string
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center py-10 text-center">
+      <div className="mb-4 rounded-full bg-gray-50 p-4 text-gray-400">
+        <Icon className="size-12" />
+      </div>
+      <h3 className="mb-1 text-lg font-bold text-gray-900">{title}</h3>
+      <p className="max-w-[200px] text-sm text-gray-500">{description}</p>
+    </div>
+  )
+}
+
+export default function BendaharaKasKelasPage() {
   return (
     <div className="p-6">
-      <ExplorerProvider<{ type: 'all' | 'income' | 'expense' }>
+      <ExplorerProvider<KasKelasParams>
         defaultLimit={25}
-        defaultFilters={{ type: 'all' }}
         defaultSort={{ key: 'date', direction: 'desc' }}
       >
         <BendaharaKasKelasContent />
