@@ -18,10 +18,10 @@ export const bendaharaQueries = {
    * Get bendahara dashboard
    * staleTime: 60s
    */
-  dashboard: () =>
+  dashboard: (params?: { startDate?: string; endDate?: string }) =>
     queryOptions({
-      queryKey: queryKeys.bendahara.dashboard(),
-      queryFn: () => bendaharaService.getDashboard(),
+      queryKey: queryKeys.bendahara.dashboard(params),
+      queryFn: () => bendaharaService.getDashboard(params),
       staleTime: 60 * 1000,
     }),
 

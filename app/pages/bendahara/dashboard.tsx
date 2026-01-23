@@ -24,7 +24,7 @@ import {
   useRejectFundApplication,
 } from '~/lib/queries/bendahara.queries'
 import { formatCurrency, formatDate, formatDateForAPI, groupTransactionsByDate } from '~/lib/utils'
-import { toTransactionDisplayList, type TransactionDisplay } from '~/types/domain'
+import { toTransactionDisplayList } from '~/types/domain'
 
 export default function DashboardPage() {
   const [date, setDate] = useState<DateRange | undefined>({
@@ -32,12 +32,9 @@ export default function DashboardPage() {
     to: new Date(),
   })
 
-  // Fetch dashboard data from API
-  const { data: dashboardData, isLoading } = useQuery(bendaharaQueries.dashboard())
-
-  // Fetch rekap kas with date filter for summary cards
-  const { data: rekapKasData, isLoading: isLoadingRekap } = useQuery(
-    bendaharaQueries.rekapKas({
+  // Fetch dashboard data from API with date filter
+  const { data: dashboardData, isLoading } = useQuery(
+    bendaharaQueries.dashboard({
       startDate: date?.from ? formatDateForAPI(date.from) : undefined,
       endDate: date?.to ? formatDateForAPI(date.to) : undefined,
     })
@@ -53,22 +50,13 @@ export default function DashboardPage() {
     return toTransactionDisplayList(dashboardData.recentTransactions)
   }, [dashboardData])
 
-  // Filter transactions by date
-  const filteredTransactions = useMemo(() => {
-    return transactions.filter((transaction: TransactionDisplay) => {
-      if (!date?.from || !date?.to) return true
-      const transactionDate = new Date(transaction.date)
-      return transactionDate >= date.from && transactionDate <= date.to
-    })
-  }, [transactions, date])
+  const groupedTransactions = groupTransactionsByDate(transactions)
 
-  const groupedTransactions = groupTransactionsByDate(filteredTransactions)
-
-  // Summary from rekap kas API with date filter
+  // Summary from dashboard API
   const filteredSummary = {
-    totalBalance: rekapKasData?.summary?.balance ?? 0,
-    totalIncome: rekapKasData?.summary?.totalIncome ?? 0,
-    totalExpense: rekapKasData?.summary?.totalExpense ?? 0,
+    totalBalance: dashboardData?.totalBalance ?? 0,
+    totalIncome: dashboardData?.totalIncome ?? 0,
+    totalExpense: dashboardData?.totalExpense ?? 0,
   }
 
   // Fund applications from API
@@ -108,7 +96,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat Cards - With skeleton loading */}
-      {isLoading || isLoadingRekap ? (
+      {isLoading ? (
         <div className="mb-8">
           <StatCardsGridSkeleton count={3} />
         </div>

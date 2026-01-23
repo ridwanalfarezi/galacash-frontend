@@ -116,7 +116,7 @@ export function DetailTagihanKasBendahara({ isOpen, onClose, tagihan }: DetailTa
         return (
           <div className="space-y-3">
             <p className="text-center text-gray-600 italic">
-              Tagihan ini belum dibayar oleh siswa.
+              Tagihan ini belum dibayar oleh {tagihan.name}.
             </p>
             <Button className="w-full" onClick={handleClose}>
               Tutup

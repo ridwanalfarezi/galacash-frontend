@@ -78,7 +78,8 @@ export const queryKeys = {
   // -------------------------------------------------------------------------
   bendahara: {
     all: ['bendahara'] as const,
-    dashboard: () => [...queryKeys.bendahara.all, 'dashboard'] as const,
+    dashboard: (params?: { startDate?: string; endDate?: string; classId?: string }) =>
+      [...queryKeys.bendahara.all, 'dashboard', params] as const,
     fundApplications: (filters?: BendaharaFilters) =>
       [...queryKeys.bendahara.all, 'fund-applications', filters] as const,
     cashBills: (filters?: BendaharaFilters) =>

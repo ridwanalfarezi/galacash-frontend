@@ -34,8 +34,8 @@ export const bendaharaService = {
   /**
    * Get dashboard summary for bendahara
    */
-  async getDashboard() {
-    const response = await apiClient.get('/bendahara/dashboard')
+  async getDashboard(params?: { startDate?: string; endDate?: string }) {
+    const response = await apiClient.get('/bendahara/dashboard', { params })
     return response.data.data
   },
 
