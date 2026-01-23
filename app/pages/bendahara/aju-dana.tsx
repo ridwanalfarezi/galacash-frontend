@@ -99,8 +99,8 @@ function BendaharaAjuDanaContent() {
   }
 
   return (
-    <Card className="overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
-      <CardHeader className="flex flex-col border-b border-gray-50 pb-6 md:flex-row md:items-center md:justify-between">
+    <Card className="gap-0 overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
+      <CardHeader className="flex flex-col border-b border-gray-50 md:flex-row md:items-center md:justify-between">
         <CardTitle className="text-xl font-bold text-gray-900 md:text-2xl">
           Rekap Pengajuan Dana
         </CardTitle>
@@ -161,7 +161,7 @@ function BendaharaAjuDanaContent() {
                     onClick={() => handleViewDetail(app)}
                   >
                     <DataTableCell className="text-gray-500">{app.date}</DataTableCell>
-                    <DataTableCell className="max-w-[200px] truncate font-medium text-gray-900">
+                    <DataTableCell className="max-w-50 truncate font-medium text-gray-900">
                       {app.purpose}
                     </DataTableCell>
                     <DataTableCell>
@@ -270,7 +270,7 @@ function EmptyState({
         <Icon className="size-12" />
       </div>
       <h3 className="mb-1 text-lg font-bold text-gray-900">{title}</h3>
-      <p className="max-w-[200px] text-sm text-gray-500">{description}</p>
+      <p className="max-w-50 text-sm text-gray-500">{description}</p>
     </div>
   )
 }

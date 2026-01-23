@@ -139,24 +139,16 @@ function BendaharaKasKelasContent() {
 
       {/* Transactions Section */}
       <Card className="overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
-        <CardHeader className="flex flex-col gap-4 border-b border-gray-50 pb-6 md:flex-row md:items-center md:justify-between md:space-y-0">
+        <CardHeader className="flex flex-col gap-4 border-b border-gray-50 md:flex-row md:items-center md:justify-between md:space-y-0">
           <CardTitle className="text-xl font-bold text-gray-900 md:text-2xl">
             Kelola Transaksi
           </CardTitle>
           <div className="flex flex-wrap items-center gap-3">
-            <Button
-              onClick={handleExport}
-              disabled={isExporting}
-              variant="outline"
-              className="border-gray-200 px-5 py-2 shadow-sm hover:bg-gray-50"
-            >
+            <Button onClick={handleExport} disabled={isExporting} variant="secondary">
               <Download className="mr-2 size-4" />
               Export
             </Button>
-            <Button
-              onClick={() => setIsBuatModalOpen(true)}
-              className="bg-blue-600 px-5 py-2 shadow-md hover:bg-blue-700"
-            >
+            <Button onClick={() => setIsBuatModalOpen(true)}>
               <Plus className="mr-2 size-4" />
               Buat Transaksi
             </Button>
@@ -321,7 +313,7 @@ function EmptyState({
         <Icon className="size-12" />
       </div>
       <h3 className="mb-1 text-lg font-bold text-gray-900">{title}</h3>
-      <p className="max-w-[200px] text-sm text-gray-500">{description}</p>
+      <p className="max-w-50 text-sm text-gray-500">{description}</p>
     </div>
   )
 }
