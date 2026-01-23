@@ -1,12 +1,12 @@
 'use client'
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ChevronRight, Download, Plus, Wallet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 import { FinancialPieChart } from '~/components/chart/financial-pie-chart'
-import { TransactionTypeBadge } from '~/components/data-display'
+import { TransactionListSkeleton, TransactionTypeBadge } from '~/components/data-display'
 import { BuatTransaksi } from '~/components/modals/BuatTransaksi'
 import { DetailTransaksi } from '~/components/modals/DetailTransaksi'
 import {
@@ -50,7 +50,7 @@ function BendaharaKasKelasContent() {
   const [isExporting, setIsExporting] = useState(false)
 
   // Fetch transactions
-  const { data: transactionsData } = useQuery({
+  const { data: transactionsData, isLoading } = useQuery({
     ...transactionQueries.list({
       page: pagination.page,
       limit: pagination.limit,
@@ -59,7 +59,6 @@ function BendaharaKasKelasContent() {
       sortBy: (sort?.key as 'date' | 'amount') || 'date',
       sortOrder: (sort?.direction as 'asc' | 'desc') || 'desc',
     }),
-    placeholderData: keepPreviousData,
   })
 
   // Convert API transactions to local format
@@ -164,123 +163,137 @@ function BendaharaKasKelasContent() {
             />
           </div>
 
-          {/* Desktop Table View */}
-          <div className="hidden lg:block">
-            <DataTable>
-              <DataTableHeader>
-                <DataTableRow>
-                  <DataTableHead sortKey="date" currentSort={sort} onSort={setSort}>
-                    Tanggal
-                  </DataTableHead>
-                  <DataTableHead>Keperluan</DataTableHead>
-                  <DataTableHead
-                    filterValue={filters.type}
-                    onFilterChange={(v) => setFilters({ type: v as 'income' | 'expense' })}
-                    filterOptions={[
-                      { label: 'Semua Tipe', value: '' },
-                      { label: 'Pemasukan', value: 'income' },
-                      { label: 'Pengeluaran', value: 'expense' },
-                    ]}
-                    filterOnly
-                  >
-                    Tipe
-                  </DataTableHead>
-                  <DataTableHead
-                    sortKey="amount"
-                    currentSort={sort}
-                    onSort={setSort}
-                    className="text-right"
-                  >
-                    Nominal
-                  </DataTableHead>
-                  <DataTableHead className="w-10"></DataTableHead>
-                </DataTableRow>
-              </DataTableHeader>
-              <DataTableBody>
+          {isLoading ? (
+            <div className="p-6">
+              <TransactionListSkeleton count={5} />
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block">
+                <DataTable>
+                  <DataTableHeader>
+                    <DataTableRow>
+                      <DataTableHead sortKey="date" currentSort={sort} onSort={setSort}>
+                        Tanggal
+                      </DataTableHead>
+                      <DataTableHead>Keperluan</DataTableHead>
+                      <DataTableHead
+                        filterValue={filters.type}
+                        onFilterChange={(v) => setFilters({ type: v as 'income' | 'expense' })}
+                        filterOptions={[
+                          { label: 'Semua Tipe', value: '' },
+                          { label: 'Pemasukan', value: 'income' },
+                          { label: 'Pengeluaran', value: 'expense' },
+                        ]}
+                        filterOnly
+                      >
+                        Tipe
+                      </DataTableHead>
+                      <DataTableHead
+                        sortKey="amount"
+                        currentSort={sort}
+                        onSort={setSort}
+                        className="text-right"
+                      >
+                        Nominal
+                      </DataTableHead>
+                      <DataTableHead className="w-10"></DataTableHead>
+                    </DataTableRow>
+                  </DataTableHeader>
+                  <DataTableBody>
+                    {historyTransaction.length > 0 ? (
+                      historyTransaction.map((t) => (
+                        <DataTableRow
+                          key={t.id}
+                          onClick={() => setDetailModal(t)}
+                          className="cursor-pointer"
+                        >
+                          <DataTableCell className="text-gray-500">
+                            {formatDate(t.date)}
+                          </DataTableCell>
+                          <DataTableCell className="font-medium text-gray-900">
+                            {t.purpose}
+                          </DataTableCell>
+                          <DataTableCell>
+                            <TransactionTypeBadge type={t.type} />
+                          </DataTableCell>
+                          <DataTableCell
+                            className={cn(
+                              'text-right font-bold',
+                              t.type === 'income' ? 'text-green-600' : 'text-red-600'
+                            )}
+                          >
+                            {t.type === 'income' ? '+' : '-'}
+                            {formatCurrency(t.amount)}
+                          </DataTableCell>
+                          <DataTableCell>
+                            <Button variant="ghost" size="icon" className="size-8 text-gray-400">
+                              <ChevronRight className="size-4" />
+                            </Button>
+                          </DataTableCell>
+                        </DataTableRow>
+                      ))
+                    ) : (
+                      <DataTableRow>
+                        <DataTableCell colSpan={5} className="h-48 text-center text-gray-400">
+                          <EmptyState
+                            icon={Wallet}
+                            title="Tidak ada transaksi"
+                            description="Coba gunakan filter lain atau buat transaksi baru"
+                          />
+                        </DataTableCell>
+                      </DataTableRow>
+                    )}
+                  </DataTableBody>
+                </DataTable>
+              </div>
+
+              {/* Mobile Cards View */}
+              <DataCardContainer className="px-6 pb-6 sm:px-0 sm:pb-0">
                 {historyTransaction.length > 0 ? (
                   historyTransaction.map((t) => (
-                    <DataTableRow
-                      key={t.id}
-                      onClick={() => setDetailModal(t)}
-                      className="cursor-pointer"
-                    >
-                      <DataTableCell className="text-gray-500">{formatDate(t.date)}</DataTableCell>
-                      <DataTableCell className="font-medium text-gray-900">
-                        {t.purpose}
-                      </DataTableCell>
-                      <DataTableCell>
-                        <TransactionTypeBadge type={t.type} />
-                      </DataTableCell>
-                      <DataTableCell
-                        className={cn(
-                          'text-right font-bold',
-                          t.type === 'income' ? 'text-green-600' : 'text-red-600'
-                        )}
-                      >
-                        {t.type === 'income' ? '+' : '-'}
-                        {formatCurrency(t.amount)}
-                      </DataTableCell>
-                      <DataTableCell>
-                        <Button variant="ghost" size="icon" className="size-8 text-gray-400">
-                          <ChevronRight className="size-4" />
-                        </Button>
-                      </DataTableCell>
-                    </DataTableRow>
+                    <DataCard key={t.id} onClick={() => setDetailModal(t)}>
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <h3 className="leading-tight font-bold text-gray-900">{t.purpose}</h3>
+                          <p className="text-xs text-gray-400">{formatDate(t.date)}</p>
+                        </div>
+                        <TransactionTypeBadge type={t.type} size="sm" />
+                      </div>
+                      <div className="mt-1 flex items-center justify-between border-t border-gray-50 pt-2">
+                        <p className="text-[10px] font-medium tracking-wider text-gray-400 uppercase">
+                          Nominal
+                        </p>
+                        <p
+                          className={cn(
+                            'font-bold',
+                            t.type === 'income' ? 'text-green-600' : 'text-red-600'
+                          )}
+                        >
+                          {t.type === 'income' ? '+' : '-'}
+                          {formatCurrency(t.amount)}
+                        </p>
+                      </div>
+                    </DataCard>
                   ))
                 ) : (
-                  <DataTableRow>
-                    <DataTableCell colSpan={5} className="h-48 text-center text-gray-400">
-                      <EmptyState
-                        icon={Wallet}
-                        title="Tidak ada transaksi"
-                        description="Coba gunakan filter lain atau buat transaksi baru"
-                      />
-                    </DataTableCell>
-                  </DataTableRow>
+                  <EmptyState
+                    icon={Wallet}
+                    title="Tidak ada transaksi"
+                    description="Belum ada data"
+                  />
                 )}
-              </DataTableBody>
-            </DataTable>
-          </div>
+              </DataCardContainer>
 
-          {/* Mobile Cards View */}
-          <DataCardContainer className="px-6 pb-6 sm:px-0 sm:pb-0">
-            {historyTransaction.length > 0 ? (
-              historyTransaction.map((t) => (
-                <DataCard key={t.id} onClick={() => setDetailModal(t)}>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <h3 className="leading-tight font-bold text-gray-900">{t.purpose}</h3>
-                      <p className="text-xs text-gray-400">{formatDate(t.date)}</p>
-                    </div>
-                    <TransactionTypeBadge type={t.type} size="sm" />
-                  </div>
-                  <div className="mt-1 flex items-center justify-between border-t border-gray-50 pt-2">
-                    <p className="text-[10px] font-medium tracking-wider text-gray-400 uppercase">
-                      Nominal
-                    </p>
-                    <p
-                      className={cn(
-                        'font-bold',
-                        t.type === 'income' ? 'text-green-600' : 'text-red-600'
-                      )}
-                    >
-                      {t.type === 'income' ? '+' : '-'}
-                      {formatCurrency(t.amount)}
-                    </p>
-                  </div>
-                </DataCard>
-              ))
-            ) : (
-              <EmptyState icon={Wallet} title="Tidak ada transaksi" description="Belum ada data" />
-            )}
-          </DataCardContainer>
-
-          <div className="px-6 pb-6 sm:px-0 sm:pb-0">
-            <DataTablePagination
-              total={transactionsData?.pagination?.totalItems || 0}
-              totalPages={transactionsData?.pagination?.totalPages || 0}
-            />
-          </div>
+              <div className="px-6 pb-6 sm:px-0 sm:pb-0">
+                <DataTablePagination
+                  total={transactionsData?.pagination?.totalItems || 0}
+                  totalPages={transactionsData?.pagination?.totalPages || 0}
+                />
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 

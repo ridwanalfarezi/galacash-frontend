@@ -33,7 +33,11 @@ export default function DashboardPage() {
   })
 
   // Fetch dashboard data from API with date filter
-  const { data: dashboardData, isLoading } = useQuery(
+  const {
+    data: dashboardData,
+    isLoading,
+    isFetching,
+  } = useQuery(
     bendaharaQueries.dashboard({
       startDate: date?.from ? formatDateForAPI(date.from) : undefined,
       endDate: date?.to ? formatDateForAPI(date.to) : undefined,
@@ -96,7 +100,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat Cards - With skeleton loading */}
-      {isLoading ? (
+      {isLoading || isFetching ? (
         <div className="mb-8">
           <StatCardsGridSkeleton count={3} />
         </div>

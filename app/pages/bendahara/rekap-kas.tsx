@@ -1,6 +1,6 @@
 'use client'
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Check, ChevronRight, Download, Receipt, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
@@ -45,7 +45,6 @@ function BendaharaRekapKasContent() {
       page: pagination.page,
       limit: pagination.limit,
     }),
-    placeholderData: keepPreviousData,
   })
 
   function getStatusBadge(status: 'up-to-date' | 'has-arrears') {
