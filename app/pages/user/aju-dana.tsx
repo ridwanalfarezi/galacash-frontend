@@ -52,6 +52,7 @@ interface Application {
 
 interface ApplicationParams {
   status?: 'pending' | 'approved' | 'rejected'
+  [key: string]: unknown
 }
 
 function UserMyApplicationsContent() {

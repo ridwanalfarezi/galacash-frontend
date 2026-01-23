@@ -56,6 +56,7 @@ const statusColor: Record<Tagihan['status'], string> = {
 
 interface DetailRekapContextState {
   status: string | undefined
+  [key: string]: unknown
 }
 
 function BendaharaDetailRekapKasContent() {

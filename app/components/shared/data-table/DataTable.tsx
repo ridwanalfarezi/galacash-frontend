@@ -62,8 +62,8 @@ export function DataTableRow({
 
 interface DataTableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
   sortKey?: string
-  currentSort?: SortConfig<any>
-  onSort?: (sort: SortConfig<any>) => void
+  currentSort?: SortConfig<unknown>
+  onSort?: (sort: SortConfig<unknown>) => void
 }
 
 export function DataTableHead({

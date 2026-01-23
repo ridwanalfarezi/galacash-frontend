@@ -50,6 +50,7 @@ interface Application {
 
 interface BendaharaAjuDanaParams {
   status?: 'pending' | 'approved' | 'rejected'
+  [key: string]: unknown
 }
 
 function BendaharaAjuDanaContent() {

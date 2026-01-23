@@ -46,6 +46,7 @@ interface HistoryTransaction {
 
 interface KasKelasParams {
   type: 'all' | 'income' | 'expense'
+  [key: string]: unknown
 }
 
 function BendaharaKasKelasContent() {

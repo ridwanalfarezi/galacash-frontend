@@ -45,6 +45,7 @@ interface HistoryTransaction {
 
 interface UserKasKelasParams {
   type: 'all' | 'income' | 'expense'
+  [key: string]: unknown
 }
 
 function UserKasKelasContent() {

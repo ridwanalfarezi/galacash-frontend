@@ -22,29 +22,29 @@ export interface PaginationConfig {
 interface ExplorerState<TFilters> {
   search: string
   filters: TFilters
-  sort: SortConfig<any> | undefined
+  sort: SortConfig<unknown> | undefined
   pagination: PaginationConfig
 }
 
 interface ExplorerContextValue<TFilters> extends ExplorerState<TFilters> {
   setSearch: (search: string) => void
   setFilters: (filters: Partial<TFilters>) => void
-  setSort: (sort: SortConfig<any> | undefined) => void
+  setSort: (sort: SortConfig<unknown> | undefined) => void
   setPage: (page: number) => void
   setLimit: (limit: number) => void
   reset: () => void
 }
 
-const ExplorerContext = createContext<ExplorerContextValue<any> | undefined>(undefined)
+const ExplorerContext = createContext<ExplorerContextValue<unknown> | undefined>(undefined)
 
 interface ExplorerProviderProps<TFilters> {
   children: ReactNode
   defaultFilters?: TFilters
-  defaultSort?: SortConfig<any>
+  defaultSort?: SortConfig<unknown>
   defaultLimit?: number
 }
 
-export function ExplorerProvider<TFilters extends Record<string, any>>({
+export function ExplorerProvider<TFilters extends Record<string, unknown>>({
   children,
   defaultFilters = {} as TFilters,
   defaultSort,
@@ -52,7 +52,7 @@ export function ExplorerProvider<TFilters extends Record<string, any>>({
 }: ExplorerProviderProps<TFilters>) {
   const [search, setSearchState] = useState('')
   const [filters, setFiltersState] = useState<TFilters>(defaultFilters)
-  const [sort, setSortState] = useState<SortConfig<any> | undefined>(defaultSort)
+  const [sort, setSortState] = useState<SortConfig<unknown> | undefined>(defaultSort)
   const [pagination, setPaginationState] = useState<PaginationConfig>({
     page: 1,
     limit: defaultLimit,
@@ -76,7 +76,7 @@ export function ExplorerProvider<TFilters extends Record<string, any>>({
         setFiltersState((prev) => ({ ...prev, ...newFilters }))
         setPaginationState((prev) => ({ ...prev, page: 1 })) // Reset page on filter change
       },
-      setSort: (newSort: SortConfig<any> | undefined) => {
+      setSort: (newSort: SortConfig<unknown> | undefined) => {
         setSortState(newSort)
       },
       setPage: (newPage: number) => {
@@ -98,7 +98,7 @@ export function ExplorerProvider<TFilters extends Record<string, any>>({
 }
 
 // Custom hook to use the explorer context
-export function useExplorer<TFilters extends Record<string, any> = Record<string, any>>() {
+export function useExplorer<TFilters extends Record<string, unknown> = Record<string, unknown>>() {
   const context = useContext(ExplorerContext)
   if (!context) {
     throw new Error('useExplorer must be used within an ExplorerProvider')

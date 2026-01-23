@@ -47,6 +47,7 @@ interface TagihanKas {
 
 interface TagihanKasParams {
   status: 'belum_dibayar' | 'menunggu_konfirmasi' | 'sudah_dibayar' | undefined
+  [key: string]: unknown
 }
 
 function TagihanKasContent() {
