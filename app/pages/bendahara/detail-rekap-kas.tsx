@@ -5,6 +5,7 @@ import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, Receipt } fr
 import { useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 
+import { BillStatusBadge } from '~/components/data-display'
 import { Icons } from '~/components/icons'
 import { DetailTagihanKasBendahara } from '~/components/modals/DetailTagihanKasBendahara'
 import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/ExplorerContext'
@@ -46,12 +47,6 @@ interface Tagihan {
   totalAmount: number
   metodePembayaran?: 'bank' | 'ewallet' | 'cash'
   paymentProofUrl?: string | null
-}
-
-const statusColor: Record<Tagihan['status'], string> = {
-  'Belum Dibayar': 'bg-red-100 text-red-700',
-  'Menunggu Konfirmasi': 'bg-yellow-100 text-yellow-600',
-  'Sudah Dibayar': 'bg-green-100 text-green-700',
 }
 
 interface DetailRekapContextState {
@@ -280,11 +275,7 @@ function BendaharaDetailRekapKasContent() {
                   <tr key={tagihan.billId} className="border-b transition hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium">{tagihan.month}</td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`rounded-md px-2 py-1 text-xs font-semibold ${statusColor[tagihan.status]}`}
-                      >
-                        {tagihan.status}
-                      </span>
+                      <BillStatusBadge status={tagihan.status} size="sm" />
                     </td>
                     <td className="px-4 py-3">{tagihan.billId}</td>
                     <td className="px-4 py-3">{tagihan.dueDate}</td>
@@ -320,11 +311,7 @@ function BendaharaDetailRekapKasContent() {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500">{tagihan.dueDate}</span>
-                  <span
-                    className={`rounded-md px-2 py-1 text-xs font-semibold ${statusColor[tagihan.status]}`}
-                  >
-                    {tagihan.status}
-                  </span>
+                  <BillStatusBadge status={tagihan.status} size="sm" />
                 </div>
                 <div className="font-semibold">{tagihan.month}</div>
                 <div className="text-xs text-gray-700">
