@@ -107,7 +107,7 @@ export const bendaharaService = {
         totalPages?: number
       }
     }>('/bendahara/cash-bills', { params })
-    return response.data.data.data
+    return response.data.data
   },
 
   /**

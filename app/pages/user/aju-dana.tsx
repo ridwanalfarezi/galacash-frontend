@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, ChevronUp, Filter, HandCoins } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
@@ -63,15 +63,16 @@ function UserMyApplicationsContent() {
   const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false)
 
-  const { data: response, isLoading } = useQuery(
-    fundApplicationQueries.my({
+  const { data: response, isLoading } = useQuery({
+    ...fundApplicationQueries.my({
       page: pagination.page,
       limit: pagination.limit,
       status: filters.status,
       sortBy: (sort?.key as 'date' | 'amount' | 'status') ?? 'date',
       sortOrder: sort?.direction ?? 'desc',
-    })
-  )
+    }),
+    placeholderData: keepPreviousData,
+  })
 
   const applications: Application[] = useMemo(() => {
     const data = response?.data || []
@@ -290,15 +291,16 @@ function UserAllApplicationsContent() {
   const isMobile = useIsMobile()
   const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
 
-  const { data: response, isLoading } = useQuery(
-    fundApplicationQueries.list({
+  const { data: response, isLoading } = useQuery({
+    ...fundApplicationQueries.list({
       page: pagination.page,
       limit: pagination.limit,
       status: filters.status,
       sortBy: (sort?.key as 'date' | 'amount' | 'status') ?? 'date',
       sortOrder: sort?.direction ?? 'desc',
-    })
-  )
+    }),
+    placeholderData: keepPreviousData,
+  })
 
   const applications: Application[] = useMemo(() => {
     const data = response?.data || []

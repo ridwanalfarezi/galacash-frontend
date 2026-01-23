@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Check, ChevronDown, ChevronRight, ChevronUp, Receipt, Search, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
@@ -18,6 +18,7 @@ import {
 } from '~/components/shared/data-table/DataTable'
 import { DataTablePagination } from '~/components/shared/data-table/DataTablePagination'
 import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/ExplorerContext'
+import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
@@ -33,29 +34,31 @@ function BendaharaRekapKasContent() {
   const [isExporting, setIsExporting] = useState(false)
 
   // Fetch rekap kas data from API with search filter and pagination from context
-  const { data: rekapData, isLoading } = useQuery(
-    bendaharaQueries.rekapKas({
+  const { data: rekapData, isLoading } = useQuery({
+    ...bendaharaQueries.rekapKas({
       search: search || undefined,
       page: pagination.page,
       limit: pagination.limit,
-    })
-  )
+    }),
+    placeholderData: keepPreviousData,
+  })
 
+  // Color for paid/unpaid status
   // Color for paid/unpaid status
   function getStatusBadge(status: 'up-to-date' | 'has-arrears') {
     if (status === 'up-to-date') {
       return (
-        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+        <Badge variant="default" className="bg-green-50 text-green-700 hover:bg-green-50">
           <Check className="mr-1 h-3 w-3" />
           Lunas
-        </span>
+        </Badge>
       )
     }
     return (
-      <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+      <Badge variant="destructive" className="bg-red-50 text-red-700 hover:bg-red-50">
         <X className="mr-1 h-3 w-3" />
         Menunggak
-      </span>
+      </Badge>
     )
   }
 

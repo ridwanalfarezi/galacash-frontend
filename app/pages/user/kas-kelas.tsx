@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, ChevronUp, Filter, Wallet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
@@ -63,15 +63,16 @@ function UserKasKelasContent() {
   const sortOrder = (sort?.direction as 'asc' | 'desc') || 'desc'
 
   // Fetch transactions with filters and sorting
-  const { data: transactionsData, isLoading } = useQuery(
-    transactionQueries.list({
+  const { data: transactionsData, isLoading } = useQuery({
+    ...transactionQueries.list({
       page: pagination.page,
       limit: pagination.limit,
       type: filterType === 'all' ? undefined : filterType,
       sortBy,
       sortOrder,
-    })
-  )
+    }),
+    placeholderData: keepPreviousData,
+  })
 
   const isDetailModalOpen = detailModal !== null
 
@@ -385,7 +386,10 @@ function UserKasKelasContent() {
               )}
             </div>
 
-            <DataTablePagination totalPages={transactionsData?.pagination?.totalPages} />
+            <DataTablePagination
+              total={transactionsData?.pagination?.totalItems || 0}
+              totalPages={transactionsData?.pagination?.totalPages || 0}
+            />
           </CardContent>
         </Card>
       </div>

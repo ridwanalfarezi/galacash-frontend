@@ -1,10 +1,10 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
-import { CheckIcon, Clock, Filter, HandCoins, XIcon } from 'lucide-react'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { Filter, HandCoins } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { AjuDanaBendaharaSkeleton } from '~/components/data-display'
+import { AjuDanaBendaharaSkeleton, StatusBadge } from '~/components/data-display'
 import { DetailAjuDanaBendahara } from '~/components/modals/DetailAjuDanaBendahara'
 import {
   DataTable,
@@ -16,7 +16,6 @@ import {
 } from '~/components/shared/data-table/DataTable'
 import { DataTablePagination } from '~/components/shared/data-table/DataTablePagination'
 import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/ExplorerContext'
-import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import {
@@ -58,15 +57,16 @@ function BendaharaAjuDanaContent() {
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
-  const { data: response, isLoading } = useQuery(
-    fundApplicationQueries.list({
+  const { data: response, isLoading } = useQuery({
+    ...fundApplicationQueries.list({
       page: pagination.page,
       limit: pagination.limit,
       status: filters.status,
       sortBy: (sort?.key as 'date' | 'amount' | 'status') ?? 'date',
       sortOrder: sort?.direction ?? 'desc',
-    })
-  )
+    }),
+    placeholderData: keepPreviousData,
+  })
 
   const applications: Application[] = useMemo(() => {
     const data = response?.data || []
@@ -104,34 +104,6 @@ function BendaharaAjuDanaContent() {
         return 'Ditolak'
       default:
         return 'Filter Status'
-    }
-  }
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return (
-          <Badge className="bg-yellow-300 text-yellow-700 md:text-sm">
-            <Clock className="mr-1 size-3" />
-            Pending
-          </Badge>
-        )
-      case 'approved':
-        return (
-          <Badge className="bg-green-50 text-green-700 md:text-sm">
-            <CheckIcon className="mr-1 size-3" />
-            Diterima
-          </Badge>
-        )
-      case 'rejected':
-        return (
-          <Badge className="bg-red-50 text-red-700 md:text-sm">
-            <XIcon className="mr-1 size-3" />
-            Ditolak
-          </Badge>
-        )
-      default:
-        return <Badge variant="secondary">{status}</Badge>
     }
   }
 
@@ -200,7 +172,9 @@ function BendaharaAjuDanaContent() {
                     <DataTableCell>{app.date}</DataTableCell>
                     <DataTableCell>{app.purpose}</DataTableCell>
                     <DataTableCell>🎯 {app.category}</DataTableCell>
-                    <DataTableCell>{getStatusBadge(app.status)}</DataTableCell>
+                    <DataTableCell>
+                      <StatusBadge status={app.status} />
+                    </DataTableCell>
                     <DataTableCell>{formatCurrency(app.amount)}</DataTableCell>
                     <DataTableCell>{app.applicant}</DataTableCell>
                   </DataTableRow>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, Receipt } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
@@ -8,6 +8,7 @@ import { Link, useLocation, useParams } from 'react-router'
 import { BillStatusBadge } from '~/components/data-display'
 import { Icons } from '~/components/icons'
 import { DetailTagihanKasBendahara } from '~/components/modals/DetailTagihanKasBendahara'
+import { DataTablePagination } from '~/components/shared/data-table/DataTablePagination'
 import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/ExplorerContext'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -25,6 +26,7 @@ import type { components } from '~/types/api'
 type CashBill = components['schemas']['CashBill']
 
 type ExtendedCashBill = CashBill & {
+  userId?: string
   paymentMethod?: string
   paymentProofUrl?: string
 }
@@ -80,14 +82,26 @@ function BendaharaDetailRekapKasContent() {
         : undefined
     ),
     enabled: !!userId,
+    placeholderData: keepPreviousData,
   })
+
+  // Data extraction
+  const result = useMemo(() => {
+    const data = (billsData as any)?.data || []
+    const totalPages = (billsData as any)?.totalPages || 1
+    return { data, totalPages }
+  }, [billsData])
+
+  const { data: billsDataArray, totalPages } = result
 
   // Map API data to local Tagihan format
   const dataTagihan: Tagihan[] = useMemo(() => {
     // API returns array directly or fallback to empty array
-    const bills = (Array.isArray(billsData) ? billsData : []) as ExtendedCashBill[]
+    const bills = (Array.isArray(billsDataArray) ? billsDataArray : []) as ExtendedCashBill[]
+    // Temporary workaround: Filter bills client-side if API returns all bills
+    const filteredBills = userId ? bills.filter((bill) => bill.userId === userId) : bills
 
-    return bills.map((bill) => {
+    return filteredBills.map((bill) => {
       const monthDate = bill.month ? new Date(bill.month) : new Date()
       const monthName = monthDate.toLocaleDateString('id-ID', { month: 'long' })
       const dueDate = bill.dueDate
@@ -120,7 +134,7 @@ function BendaharaDetailRekapKasContent() {
         paymentProofUrl: bill.paymentProofUrl,
       }
     })
-  }, [billsData, nama])
+  }, [billsDataArray, nama, userId])
 
   const handleViewDetail = (tagihan: Tagihan) => {
     setSelectedTagihan(tagihan)
@@ -339,6 +353,8 @@ function BendaharaDetailRekapKasContent() {
           tagihan={selectedTagihan}
         />
       )}
+
+      <DataTablePagination totalPages={totalPages} />
     </>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, ChevronUp, Filter, Receipt } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
@@ -63,19 +63,20 @@ function TagihanKasContent() {
   const sortOrder = (sort?.direction as 'asc' | 'desc') || 'desc'
 
   // Fetch cash bills with filters
-  const { data: billsData, isLoading } = useQuery(
-    cashBillQueries.my({
+  const { data: billsResponse, isLoading } = useQuery({
+    ...cashBillQueries.my({
       status: statusFilter,
       sortBy,
       sortOrder,
       page: pagination.page,
       limit: pagination.limit,
-    })
-  )
+    }),
+    placeholderData: keepPreviousData,
+  })
 
   const tagihanKasList: TagihanKas[] = useMemo(() => {
     // Adapter for new response structure
-    const bills = billsData?.data
+    const bills = billsResponse?.data
     if (!Array.isArray(bills)) return []
 
     return bills.map(
@@ -120,7 +121,7 @@ function TagihanKasContent() {
         }
       }
     )
-  }, [billsData])
+  }, [billsResponse])
 
   const handleViewDetail = (tagihan: TagihanKas) => {
     setSelectedTagihan(tagihan)
@@ -320,8 +321,8 @@ function TagihanKasContent() {
             </div>
 
             <DataTablePagination
-              total={billsData?.total || 0}
-              totalPages={billsData?.totalPages || 1}
+              total={billsResponse?.total || 0}
+              totalPages={billsResponse?.totalPages || 1}
             />
           </CardContent>
         </Card>

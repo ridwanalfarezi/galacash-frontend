@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, ChevronUp, Clock, Filter } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
@@ -71,47 +71,37 @@ function BendaharaKasKelasContent() {
     data: transactionsData,
     isLoading,
     isFetching,
-  } = useQuery(
-    transactionQueries.list({
+  } = useQuery({
+    ...transactionQueries.list({
       page: pagination.page,
       limit: pagination.limit,
       type: filterType === 'all' ? undefined : filterType,
       sortBy,
       sortOrder,
-    })
-  )
+    }),
+    placeholderData: keepPreviousData,
+  })
 
   // Map API transactions to local type
   const transactions: HistoryTransaction[] = useMemo(() => {
-    if (!transactionsData?.transactions) return []
-    const mapped = transactionsData.transactions.map((t) => ({
+    const data = (transactionsData as any)?.transactions || []
+    return data.map((t: any) => ({
       id: t.id || '',
       date: t.date || '',
       purpose: t.description || '',
       type: (t.type || 'income') as 'income' | 'expense',
       amount: t.amount || 0,
     }))
-    // Sorting handled by API usually, but if client-side fallback needed:
-    // ... logic preserved if API provides sorted data.
-    // The previous code had client-side sorting backup. Let's trust the API or re-implement if needed.
-    // Given performance goals, server-side sort is preferred.
-    return mapped
   }, [transactionsData])
 
   // Chart logic preserved
   const incomeData = useMemo(() => {
-    const txs = transactions.map((t) => ({
-      description: t.purpose || 'Lainnya',
-      type: t.type,
-      amount: t.amount,
-    }))
-
-    const incomeTransactions = txs.filter((t) => t.type === 'income')
+    const incomeTransactions = transactions.filter((t) => t.type === 'income')
     if (incomeTransactions.length === 0) return []
 
     const grouped = incomeTransactions.reduce(
       (acc, t) => {
-        const key = t.description || 'Lainnya'
+        const key = t.purpose || 'Lainnya'
         acc[key] = (acc[key] || 0) + t.amount
         return acc
       },
@@ -125,18 +115,12 @@ function BendaharaKasKelasContent() {
   }, [transactions])
 
   const expenseData = useMemo(() => {
-    const txs = transactions.map((t) => ({
-      description: t.purpose || 'Lainnya',
-      type: t.type,
-      amount: t.amount,
-    }))
-
-    const expenseTransactions = txs.filter((t) => t.type === 'expense')
+    const expenseTransactions = transactions.filter((t) => t.type === 'expense')
     if (expenseTransactions.length === 0) return []
 
     const grouped = expenseTransactions.reduce(
       (acc, t) => {
-        const key = t.description || 'Lainnya'
+        const key = t.purpose || 'Lainnya'
         acc[key] = (acc[key] || 0) + t.amount
         return acc
       },
@@ -426,7 +410,10 @@ function BendaharaKasKelasContent() {
               )}
             </div>
 
-            <DataTablePagination totalPages={transactionsData?.pagination?.totalPages} />
+            <DataTablePagination
+              total={transactionsData?.pagination?.totalItems || 0}
+              totalPages={transactionsData?.pagination?.totalPages || 0}
+            />
           </CardContent>
         </Card>
       </div>
