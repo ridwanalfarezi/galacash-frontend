@@ -77,7 +77,7 @@ export const getChartColor = (type: 'income' | 'expense', index: number): string
 export const FILTER_STATUS_OPTIONS = [
   { id: 'approved', label: 'Diterima', color: 'bg-green-50 text-green-700' },
   { id: 'rejected', label: 'Ditolak', color: 'bg-red-50 text-red-700' },
-  { id: 'pending', label: 'Pending', color: 'bg-yellow-300 text-yellow-700' },
+  { id: 'pending', label: 'Menunggu', color: 'bg-yellow-300 text-yellow-700' },
 ] as const
 
 export const TRANSACTION_TYPE_OPTIONS = [

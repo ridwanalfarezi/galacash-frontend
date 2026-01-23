@@ -33,7 +33,7 @@ interface FilterComponentProps {
 const statusOptions = [
   { id: 'approved', label: 'Diterima', color: 'bg-green-50 text-green-700' },
   { id: 'rejected', label: 'Ditolak', color: 'bg-red-50 text-red-700' },
-  { id: 'pending', label: 'Pending', color: 'bg-yellow-300 text-yellow-700' },
+  { id: 'pending', label: 'Menunggu', color: 'bg-yellow-300 text-yellow-700' },
 ]
 
 type ExpandedSections = {

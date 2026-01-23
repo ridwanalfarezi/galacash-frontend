@@ -157,9 +157,9 @@ function ApplicationListContent({
                     }
                     filterOptions={[
                       { label: 'Semua Status', value: '' },
-                      { label: 'Pending', value: 'pending' },
-                      { label: 'Approved', value: 'approved' },
-                      { label: 'Rejected', value: 'rejected' },
+                      { label: 'Menunggu', value: 'pending' },
+                      { label: 'Diterima', value: 'approved' },
+                      { label: 'Ditolak', value: 'rejected' },
                     ]}
                     filterOnly
                   >
