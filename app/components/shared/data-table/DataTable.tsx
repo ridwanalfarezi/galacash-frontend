@@ -284,7 +284,7 @@ export function DataMobileFilters({
   placeholder?: string
 }) {
   return (
-    <div className="relative w-full lg:hidden">
+    <div className="relative w-full">
       <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-gray-400" />
       <Input
         placeholder={placeholder}
