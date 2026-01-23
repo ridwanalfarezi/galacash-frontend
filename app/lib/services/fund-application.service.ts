@@ -42,7 +42,7 @@ export const fundApplicationService = {
     }>('/fund-applications', { params: filters })
 
     // API returns nested structure: { success, data: { data: [...], ...pagination } }
-    return response.data.data.data
+    return response.data.data
   },
 
   /**
@@ -60,7 +60,7 @@ export const fundApplicationService = {
       }
     }>('/fund-applications/my', { params: filters })
 
-    return response.data.data.data
+    return response.data.data
   },
 
   /**

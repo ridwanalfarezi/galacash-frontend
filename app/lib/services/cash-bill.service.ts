@@ -40,8 +40,7 @@ export const cashBillService = {
         totalPages?: number
       }
     }>('/cash-bills/my', { params: filters })
-    // Return just the bills array for simpler consumption
-    return response.data.data.data
+    return response.data.data
   },
 
   /**

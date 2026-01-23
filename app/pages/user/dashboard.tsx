@@ -76,7 +76,7 @@ export default function DashboardPage() {
   }
 
   // Handle flat data response for bills
-  const bills = (Array.isArray(billsData) ? billsData : []) as CashBill[]
+  const bills = (billsData?.data || []) as CashBill[]
   const hasBills = bills.length > 0
   const totalBills = hasBills
     ? bills.reduce(
@@ -288,8 +288,8 @@ export default function DashboardPage() {
                     </div>
                   ))}
                 </div>
-              ) : Array.isArray(fundApplicationsData) && fundApplicationsData.length > 0 ? (
-                (fundApplicationsData as FundApplication[])
+              ) : fundApplicationsData?.data && fundApplicationsData.data.length > 0 ? (
+                (fundApplicationsData.data as FundApplication[])
                   .filter((app: FundApplication) => app.status === 'pending')
                   .map((application: FundApplication) => (
                     <div

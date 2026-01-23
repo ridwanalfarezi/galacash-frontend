@@ -16,7 +16,7 @@ export async function clientLoader() {
 
   // Prefetch with error handling
   try {
-    await queryClient.prefetchQuery(bendaharaQueries.students({ limit: 50 }))
+    await queryClient.prefetchQuery(bendaharaQueries.rekapKas({ page: 1, limit: 50 }))
   } catch (error) {
     // Silently catch prefetch errors - the page will refetch on mount
     console.debug('Rekap kas prefetch failed:', error)

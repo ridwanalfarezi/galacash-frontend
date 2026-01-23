@@ -159,6 +159,10 @@ export const bendaharaService = {
           startDate: string
           endDate: string
         }
+        total?: number
+        page?: number
+        limit?: number
+        totalPages?: number
       }
     }>('/bendahara/rekap-kas', { params })
     return response.data.data

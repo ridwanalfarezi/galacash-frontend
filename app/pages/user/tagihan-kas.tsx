@@ -4,9 +4,21 @@ import { useQuery } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, ChevronUp, Filter, Receipt } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+type CashBill = components['schemas']['CashBill']
+
 import { BillStatusBadge, EmptyState, TagihanKasSkeleton } from '~/components/data-display'
 import { Icons } from '~/components/icons'
 import { DetailTagihanKas } from '~/components/modals/DetailTagihanKas'
+import {
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHead,
+  DataTableHeader,
+  DataTableRow,
+} from '~/components/shared/data-table/DataTable'
+import { DataTablePagination } from '~/components/shared/data-table/DataTablePagination'
+import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/ExplorerContext'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import {
@@ -19,6 +31,7 @@ import { useIsMobile } from '~/hooks/use-mobile'
 import { MONTH_NAMES, STATUS_LABELS } from '~/lib/constants'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { formatCurrency } from '~/lib/utils'
+import type { components } from '~/types/api'
 
 interface TagihanKas {
   id: string
@@ -32,76 +45,81 @@ interface TagihanKas {
   biayaAdmin: number
 }
 
-export default function TagihanKasPage() {
-  const isMobile = useIsMobile()
+interface TagihanKasParams {
+  status: 'belum_dibayar' | 'menunggu_konfirmasi' | 'sudah_dibayar' | undefined
+}
 
-  // Filter and sort state
-  const [statusFilter, setStatusFilter] = useState<string | undefined>()
-  const [sortBy, setSortBy] = useState<'dueDate' | 'month' | 'status'>('dueDate')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+function TagihanKasContent() {
+  const { filters, setFilters, sort, setSort, pagination } = useExplorer<TagihanKasParams>()
+  const isMobile = useIsMobile()
+  const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
+  const [selectedTagihan, setSelectedTagihan] = useState<TagihanKas | null>(null)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+
+  // Map state
+  const statusFilter = filters.status
+  const sortBy = (sort?.key as 'dueDate' | 'month' | 'status') || 'dueDate'
+  const sortOrder = (sort?.direction as 'asc' | 'desc') || 'desc'
 
   // Fetch cash bills with filters
   const { data: billsData, isLoading } = useQuery(
     cashBillQueries.my({
-      status: statusFilter as 'belum_dibayar' | 'menunggu_konfirmasi' | 'sudah_dibayar' | undefined,
+      status: statusFilter,
       sortBy,
       sortOrder,
+      page: pagination.page,
+      limit: pagination.limit,
     })
   )
 
   const tagihanKasList: TagihanKas[] = useMemo(() => {
-    if (!Array.isArray(billsData)) return []
-    return billsData.map((bill: Record<string, unknown>) => {
-      const rawMonth = bill.month as string | number | undefined
-      const dueDateValue = (bill.dueDate as string | undefined) || ''
-      const user = bill.user as Record<string, unknown> | undefined
+    // Adapter for new response structure
+    const bills = billsData?.data
+    if (!Array.isArray(bills)) return []
 
-      let displayMonth = ''
-      if (typeof rawMonth === 'number') {
-        // Handle 1-12 integer
-        displayMonth = MONTH_NAMES[(rawMonth - 1) % 12] || String(rawMonth)
-        // Add year if available to make it "Januari 2026"
-        if (bill.year) displayMonth += ` ${bill.year}`
-      } else {
-        // Fallback for string
-        const monthValue = String(rawMonth || '')
-        const date = new Date(monthValue)
-        // If valid date, format it. If "Januari", keep it.
-        displayMonth = !isNaN(date.getTime())
-          ? date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
-          : monthValue
-        // Append year if not present in string and year field exists
-        if (bill.year && !displayMonth.includes(String(bill.year))) {
-          displayMonth += ` ${bill.year}`
+    return bills.map(
+      (bill: CashBill & { user?: { name: string }; biayaAdmin?: number; kasKelas?: number }) => {
+        const rawMonth = bill.month
+        const dueDateValue = bill.dueDate || ''
+        const user = bill.user
+
+        let displayMonth = ''
+        if (typeof rawMonth === 'number') {
+          displayMonth = MONTH_NAMES[(rawMonth - 1) % 12] || String(rawMonth)
+          if (bill.year) displayMonth += ` ${bill.year}`
+        } else {
+          const monthValue = String(rawMonth || '')
+          const date = new Date(monthValue)
+          displayMonth = !isNaN(date.getTime())
+            ? date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+            : monthValue
+          if (bill.year && !displayMonth.includes(String(bill.year))) {
+            displayMonth += ` ${bill.year}`
+          }
+        }
+
+        return {
+          id: String(bill.id || ''),
+          month: displayMonth,
+          status: (bill.status === 'sudah_dibayar'
+            ? 'Sudah Dibayar'
+            : bill.status === 'menunggu_konfirmasi'
+              ? 'Menunggu Konfirmasi'
+              : 'Belum Dibayar') as 'Belum Dibayar' | 'Menunggu Konfirmasi' | 'Sudah Dibayar',
+          billId: String(bill.billId || ''),
+          dueDate: new Date(dueDateValue).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }),
+          totalAmount: Number(bill.totalAmount || 0),
+          name: String(user?.name || ''),
+          kasKelas: Number(bill.kasKelas || 0),
+          biayaAdmin: Number(bill.biayaAdmin || 0),
         }
       }
-
-      return {
-        id: String(bill.id || ''),
-        month: displayMonth,
-        status: (bill.status === 'sudah_dibayar'
-          ? 'Sudah Dibayar'
-          : bill.status === 'menunggu_konfirmasi'
-            ? 'Menunggu Konfirmasi'
-            : 'Belum Dibayar') as 'Belum Dibayar' | 'Menunggu Konfirmasi' | 'Sudah Dibayar',
-        billId: String(bill.billId || ''),
-        dueDate: new Date(dueDateValue).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        }),
-        totalAmount: Number(bill.totalAmount || 0),
-        name: String(user?.name || ''),
-        kasKelas: Number(bill.kasKelas || 0),
-        biayaAdmin: Number(bill.biayaAdmin || 0),
-      }
-    })
+    )
   }, [billsData])
-
-  // Toggle state for buttons - initialize based on isMobile
-  const [isButtonsVisible, setIsButtonsVisible] = useState(!isMobile)
-  const [selectedTagihan, setSelectedTagihan] = useState<TagihanKas | null>(null)
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
   const handleViewDetail = (tagihan: TagihanKas) => {
     setSelectedTagihan(tagihan)
@@ -117,7 +135,7 @@ export default function TagihanKasPage() {
     return STATUS_LABELS[status as keyof typeof STATUS_LABELS]?.labelId || status
   }
 
-  const getSortLabel = (sortBy: string, sortOrder: string) => {
+  const getSortLabel = () => {
     if (sortBy === 'dueDate') {
       return sortOrder === 'desc' ? 'Tenggat Waktu Terbaru' : 'Tenggat Waktu Terlama'
     }
@@ -127,12 +145,12 @@ export default function TagihanKasPage() {
     return sortOrder === 'desc' ? 'Nominal Tertinggi' : 'Nominal Terendah'
   }
 
-  if (isLoading) {
+  if (isLoading && pagination.page === 1) {
     return <TagihanKasSkeleton />
   }
 
   return (
-    <div className="p-6">
+    <>
       <div className="mx-auto max-w-360">
         <Card className="rounded-4xl border-0">
           <CardHeader className="flex flex-col items-center justify-between space-y-0 md:flex-row">
@@ -174,16 +192,16 @@ export default function TagihanKasPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    <DropdownMenuItem onClick={() => setStatusFilter(undefined)}>
+                    <DropdownMenuItem onClick={() => setFilters({ status: undefined })}>
                       Semua Status
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilter('belum_dibayar')}>
+                    <DropdownMenuItem onClick={() => setFilters({ status: 'belum_dibayar' })}>
                       Belum Dibayar
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilter('menunggu_konfirmasi')}>
+                    <DropdownMenuItem onClick={() => setFilters({ status: 'menunggu_konfirmasi' })}>
                       Menunggu Konfirmasi
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilter('sudah_dibayar')}>
+                    <DropdownMenuItem onClick={() => setFilters({ status: 'sudah_dibayar' })}>
                       Sudah Dibayar
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -192,24 +210,16 @@ export default function TagihanKasPage() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="secondary" className="w-full sm:w-auto">
                       <Icons.Sort className="h-5 w-5" />
-                      {getSortLabel(sortBy, sortOrder)}
+                      {getSortLabel()}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
-                      onClick={() => {
-                        setSortBy('dueDate')
-                        setSortOrder('desc')
-                      }}
+                      onClick={() => setSort({ key: 'dueDate', direction: 'desc' })}
                     >
                       Tenggat Waktu Terbaru
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSortBy('dueDate')
-                        setSortOrder('asc')
-                      }}
-                    >
+                    <DropdownMenuItem onClick={() => setSort({ key: 'dueDate', direction: 'asc' })}>
                       Tenggat Waktu Terlama
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -220,41 +230,43 @@ export default function TagihanKasPage() {
           <CardContent>
             {/* Desktop Table View */}
             <div className="hidden overflow-x-auto sm:block">
-              <table className="w-full max-w-360">
-                <thead>
-                  <tr className="border-b border-gray-300">
-                    <th className="px-4 py-3 text-left font-medium">Bulan</th>
-                    <th className="px-4 py-3 text-left font-medium">Status</th>
-                    <th className="px-4 py-3 text-left font-medium">ID Tagihan</th>
-                    <th className="px-4 py-3 text-left font-medium">Tenggat Waktu</th>
-                    <th className="px-4 py-3 text-left font-medium">Total Tagihan</th>
-                    <th className="w-12" />
-                  </tr>
-                </thead>
-                <tbody>
+              <DataTable>
+                <DataTableHeader>
+                  <DataTableRow>
+                    <DataTableHead>Bulan</DataTableHead>
+                    <DataTableHead>Status</DataTableHead>
+                    <DataTableHead>ID Tagihan</DataTableHead>
+                    <DataTableHead>Tenggat Waktu</DataTableHead>
+                    <DataTableHead>Total Tagihan</DataTableHead>
+                    <DataTableHead className="w-12" />
+                  </DataTableRow>
+                </DataTableHeader>
+                <DataTableBody>
                   {tagihanKasList.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="py-12">
+                    <DataTableRow>
+                      <DataTableCell colSpan={6} className="py-12">
                         <EmptyState
                           icon={Receipt}
                           title="Tidak ada tagihan"
                           description="Belum ada data yang sesuai dengan filter yang dipilih"
                         />
-                      </td>
-                    </tr>
+                      </DataTableCell>
+                    </DataTableRow>
                   ) : (
                     tagihanKasList.map((tagihan) => (
-                      <tr key={tagihan.id} className="border-b border-gray-300 hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm font-medium">{tagihan.month}</td>
-                        <td className="px-4 py-3">
+                      <DataTableRow key={tagihan.id}>
+                        <DataTableCell className="text-sm font-medium">
+                          {tagihan.month}
+                        </DataTableCell>
+                        <DataTableCell>
                           <BillStatusBadge status={tagihan.status} />
-                        </td>
-                        <td className="px-4 py-3 text-sm">{tagihan.billId}</td>
-                        <td className="px-4 py-3 text-sm">{tagihan.dueDate}</td>
-                        <td className="px-4 py-3 text-sm font-bold text-blue-500">
+                        </DataTableCell>
+                        <DataTableCell className="text-sm">{tagihan.billId}</DataTableCell>
+                        <DataTableCell className="text-sm">{tagihan.dueDate}</DataTableCell>
+                        <DataTableCell className="text-sm font-bold text-blue-500">
                           {formatCurrency(tagihan.totalAmount)}
-                        </td>
-                        <td className="px-4 py-3">
+                        </DataTableCell>
+                        <DataTableCell>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -262,12 +274,12 @@ export default function TagihanKasPage() {
                           >
                             <ChevronRight className="h-4 w-4" />
                           </Button>
-                        </td>
-                      </tr>
+                        </DataTableCell>
+                      </DataTableRow>
                     ))
                   )}
-                </tbody>
-              </table>
+                </DataTableBody>
+              </DataTable>
             </div>
 
             {/* Mobile Card View */}
@@ -305,11 +317,15 @@ export default function TagihanKasPage() {
                 ))
               )}
             </div>
+
+            <DataTablePagination
+              total={billsData?.total || 0}
+              totalPages={billsData?.totalPages || 1}
+            />
           </CardContent>
         </Card>
       </div>
 
-      {/* Detail Modal */}
       {selectedTagihan && (
         <DetailTagihanKas
           isOpen={isDetailModalOpen}
@@ -317,6 +333,19 @@ export default function TagihanKasPage() {
           tagihan={selectedTagihan}
         />
       )}
+    </>
+  )
+}
+
+export default function TagihanKasPage() {
+  return (
+    <div className="p-6">
+      <ExplorerProvider<TagihanKasParams>
+        defaultLimit={50}
+        defaultSort={{ key: 'dueDate', direction: 'desc' }}
+      >
+        <TagihanKasContent />
+      </ExplorerProvider>
     </div>
   )
 }

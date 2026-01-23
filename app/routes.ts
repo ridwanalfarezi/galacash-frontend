@@ -30,7 +30,7 @@ export default [
       route('kas-kelas', './routes/bendahara/kas-kelas.tsx'),
       route('aju-dana', './routes/bendahara/aju-dana.tsx'),
       route('rekap-kas', './routes/bendahara/rekap-kas.tsx'),
-      route('rekap-kas/:nim', './routes/bendahara/detail-rekap-kas.tsx'),
+      route('rekap-kas/:userId', './routes/bendahara/detail-rekap-kas.tsx'),
       route('settings', './routes/bendahara/settings.tsx'),
     ]),
   ]),
