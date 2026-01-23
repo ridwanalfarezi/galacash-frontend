@@ -6,7 +6,11 @@ import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 import { FinancialPieChart } from '~/components/chart/financial-pie-chart'
-import { TransactionTypeBadge } from '~/components/data-display'
+import {
+  MobileCardListSkeleton,
+  TableBodySkeleton,
+  TransactionTypeBadge,
+} from '~/components/data-display'
 import { DetailTransaksi } from '~/components/modals/DetailTransaksi'
 import {
   DataCard,
@@ -23,7 +27,6 @@ import { DataTablePagination } from '~/components/shared/data-table/DataTablePag
 import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/ExplorerContext'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { getChartColor } from '~/lib/constants'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { transactionService } from '~/lib/services/transaction.service'
 import { cn, formatCurrency, formatDate } from '~/lib/utils'
@@ -48,7 +51,7 @@ function UserKasKelasContent() {
   const [isExporting, setIsExporting] = useState(false)
 
   // Fetch transactions
-  const { data: transactionsData } = useQuery({
+  const { data: transactionsData, isLoading } = useQuery({
     ...transactionQueries.list({
       page: pagination.page,
       limit: pagination.limit,
@@ -72,27 +75,9 @@ function UserKasKelasContent() {
     }))
   }, [transactionsData])
 
-  // Chart data
-  const { data: incomeChartData } = useQuery(transactionQueries.chartData({ type: 'income' }))
-  const { data: expenseChartData } = useQuery(transactionQueries.chartData({ type: 'expense' }))
-
-  const { incomeData, expenseData } = useMemo(() => {
-    const formatChartData = (
-      data: { date: string; amount: number }[] | undefined,
-      type: 'income' | 'expense'
-    ) => {
-      if (!data) return []
-      return data.map((item, i) => ({
-        name: formatDate(item.date),
-        value: item.amount,
-        fill: getChartColor(type, i),
-      }))
-    }
-    return {
-      incomeData: formatChartData(incomeChartData, 'income'),
-      expenseData: formatChartData(expenseChartData, 'expense'),
-    }
-  }, [incomeChartData, expenseChartData])
+  // Chart data breakdown
+  const { data: incomeData } = useQuery(transactionQueries.breakdown({ type: 'income' }))
+  const { data: expenseData } = useQuery(transactionQueries.breakdown({ type: 'expense' }))
 
   const handleExport = async () => {
     try {
@@ -125,8 +110,12 @@ function UserKasKelasContent() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-            <FinancialPieChart data={incomeData} title="Sumber Pemasukan" type="income" />
-            <FinancialPieChart data={expenseData} title="Alokasi Pengeluaran" type="expense" />
+            <FinancialPieChart data={incomeData || []} title="Sumber Pemasukan" type="income" />
+            <FinancialPieChart
+              data={expenseData || []}
+              title="Alokasi Pengeluaran"
+              type="expense"
+            />
           </div>
         </CardContent>
       </Card>
@@ -145,7 +134,7 @@ function UserKasKelasContent() {
             className="w-full px-4 shadow-sm md:w-auto"
           >
             <Download className="mr-2 size-4" />
-            Export Excel
+            Export Data
           </Button>
         </CardHeader>
         <CardContent className="space-y-4 p-0 sm:p-6">
@@ -190,7 +179,9 @@ function UserKasKelasContent() {
                 </DataTableRow>
               </DataTableHeader>
               <DataTableBody>
-                {historyTransaction.length > 0 ? (
+                {isLoading ? (
+                  <TableBodySkeleton columns={5} />
+                ) : historyTransaction.length > 0 ? (
                   historyTransaction.map((t) => (
                     <DataTableRow
                       key={t.id}
@@ -237,7 +228,9 @@ function UserKasKelasContent() {
 
           {/* Mobile Cards */}
           <DataCardContainer className="px-6 pb-6 sm:px-0 sm:pb-0">
-            {historyTransaction.length > 0 ? (
+            {isLoading ? (
+              <MobileCardListSkeleton count={5} />
+            ) : historyTransaction.length > 0 ? (
               historyTransaction.map((t) => (
                 <DataCard key={t.id} onClick={() => setDetailModal(t)}>
                   <div className="flex items-start justify-between">
