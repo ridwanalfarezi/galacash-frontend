@@ -154,12 +154,11 @@ export const bendaharaService = {
   /**
    * Export financial recap
    */
-  async exportRekapKas(params?: { startDate?: string; endDate?: string; format: 'xlsx' | 'pdf' }) {
-    const response = await apiClient.post(
-      '/bendahara/rekap-kas/export',
-      { ...params },
-      { responseType: 'blob' }
-    )
+  async exportRekapKas(params?: BendaharaFilters) {
+    const response = await apiClient.get('/bendahara/rekap-kas/export', {
+      params,
+      responseType: 'blob',
+    })
     return response.data
   },
 }

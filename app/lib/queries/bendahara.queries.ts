@@ -174,10 +174,10 @@ export const useCreateTransaction = () => {
     mutationFn: (data: CreateTransactionData) => bendaharaService.createTransaction(data),
     onSuccess: () => {
       // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: ['transactions'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all })
       toast.success('Transaksi berhasil dibuat')
     },
     onError: (error: unknown) => {

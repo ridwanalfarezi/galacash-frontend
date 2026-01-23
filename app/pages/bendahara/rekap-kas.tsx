@@ -24,7 +24,7 @@ import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
-import { transactionService } from '~/lib/services/transaction.service'
+import { bendaharaService } from '~/lib/services/bendahara.service'
 import { formatCurrency } from '~/lib/utils'
 
 interface RekapKasParams {
@@ -73,7 +73,26 @@ function BendaharaRekapKasContent() {
   const handleExport = async () => {
     try {
       setIsExporting(true)
-      const blob = await transactionService.exportTransactions({})
+      const queryParams = new URLSearchParams()
+      if (search) queryParams.append('search', search)
+      if (filters.status) queryParams.append('paymentStatus', filters.status)
+      // Add date filters if ExplorerContext supports them (it seems to support search/status mainly, let's just pass what we have)
+      // Note: The UI doesn't specifically show date pickers in the code snippet provided, but if they exist in ExplorerContext they should be passed.
+      // Based on previous logs, date filtering might be handled via explorer.
+
+      // We'll trust the backend to handle defaults if not provided.
+
+      // Directly call the new endpoint
+      // We need to import 'api' or similar. 'transactionService' is used.
+      // Let's use the bendaharaService if available, or fetch directly.
+      // Let's assume we can use `bendaharaService.exportRekapKas` if I add it.
+      // For now, I'll direct call axios or use `transactionService` as a placeholder to be replaced with `bendaharaService`.
+
+      const blob = await bendaharaService.exportRekapKas({
+        search: search || undefined,
+        paymentStatus: filters.status,
+      })
+
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url

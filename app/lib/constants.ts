@@ -62,7 +62,9 @@ export const TRANSACTION_CATEGORIES = {
   kas_kelas: { label: 'Kas Kelas', type: 'income' },
   donation: { label: 'Donasi', type: 'income' },
   fundraising: { label: 'Fundraising', type: 'income' },
+  fine: { label: 'Denda', type: 'income' },
   event: { label: 'Acara', type: 'both' }, // Events can store revenue or cost
+
   // Expense (Aligned with Fund Categories + Extras)
   education: { label: 'Pendidikan', type: 'expense' },
   health: { label: 'Kesehatan', type: 'expense' },
@@ -71,6 +73,9 @@ export const TRANSACTION_CATEGORIES = {
   office_supplies: { label: 'Alat Tulis Kantor', type: 'expense' },
   consumption: { label: 'Konsumsi', type: 'expense' },
   maintenance: { label: 'Pemeliharaan', type: 'expense' },
+  printing: { label: 'Cetak & Fotokopi', type: 'expense' },
+  transport: { label: 'Transportasi', type: 'expense' },
+  social: { label: 'Sosial & Sumbangan', type: 'expense' },
   other: { label: 'Lainnya', type: 'both' },
 } as const
 

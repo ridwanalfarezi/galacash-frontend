@@ -74,7 +74,7 @@ export function FinancialPieChart({ data, title, className }: FinancialPieChartP
             <tspan
               x="50%"
               dy="-1em"
-              className={`text-sm ${title === 'Pemasukan' ? 'fill-green-700' : 'fill-red-700'}`}
+              className={`text-sm ${title.match('Pemasukan') ? 'fill-green-700' : 'fill-red-700'}`}
             >
               {title}
             </tspan>
