@@ -32,6 +32,8 @@ type ExtendedCashBill = CashBill & {
   userId?: string
   paymentMethod?: string
   paymentProofUrl?: string
+  kasKelas?: number | string
+  biayaAdmin?: number | string
 }
 
 interface Tagihan {
@@ -108,8 +110,8 @@ function BendaharaDetailRekapKasContent() {
         billId: bill.billId || '',
         name: nama,
         dueDate: dueDateFormatted,
-        kasKelas: bill.totalAmount ? Math.round(bill.totalAmount * 0.9375) : 15000,
-        biayaAdmin: bill.totalAmount ? Math.round(bill.totalAmount * 0.0625) : 1000,
+        kasKelas: Number(bill.kasKelas) || 15000,
+        biayaAdmin: Number(bill.biayaAdmin) || 0,
         totalAmount: bill.totalAmount || 16000,
         metodePembayaran: bill.paymentMethod as 'bank' | 'ewallet' | 'cash',
         paymentProofUrl: bill.paymentProofUrl,

@@ -70,6 +70,17 @@ export const transactionService = {
   },
 
   /**
+   * Get transaction breakdown by category
+   */
+  async getBreakdown(params: { type: 'income' | 'expense'; startDate?: string; endDate?: string }) {
+    const response = await apiClient.get<{
+      success: boolean
+      data: Array<{ name: string; value: number; fill: string }>
+    }>('/transactions/breakdown', { params })
+    return response.data.data
+  },
+
+  /**
    * Export transactions to Excel/CSV
    */
   async exportTransactions(filters?: TransactionFilters): Promise<Blob> {

@@ -24,7 +24,6 @@ import { DataTablePagination } from '~/components/shared/data-table/DataTablePag
 import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/ExplorerContext'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { getChartColor } from '~/lib/constants'
 import { transactionQueries } from '~/lib/queries/transaction.queries'
 import { transactionService } from '~/lib/services/transaction.service'
 import { cn, formatCurrency, formatDate } from '~/lib/utils'
@@ -74,30 +73,8 @@ function BendaharaKasKelasContent() {
   }, [transactionsData])
 
   // Chart data logic
-  const { incomeData, expenseData } = useMemo(() => {
-    const incomeTransactions = historyTransaction.filter((t) => t.type === 'income')
-    const expenseTransactions = historyTransaction.filter((t) => t.type === 'expense')
-
-    const aggregate = (txs: HistoryTransaction[], type: 'income' | 'expense') => {
-      const grouped = txs.reduce(
-        (acc, t) => {
-          const key = t.purpose || 'Lainnya'
-          acc[key] = (acc[key] || 0) + t.amount
-          return acc
-        },
-        {} as Record<string, number>
-      )
-      return Object.entries(grouped).map(([name, value], index) => ({
-        name,
-        value,
-        fill: getChartColor(type, index),
-      }))
-    }
-    return {
-      incomeData: aggregate(incomeTransactions, 'income'),
-      expenseData: aggregate(expenseTransactions, 'expense'),
-    }
-  }, [historyTransaction])
+  const { data: incomeData } = useQuery(transactionQueries.breakdown({ type: 'income' }))
+  const { data: expenseData } = useQuery(transactionQueries.breakdown({ type: 'expense' }))
 
   const handleExport = async () => {
     try {
@@ -130,8 +107,12 @@ function BendaharaKasKelasContent() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-            <FinancialPieChart data={incomeData} title="Sumber Pemasukan" type="income" />
-            <FinancialPieChart data={expenseData} title="Alokasi Pengeluaran" type="expense" />
+            <FinancialPieChart data={incomeData || []} title="Sumber Pemasukan" type="income" />
+            <FinancialPieChart
+              data={expenseData || []}
+              title="Alokasi Pengeluaran"
+              type="expense"
+            />
           </div>
         </CardContent>
       </Card>

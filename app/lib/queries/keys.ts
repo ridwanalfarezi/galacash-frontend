@@ -23,8 +23,12 @@ export const queryKeys = {
       [...queryKeys.transactions.all, 'list', filters] as const,
     recent: (limit: number) => [...queryKeys.transactions.all, 'recent', limit] as const,
     detail: (id: string) => [...queryKeys.transactions.all, 'detail', id] as const,
-    chart: (params: { type: 'income' | 'expense'; startDate?: string; endDate?: string }) =>
-      [...queryKeys.transactions.all, 'chart', params] as const,
+    chart: (params: {
+      type: 'income' | 'expense'
+      startDate?: string
+      endDate?: string
+      view?: string
+    }) => [...queryKeys.transactions.all, 'chart', params] as const,
   },
 
   // -------------------------------------------------------------------------

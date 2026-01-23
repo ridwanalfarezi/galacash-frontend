@@ -52,4 +52,15 @@ export const transactionQueries = {
       queryFn: () => transactionService.getChartData(params),
       staleTime: 120 * 1000,
     }),
+
+  /**
+   * Get breakdown data for pie charts
+   * staleTime: 120s
+   */
+  breakdown: (params: { type: 'income' | 'expense'; startDate?: string; endDate?: string }) =>
+    queryOptions({
+      queryKey: queryKeys.transactions.chart({ ...params, view: 'breakdown' }),
+      queryFn: () => transactionService.getBreakdown(params),
+      staleTime: 120 * 1000,
+    }),
 }
