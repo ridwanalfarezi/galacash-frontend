@@ -1,6 +1,6 @@
 'use client'
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ChevronRight, Receipt } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
@@ -61,7 +61,6 @@ function TagihanKasContent() {
       page: pagination.page,
       limit: pagination.limit,
     }),
-    placeholderData: keepPreviousData,
   })
 
   const tagihanKasList: TagihanKas[] = useMemo(() => {

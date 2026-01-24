@@ -1,6 +1,6 @@
 'use client'
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ChevronRight, HandCoins, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
@@ -72,7 +72,6 @@ function ApplicationListContent({
       status: filters.status,
       search: search || undefined,
     }),
-    placeholderData: keepPreviousData,
     enabled: variant === 'my',
   })
 
@@ -85,7 +84,6 @@ function ApplicationListContent({
       sortBy: (sort?.key as 'date' | 'amount' | 'status') ?? 'date',
       sortOrder: (sort?.direction as 'asc' | 'desc') ?? 'desc',
     }),
-    placeholderData: keepPreviousData,
     enabled: variant !== 'my',
   })
 

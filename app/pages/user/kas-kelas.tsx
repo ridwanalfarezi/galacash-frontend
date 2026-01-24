@@ -1,6 +1,6 @@
 'use client'
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ChevronRight, Download, Wallet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
@@ -60,7 +60,6 @@ function UserKasKelasContent() {
       sortBy: (sort?.key as 'date' | 'amount') || 'date',
       sortOrder: (sort?.direction as 'asc' | 'desc') || 'desc',
     }),
-    placeholderData: keepPreviousData,
   })
 
   // Convert API transactions to local format
