@@ -51,7 +51,7 @@ interface BendaharaAjuDanaParams {
 }
 
 function BendaharaAjuDanaContent() {
-  const { search, setSearch, filters, setFilters, sort, setSort, pagination } =
+  const { search, debouncedSearch, setSearch, filters, setFilters, sort, setSort, pagination } =
     useExplorer<BendaharaAjuDanaParams>()
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -61,7 +61,7 @@ function BendaharaAjuDanaContent() {
       page: pagination.page,
       limit: pagination.limit,
       status: filters.status,
-      search: search || undefined,
+      search: debouncedSearch || undefined,
       sortBy: (sort?.key as 'date' | 'amount' | 'status') ?? 'date',
       sortOrder: (sort?.direction as 'asc' | 'desc') ?? 'desc',
     }),

@@ -60,7 +60,7 @@ function ApplicationListContent({
   variant?: 'all' | 'my'
   onOpenModal?: () => void
 }) {
-  const { search, setSearch, filters, setFilters, sort, setSort, pagination } =
+  const { search, debouncedSearch, setSearch, filters, setFilters, sort, setSort, pagination } =
     useExplorer<ApplicationParams>()
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -70,7 +70,7 @@ function ApplicationListContent({
       page: pagination.page,
       limit: pagination.limit,
       status: filters.status,
-      search: search || undefined,
+      search: debouncedSearch || undefined,
     }),
     enabled: variant === 'my',
   })
@@ -80,7 +80,7 @@ function ApplicationListContent({
       page: pagination.page,
       limit: pagination.limit,
       status: filters.status as 'pending' | 'approved' | 'rejected',
-      search: search || undefined,
+      search: debouncedSearch || undefined,
       sortBy: (sort?.key as 'date' | 'amount' | 'status') ?? 'date',
       sortOrder: (sort?.direction as 'asc' | 'desc') ?? 'desc',
     }),

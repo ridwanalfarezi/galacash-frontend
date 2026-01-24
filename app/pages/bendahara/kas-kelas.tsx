@@ -46,7 +46,7 @@ interface KasKelasParams {
 }
 
 function BendaharaKasKelasContent() {
-  const { search, setSearch, filters, setFilters, sort, setSort, pagination } =
+  const { search, debouncedSearch, setSearch, filters, setFilters, sort, setSort, pagination } =
     useExplorer<KasKelasParams>()
   const [detailModal, setDetailModal] = useState<HistoryTransaction | null>(null)
   const [isBuatModalOpen, setIsBuatModalOpen] = useState(false)
@@ -58,7 +58,7 @@ function BendaharaKasKelasContent() {
       page: pagination.page,
       limit: pagination.limit,
       type: filters.type,
-      search: search || undefined,
+      search: debouncedSearch || undefined,
       sortBy: (sort?.key as 'date' | 'amount') || 'date',
       sortOrder: (sort?.direction as 'asc' | 'desc') || 'desc',
     }),

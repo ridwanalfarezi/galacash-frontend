@@ -34,13 +34,14 @@ interface RekapKasParams {
 }
 
 function BendaharaRekapKasContent() {
-  const { search, setSearch, filters, setFilters, pagination } = useExplorer<RekapKasParams>()
+  const { search, debouncedSearch, setSearch, filters, setFilters, pagination } =
+    useExplorer<RekapKasParams>()
   const [isExporting, setIsExporting] = useState(false)
 
   // Fetch rekap kas data
   const { data: rekapData, isLoading } = useQuery({
     ...bendaharaQueries.rekapKas({
-      search: search || undefined,
+      search: debouncedSearch || undefined,
       paymentStatus: filters.status,
       page: pagination.page,
       limit: pagination.limit,

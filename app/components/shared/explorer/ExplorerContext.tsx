@@ -1,6 +1,14 @@
 'use client'
 
-import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 import { useSearchParams } from 'react-router'
 
 export interface SortConfig<T> {
@@ -15,6 +23,7 @@ export interface PaginationConfig {
 
 interface ExplorerState<TFilters> {
   search: string
+  debouncedSearch: string
   filters: TFilters
   sort: SortConfig<unknown> | undefined
   pagination: PaginationConfig
@@ -76,6 +85,13 @@ export function ExplorerProvider<T extends Record<string, unknown>>({
   }, [searchParams, defaultFilters, getScopedKey])
 
   const pagination = useMemo(() => ({ page, limit }), [page, limit])
+
+  // --- Debounced Search ---
+  const [debouncedSearch, setDebouncedSearch] = useState(search)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timer)
+  }, [search])
 
   // --- URL Update Helpers ---
   const updateParams = useCallback(
@@ -147,6 +163,7 @@ export function ExplorerProvider<T extends Record<string, unknown>>({
   const value = useMemo(
     () => ({
       search,
+      debouncedSearch,
       filters,
       sort,
       pagination,
@@ -157,7 +174,19 @@ export function ExplorerProvider<T extends Record<string, unknown>>({
       setLimit,
       reset,
     }),
-    [search, filters, sort, pagination, setSearch, setFilters, setSort, setPage, setLimit, reset]
+    [
+      search,
+      debouncedSearch,
+      filters,
+      sort,
+      pagination,
+      setSearch,
+      setFilters,
+      setSort,
+      setPage,
+      setLimit,
+      reset,
+    ]
   )
 
   return (

@@ -61,7 +61,7 @@ interface DetailRekapParams {
 }
 
 function BendaharaDetailRekapKasContent() {
-  const { search, setSearch, filters, setFilters, sort, setSort, pagination } =
+  const { search, debouncedSearch, setSearch, filters, setFilters, sort, setSort, pagination } =
     useExplorer<DetailRekapParams>()
   const [selectedTagihan, setSelectedTagihan] = useState<Tagihan | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -76,7 +76,7 @@ function BendaharaDetailRekapKasContent() {
         ? {
             userId,
             status: filters.status,
-            search: search || undefined,
+            search: debouncedSearch || undefined,
             sortBy: sort?.key === 'date' ? undefined : (sort?.key as 'month' | 'amount'),
             sortOrder: (sort?.direction as 'asc' | 'desc') || 'desc',
             page: pagination.page,

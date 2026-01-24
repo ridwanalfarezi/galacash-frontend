@@ -45,7 +45,7 @@ interface UserKasKelasParams {
 }
 
 function UserKasKelasContent() {
-  const { search, setSearch, filters, setFilters, sort, setSort, pagination } =
+  const { search, debouncedSearch, setSearch, filters, setFilters, sort, setSort, pagination } =
     useExplorer<UserKasKelasParams>()
   const [detailModal, setDetailModal] = useState<HistoryTransaction | null>(null)
   const [isExporting, setIsExporting] = useState(false)
@@ -56,7 +56,7 @@ function UserKasKelasContent() {
       page: pagination.page,
       limit: pagination.limit,
       type: filters.type,
-      search: search || undefined,
+      search: debouncedSearch || undefined,
       sortBy: (sort?.key as 'date' | 'amount') || 'date',
       sortOrder: (sort?.direction as 'asc' | 'desc') || 'desc',
     }),

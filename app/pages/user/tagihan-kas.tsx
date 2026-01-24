@@ -44,7 +44,7 @@ interface TagihanKasParams {
 }
 
 function TagihanKasContent() {
-  const { search, setSearch, filters, setFilters, sort, setSort, pagination } =
+  const { search, debouncedSearch, setSearch, filters, setFilters, sort, setSort, pagination } =
     useExplorer<TagihanKasParams>()
   const [selectedTagihan, setSelectedTagihan] = useState<TagihanKas | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -57,7 +57,7 @@ function TagihanKasContent() {
         | 'menunggu_konfirmasi'
         | 'sudah_dibayar'
         | undefined,
-      search: search || undefined,
+      search: debouncedSearch || undefined,
       sortBy: (sort?.key as 'dueDate' | 'totalAmount' | 'month' | 'status') || 'dueDate',
       sortOrder: (sort?.direction as 'asc' | 'desc') || 'desc',
       page: pagination.page,
