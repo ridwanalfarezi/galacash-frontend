@@ -120,10 +120,10 @@ function ApplicationListContent({
   return (
     <>
       <Card className="overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
-        <CardHeader className="flex flex-col border-b border-gray-50 md:flex-row md:items-center md:justify-between">
+        <CardHeader className="flex flex-col gap-4 border-b border-gray-50 md:flex-row md:items-center md:justify-between">
           <CardTitle className="text-xl font-bold text-gray-900 md:text-2xl">{title}</CardTitle>
           {onOpenModal && (
-            <Button onClick={onOpenModal}>
+            <Button onClick={onOpenModal} className="w-full md:w-auto">
               <Plus className="mr-2 size-5" />
               Ajukan Dana
             </Button>
@@ -254,9 +254,7 @@ function ApplicationListContent({
                       <p className="font-bold text-blue-600">{formatCurrency(app.amount)}</p>
                     </div>
                     <div className="flex items-center gap-1.5 rounded-lg bg-gray-50 px-2 py-1">
-                      <span className="text-[10px] font-medium text-gray-600">
-                        🎯 {app.category}
-                      </span>
+                      <span className="text-[10px] font-medium text-gray-600">{app.category}</span>
                     </div>
                   </div>
                 </DataCard>
