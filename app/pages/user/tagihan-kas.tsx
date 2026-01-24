@@ -69,7 +69,10 @@ function TagihanKasContent() {
     if (!Array.isArray(bills)) return []
 
     return bills.map((bill: Record<string, unknown>) => {
-      const monthDate = bill.month ? new Date(bill.month as string) : new Date()
+      // Construct date from month (1-12) and year values
+      const monthNum = Number(bill.month) || 1
+      const yearNum = Number(bill.year) || new Date().getFullYear()
+      const monthDate = new Date(yearNum, monthNum - 1) // monthNum - 1 because JS months are 0-indexed
       const monthName = monthDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
 
       const dueDateFormatted = bill.dueDate
