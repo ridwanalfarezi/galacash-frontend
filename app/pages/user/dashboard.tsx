@@ -82,14 +82,15 @@ export default function DashboardPage() {
     ? bills.reduce(
         (totalBill: { amount: number; date: Date; dueDate: Date }, bill: CashBill) => {
           totalBill.amount += bill.totalAmount || 0
-          const billMonth = bill.month || '2025-01'
-          totalBill.date = new Date(
-            Math.min(totalBill.date.getTime(), new Date(billMonth + '-01').getTime())
-          )
+          // Construct date from month (1-12) and year values
+          const billMonth = typeof bill.month === 'number' ? bill.month : 1
+          const billYear = typeof bill.year === 'number' ? bill.year : new Date().getFullYear()
+          const billDate = new Date(billYear, billMonth - 1, 1) // month is 0-indexed in JS
+          totalBill.date = new Date(Math.min(totalBill.date.getTime(), billDate.getTime()))
           totalBill.dueDate = new Date(
             Math.max(
               totalBill.dueDate.getTime(),
-              new Date(bill.dueDate || billMonth + '-31').getTime()
+              bill.dueDate ? new Date(bill.dueDate).getTime() : billDate.getTime()
             )
           )
           return totalBill
