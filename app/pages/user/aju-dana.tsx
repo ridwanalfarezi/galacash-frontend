@@ -102,7 +102,8 @@ function ApplicationListContent({
           })
         : '',
       purpose: app.purpose || '',
-      category: app.category || 'Lainnya',
+      category:
+        (app.category || 'Lainnya').charAt(0).toUpperCase() + (app.category || 'lainnya').slice(1),
       status: (app.status || 'pending') as 'pending' | 'approved' | 'rejected',
       amount: app.amount || 0,
       applicant: variant === 'my' ? 'Anda' : app.user?.name || 'Unknown',
