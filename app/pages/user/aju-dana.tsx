@@ -70,6 +70,7 @@ function ApplicationListContent({
       page: pagination.page,
       limit: pagination.limit,
       status: filters.status,
+      search: search || undefined,
     }),
     placeholderData: keepPreviousData,
     enabled: variant === 'my',
@@ -311,6 +312,7 @@ export default function AjuDanaPage() {
     <div className="p-6">
       <div className="mx-auto max-w-7xl space-y-8">
         <ExplorerProvider<ApplicationParams>
+          scope="myApplications"
           defaultLimit={25}
           defaultSort={{ key: 'date', direction: 'desc' }}
         >
@@ -322,6 +324,7 @@ export default function AjuDanaPage() {
         </ExplorerProvider>
 
         <ExplorerProvider<ApplicationParams>
+          scope="allApplications"
           defaultLimit={25}
           defaultSort={{ key: 'date', direction: 'desc' }}
         >

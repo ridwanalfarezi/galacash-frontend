@@ -38,6 +38,7 @@ interface ExplorerProviderProps<TFilters> {
   defaultFilters?: TFilters
   defaultSort?: SortConfig<unknown>
   defaultLimit?: number
+  scope?: string
 }
 
 export function ExplorerProvider<T extends Record<string, unknown>>({
@@ -45,30 +46,34 @@ export function ExplorerProvider<T extends Record<string, unknown>>({
   defaultFilters,
   defaultSort,
   defaultLimit = 25,
+  scope,
 }: ExplorerProviderProps<T>) {
   const [searchParams, setSearchParams] = useSearchParams()
 
-  // --- Derived State from URL ---
-  const search = searchParams.get('q') || ''
-  const page = Number(searchParams.get('p') || '1')
-  const limit = Number(searchParams.get('l') || String(defaultLimit))
+  const getScopedKey = useCallback((key: string) => (scope ? `${scope}_${key}` : key), [scope])
 
-  const sortKey = searchParams.get('sk')
-  const sortDir = searchParams.get('sd') as 'asc' | 'desc' | null
+  // --- Derived State from URL ---
+  const search = searchParams.get(getScopedKey('q')) || ''
+  const page = Number(searchParams.get(getScopedKey('p')) || '1')
+  const limit = Number(searchParams.get(getScopedKey('l')) || String(defaultLimit))
+
+  const sortKey = searchParams.get(getScopedKey('sk'))
+  const sortDir = searchParams.get(getScopedKey('sd')) as 'asc' | 'desc' | null
   const sort = useMemo(() => {
     return sortKey && sortDir ? { key: sortKey, direction: sortDir } : defaultSort
   }, [sortKey, sortDir, defaultSort])
 
   const filters = useMemo(() => {
     const f: Record<string, unknown> = { ...defaultFilters }
+    const prefix = getScopedKey('f_')
     searchParams.forEach((value, key) => {
-      if (key.startsWith('f_')) {
-        const filterKey = key.slice(2)
+      if (key.startsWith(prefix)) {
+        const filterKey = key.slice(prefix.length)
         f[filterKey] = value
       }
     })
     return f as T
-  }, [searchParams, defaultFilters])
+  }, [searchParams, defaultFilters, getScopedKey])
 
   const pagination = useMemo(() => ({ page, limit }), [page, limit])
 
@@ -95,44 +100,44 @@ export function ExplorerProvider<T extends Record<string, unknown>>({
 
   const setSearch = useCallback(
     (newSearch: string) => {
-      updateParams({ q: newSearch, p: '1' })
+      updateParams({ [getScopedKey('q')]: newSearch, [getScopedKey('p')]: '1' })
     },
-    [updateParams]
+    [updateParams, getScopedKey]
   )
 
   const setFilters = useCallback(
     (newFilters: Partial<T>) => {
-      const updates: Record<string, string | null> = { p: '1' }
+      const updates: Record<string, string | null> = { [getScopedKey('p')]: '1' }
       Object.entries(newFilters).forEach(([key, val]) => {
-        updates[`f_${key}`] = val ? String(val) : null
+        updates[getScopedKey(`f_${key}`)] = val ? String(val) : null
       })
       updateParams(updates)
     },
-    [updateParams]
+    [updateParams, getScopedKey]
   )
 
   const setSort = useCallback(
     (newSort: SortConfig<unknown> | undefined) => {
       updateParams({
-        sk: (newSort?.key as string) || null,
-        sd: newSort?.direction || null,
+        [getScopedKey('sk')]: (newSort?.key as string) || null,
+        [getScopedKey('sd')]: newSort?.direction || null,
       })
     },
-    [updateParams]
+    [updateParams, getScopedKey]
   )
 
   const setPage = useCallback(
     (newPage: number) => {
-      updateParams({ p: newPage.toString() })
+      updateParams({ [getScopedKey('p')]: newPage.toString() })
     },
-    [updateParams]
+    [updateParams, getScopedKey]
   )
 
   const setLimit = useCallback(
     (newLimit: number) => {
-      updateParams({ l: newLimit.toString(), p: '1' })
+      updateParams({ [getScopedKey('l')]: newLimit.toString(), [getScopedKey('p')]: '1' })
     },
-    [updateParams]
+    [updateParams, getScopedKey]
   )
 
   const reset = useCallback(() => {
