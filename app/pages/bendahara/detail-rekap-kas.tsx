@@ -94,7 +94,12 @@ function BendaharaDetailRekapKasContent() {
     const bills = (Array.isArray(response?.data) ? response.data : []) as ExtendedCashBill[]
 
     return bills.map((bill) => {
-      const monthDate = bill.month ? new Date(bill.month) : new Date()
+      // Construct date from month (1-12) and year values
+      // Backend returns month as number (1-12) or string "1"-"12"
+      // If bill is ExtendedCashBill, check property access
+      const monthNum = Number(bill.month) || 1
+      const yearNum = Number(bill.year) || new Date().getFullYear()
+      const monthDate = new Date(yearNum, monthNum - 1) // monthNum - 1 because JS months are 0-indexed
       const monthName = monthDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
       const dueDateFormatted = bill.dueDate
         ? new Date(bill.dueDate).toLocaleDateString('id-ID', {
