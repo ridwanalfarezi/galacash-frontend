@@ -57,6 +57,7 @@ function TagihanKasContent() {
         | 'menunggu_konfirmasi'
         | 'sudah_dibayar'
         | undefined,
+      search: search || undefined,
       sortBy: (sort?.key as 'dueDate' | 'totalAmount' | 'month' | 'status') || 'dueDate',
       sortOrder: (sort?.direction as 'asc' | 'desc') || 'desc',
       page: pagination.page,
