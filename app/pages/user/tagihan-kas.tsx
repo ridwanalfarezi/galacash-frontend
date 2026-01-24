@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ChevronRight, Receipt } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
@@ -63,6 +63,7 @@ function TagihanKasContent() {
       page: pagination.page,
       limit: pagination.limit,
     }),
+    placeholderData: keepPreviousData,
   })
 
   const tagihanKasList: TagihanKas[] = useMemo(() => {
@@ -108,7 +109,7 @@ function TagihanKasContent() {
     setIsDetailModalOpen(true)
   }
 
-  if (isLoading && pagination.page === 1) return <TagihanKasSkeleton />
+  if (isLoading) return <TagihanKasSkeleton />
 
   return (
     <Card className="overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
