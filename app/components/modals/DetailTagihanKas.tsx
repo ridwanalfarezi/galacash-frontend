@@ -24,6 +24,7 @@ interface TagihanKasDetail {
   name: string
   kasKelas: number
   biayaAdmin: number
+  paymentProofUrl?: string | null
 }
 
 interface DetailTagihanKasProps {
@@ -113,10 +114,11 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
   }
 
   const handleViewProof = () => {
-    // In a real app, this would open the uploaded proof URL
-    // Since we don't have the URL in the summarized tagihan object here,
-    // we would generally need to fetch the detail or pass it in.
-    toast.info('Fitur lihat bukti pembayaran belum tersedia di demo ini')
+    if (tagihan.paymentProofUrl) {
+      window.open(tagihan.paymentProofUrl, '_blank', 'noopener,noreferrer')
+    } else {
+      toast.error('Bukti pembayaran tidak tersedia')
+    }
   }
 
   const getStatusBadge = (status: TagihanKasDetail['status']) => {

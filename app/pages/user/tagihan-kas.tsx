@@ -34,6 +34,7 @@ interface TagihanKas {
   name: string
   kasKelas: number
   biayaAdmin: number
+  paymentProofUrl?: string | null
 }
 
 interface TagihanKasParams {
@@ -93,6 +94,7 @@ function TagihanKasContent() {
         name: ((bill.user as Record<string, unknown>)?.name as string) || '',
         kasKelas: Number(bill.kasKelas || 0),
         biayaAdmin: Number(bill.biayaAdmin || 0),
+        paymentProofUrl: (bill.paymentProofUrl as string) || null,
       }
     })
   }, [response?.data])
