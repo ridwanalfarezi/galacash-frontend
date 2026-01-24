@@ -113,7 +113,7 @@ function BendaharaRekapKasContent() {
 
   return (
     <Card className="overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
-      <CardHeader className="flex flex-col border-b border-gray-50 md:flex-row md:items-center md:justify-between">
+      <CardHeader className="flex flex-col gap-4 border-b border-gray-50 md:flex-row md:items-center md:justify-between">
         <CardTitle className="text-xl font-bold text-gray-900 md:text-2xl">
           Rekap Tagihan Kas
         </CardTitle>

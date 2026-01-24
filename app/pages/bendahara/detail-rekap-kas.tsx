@@ -130,7 +130,7 @@ function BendaharaDetailRekapKasContent() {
 
   return (
     <Card className="overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
-      <CardHeader className="flex flex-col border-b border-gray-50 md:flex-row md:items-center">
+      <CardHeader className="flex flex-col gap-4 border-b border-gray-50 md:flex-row md:items-center">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild className="size-10 rounded-full">
             <Link to="/bendahara/rekap-kas">
