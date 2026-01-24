@@ -40,12 +40,12 @@ export function EmptyState({
   className = '',
 }: EmptyStateProps) {
   return (
-    <div className={`flex flex-col items-center justify-center py-8 text-center ${className}`}>
-      <div className="mb-4 text-gray-400">
-        <Icon className="mx-auto size-12" />
+    <div className={`flex flex-col items-center justify-center py-10 text-center ${className}`}>
+      <div className="mb-4 rounded-full bg-gray-50 p-4 text-gray-400">
+        <Icon className="size-12" />
       </div>
-      <h3 className="mb-2 text-lg font-medium text-gray-900">{title}</h3>
-      <p className="text-sm text-gray-500">{description}</p>
+      <h3 className="mb-1 text-lg font-bold text-gray-900">{title}</h3>
+      <p className="mx-auto max-w-xs text-sm text-gray-500">{description}</p>
       {action && <div className="mt-4">{action}</div>}
     </div>
   )

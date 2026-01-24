@@ -4,7 +4,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ChevronRight, Receipt } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { BillStatusBadge, TagihanKasSkeleton } from '~/components/data-display'
+import { BillStatusBadge, EmptyState, TagihanKasSkeleton } from '~/components/data-display'
 import { DetailTagihanKas } from '~/components/modals/DetailTagihanKas'
 import {
   DataCard,
@@ -264,26 +264,6 @@ function TagihanKasContent() {
         />
       )}
     </Card>
-  )
-}
-
-function EmptyState({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: React.ElementType
-  title: string
-  description: string
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center py-10 text-center">
-      <div className="mb-4 rounded-full bg-gray-50 p-4 text-gray-400">
-        <Icon className="size-12" />
-      </div>
-      <h3 className="mb-1 text-lg font-bold text-gray-900">{title}</h3>
-      <p className="max-w-50 text-sm text-gray-500">{description}</p>
-    </div>
   )
 }
 

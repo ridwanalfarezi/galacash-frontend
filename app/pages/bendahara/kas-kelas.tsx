@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 
 import { FinancialPieChart } from '~/components/chart/financial-pie-chart'
 import {
+  EmptyState,
   MobileCardListSkeleton,
   TableBodySkeleton,
   TransactionTypeBadge,
@@ -282,26 +283,6 @@ function BendaharaKasKelasContent() {
       {isBuatModalOpen && (
         <BuatTransaksi isOpen={isBuatModalOpen} onClose={() => setIsBuatModalOpen(false)} />
       )}
-    </div>
-  )
-}
-
-function EmptyState({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: React.ElementType
-  title: string
-  description: string
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center py-10 text-center">
-      <div className="mb-4 rounded-full bg-gray-50 p-4 text-gray-400">
-        <Icon className="size-12" />
-      </div>
-      <h3 className="mb-1 text-lg font-bold text-gray-900">{title}</h3>
-      <p className="max-w-50 text-sm text-gray-500">{description}</p>
     </div>
   )
 }
