@@ -76,6 +76,15 @@ A full-stack application that enables treasurers and students to track and manag
    - Prettier
    - Tailwind CSS IntelliSense
    - GitLens
+   - ENV
+
+5. **Configuration**
+
+   Copy the example environment file:
+
+   ```bash
+   cp .env.example .env
+   ```
 
 ### Development Workflow
 
