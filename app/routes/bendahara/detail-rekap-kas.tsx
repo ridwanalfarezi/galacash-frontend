@@ -11,11 +11,16 @@ export function meta() {
   return [{ title: 'GalaCash | Detail Rekap Kas' }]
 }
 
-export async function clientLoader() {
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   await requireRole('bendahara')
+  const { userId } = params
 
-  // Prefetch rekap kas detail
-  await queryClient.prefetchQuery(bendaharaQueries.rekapKas())
+  if (userId) {
+    await Promise.all([
+      queryClient.ensureQueryData(bendaharaQueries.studentDetail(userId)),
+      queryClient.ensureQueryData(bendaharaQueries.cashBills({ userId })),
+    ])
+  }
 
   return {
     dehydratedState: dehydrate(queryClient),
