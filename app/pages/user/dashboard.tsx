@@ -30,7 +30,7 @@ import { toTransactionDisplayList } from '~/types/domain'
 
 export default function DashboardPage() {
   const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    from: new Date(2024, 8, 5), // September 5, 2024
     to: new Date(),
   })
 
@@ -80,27 +80,39 @@ export default function DashboardPage() {
   const hasBills = bills.length > 0
   const totalBills = hasBills
     ? bills.reduce(
-        (totalBill: { amount: number; date: Date; dueDate: Date }, bill: CashBill) => {
-          totalBill.amount += bill.totalAmount || 0
+        (acc: { amount: number; date: Date; latestDate: Date }, bill: CashBill) => {
+          const amount = Number(bill.totalAmount || 0)
           // Construct date from month (1-12) and year values
-          const billMonth = typeof bill.month === 'number' ? bill.month : 1
-          const billYear = typeof bill.year === 'number' ? bill.year : new Date().getFullYear()
+          const billMonth = Number(bill.month) || 1
+          const billYear = Number(bill.year) || new Date().getFullYear()
           const billDate = new Date(billYear, billMonth - 1, 1) // month is 0-indexed in JS
-          totalBill.date = new Date(Math.min(totalBill.date.getTime(), billDate.getTime()))
-          totalBill.dueDate = new Date(
-            Math.max(
-              totalBill.dueDate.getTime(),
-              bill.dueDate ? new Date(bill.dueDate).getTime() : billDate.getTime()
-            )
-          )
-          return totalBill
+
+          acc.amount += amount
+          acc.date = new Date(Math.min(acc.date.getTime(), billDate.getTime()))
+          acc.latestDate = new Date(Math.max(acc.latestDate.getTime(), billDate.getTime()))
+          return acc
         },
         {
           amount: 0,
           date: new Date(),
-          dueDate: new Date(),
+          latestDate: new Date(0),
         }
       )
+    : null
+
+  // Calculate dynamic deadline: 1st of the next non-excluded month from the latest bill
+  const deadline = totalBills
+    ? (() => {
+        const excludedMonths = [0, 1, 6, 7] // Jan, Feb, Jul, Aug
+        const date = new Date(totalBills.latestDate)
+        date.setMonth(date.getMonth() + 1)
+        date.setDate(1)
+
+        while (excludedMonths.includes(date.getMonth())) {
+          date.setMonth(date.getMonth() + 1)
+        }
+        return date
+      })()
     : null
 
   return (
@@ -178,7 +190,7 @@ export default function DashboardPage() {
                     day: 'numeric',
                   })}{' '}
                   -{' '}
-                  {totalBills.dueDate.toLocaleDateString('id', {
+                  {deadline?.toLocaleDateString('id', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',
@@ -192,7 +204,7 @@ export default function DashboardPage() {
                 <div className="hidden md:block">
                   Harap bayar tagihan anda sebelum{' '}
                   <span className="font-semibold">
-                    {totalBills.dueDate.toLocaleDateString('id', {
+                    {deadline?.toLocaleDateString('id', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',

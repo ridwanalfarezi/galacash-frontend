@@ -183,17 +183,17 @@ const SettingsPage = () => {
               />
             </div>
 
-            {isBendahara ? (
-              <div className="space-y-1">
-                <Label className="text-xl">Email</Label>
-                <Input
-                  type="email"
-                  placeholder="Masukkan email Anda"
-                  value={profileData.email}
-                  onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                />
-              </div>
-            ) : (
+            <div className="space-y-1">
+              <Label className="text-xl">Email</Label>
+              <Input
+                type="email"
+                placeholder="Masukkan email Anda"
+                value={profileData.email}
+                onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+              />
+            </div>
+
+            {!isBendahara && (
               <div className="space-y-1">
                 <Label className="text-xl">NIM</Label>
                 <Input type="text" placeholder={user?.nim} disabled className="bg-gray-100" />
