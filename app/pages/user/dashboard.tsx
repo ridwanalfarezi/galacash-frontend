@@ -54,7 +54,7 @@ export default function DashboardPage() {
   const { data: billsData, isLoading: isBillsLoading } = useQuery(
     cashBillQueries.my({
       status: 'belum_dibayar',
-      limit: 5,
+      limit: 100,
     })
   )
 
@@ -80,12 +80,20 @@ export default function DashboardPage() {
   const hasBills = bills.length > 0
   const totalBills = hasBills
     ? bills.reduce(
-        (acc: { amount: number; date: Date; latestDate: Date }, bill: CashBill) => {
+        (acc: { amount: number; date: Date; latestDate: Date }, bill: CashBill, index: number) => {
           const amount = Number(bill.totalAmount || 0)
           // Construct date from month (1-12) and year values
           const billMonth = Number(bill.month) || 1
           const billYear = Number(bill.year) || new Date().getFullYear()
           const billDate = new Date(billYear, billMonth - 1, 1) // month is 0-indexed in JS
+
+          if (index === 0) {
+            return {
+              amount,
+              date: billDate,
+              latestDate: billDate,
+            }
+          }
 
           acc.amount += amount
           acc.date = new Date(Math.min(acc.date.getTime(), billDate.getTime()))
