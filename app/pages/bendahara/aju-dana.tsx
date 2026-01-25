@@ -27,7 +27,7 @@ import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/Expl
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
-import { formatCurrency } from '~/lib/utils'
+import { formatCurrency, toTitleCase } from '~/lib/utils'
 import type { components } from '~/types/api'
 
 type FundApplicationAPI = components['schemas']['FundApplication'] & {
@@ -84,7 +84,7 @@ function BendaharaAjuDanaContent() {
           })
         : '',
       purpose: app.purpose || '',
-      category: app.category || 'Lainnya',
+      category: toTitleCase(app.category || 'Lainnya'),
       status: (app.status as 'pending' | 'approved' | 'rejected') || 'pending',
       amount: app.amount || 0,
       applicant: app.user?.name || 'Unknown',

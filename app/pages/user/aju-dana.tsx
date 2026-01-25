@@ -28,7 +28,7 @@ import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/Expl
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
-import { formatCurrency } from '~/lib/utils'
+import { formatCurrency, toTitleCase } from '~/lib/utils'
 import type { components } from '~/types/api'
 
 type FundApplicationWithMeta = components['schemas']['FundApplication'] & {
@@ -107,8 +107,7 @@ function ApplicationListContent({
           })
         : '',
       purpose: app.purpose || '',
-      category:
-        (app.category || 'Lainnya').charAt(0).toUpperCase() + (app.category || 'lainnya').slice(1),
+      category: toTitleCase(app.category || 'Lainnya'),
       status: (app.status || 'pending') as 'pending' | 'approved' | 'rejected',
       amount: app.amount || 0,
       applicant: variant === 'my' ? 'Anda' : app.user?.name || 'Unknown',
