@@ -124,7 +124,7 @@ function TagihanKasContent() {
           <DataMobileFilters
             search={search}
             onSearchChange={setSearch}
-            placeholder="Cari tagihan..."
+            placeholder="Cari ID tagihan..."
           />
         </div>
 

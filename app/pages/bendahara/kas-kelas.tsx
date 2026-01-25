@@ -145,7 +145,7 @@ function BendaharaKasKelasContent() {
             <DataMobileFilters
               search={search}
               onSearchChange={setSearch}
-              placeholder="Cari transaksi..."
+              placeholder="Cari keperluan transaksi..."
             />
           </div>
 

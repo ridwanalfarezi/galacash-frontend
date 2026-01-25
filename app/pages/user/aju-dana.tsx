@@ -139,7 +139,7 @@ function ApplicationListContent({
             <DataMobileFilters
               search={search}
               onSearchChange={setSearch}
-              placeholder="Cari pengajuan..."
+              placeholder="Cari keperluan pengajuan..."
             />
           </div>
 

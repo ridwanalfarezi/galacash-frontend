@@ -137,7 +137,7 @@ function BendaharaRekapKasContent() {
           <DataMobileFilters
             search={search}
             onSearchChange={setSearch}
-            placeholder="Cari mahasiswa..."
+            placeholder="Cari nama atau NIM..."
           />
         </div>
 

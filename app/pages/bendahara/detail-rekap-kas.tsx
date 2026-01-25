@@ -1,6 +1,6 @@
 'use client'
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight, Receipt } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
@@ -86,7 +86,6 @@ function BendaharaDetailRekapKasContent() {
         : undefined
     ),
     enabled: !!userId,
-    placeholderData: keepPreviousData,
   })
 
   // Map API data to local Tagihan format
@@ -95,11 +94,9 @@ function BendaharaDetailRekapKasContent() {
 
     return bills.map((bill) => {
       // Construct date from month (1-12) and year values
-      // Backend returns month as number (1-12) or string "1"-"12"
-      // If bill is ExtendedCashBill, check property access
       const monthNum = Number(bill.month) || 1
       const yearNum = Number(bill.year) || new Date().getFullYear()
-      const monthDate = new Date(yearNum, monthNum - 1) // monthNum - 1 because JS months are 0-indexed
+      const monthDate = new Date(yearNum, monthNum - 1)
       const monthName = monthDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
       const dueDateFormatted = bill.dueDate
         ? new Date(bill.dueDate).toLocaleDateString('id-ID', {
@@ -157,7 +154,7 @@ function BendaharaDetailRekapKasContent() {
           <DataMobileFilters
             search={search}
             onSearchChange={setSearch}
-            placeholder="Cari tagihan..."
+            placeholder="Cari ID tagihan..."
           />
         </div>
 
@@ -190,7 +187,7 @@ function BendaharaDetailRekapKasContent() {
                 <DataTableHead
                   filterValue={search}
                   onFilterChange={setSearch}
-                  filterPlaceholder="Cari ID..."
+                  filterPlaceholder="Cari ID tagihan..."
                 >
                   ID Tagihan
                 </DataTableHead>
