@@ -2,7 +2,16 @@ import { apiClient } from '~/lib/api/client'
 import { mapPaginatedResponse } from '~/lib/utils/api-helper'
 import type { components } from '~/types/api'
 
+type User = components['schemas']['User']
 type CashBill = components['schemas']['CashBill']
+
+interface PaginatedResponse<T> {
+  data: T[]
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
 
 export interface BendaharaFilters {
   page?: number
@@ -77,7 +86,20 @@ export const bendaharaService = {
    * Get students list for rekap
    */
   async getStudents(params?: BendaharaFilters) {
-    const response = await apiClient.get('/bendahara/students', { params })
+    const response = await apiClient.get<{ success: boolean; data: PaginatedResponse<User> }>(
+      '/bendahara/students',
+      { params }
+    )
+    return response.data.data
+  },
+
+  /**
+   * Get student detail
+   */
+  async getStudentDetail(id: string) {
+    const response = await apiClient.get<{ success: boolean; data: User }>(
+      `/bendahara/students/${id}`
+    )
     return response.data.data
   },
 

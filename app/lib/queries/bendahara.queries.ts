@@ -69,6 +69,18 @@ export const bendaharaQueries = {
       queryFn: () => bendaharaService.getStudents(params),
       staleTime: 300 * 1000,
     }),
+
+  /**
+   * Get student detail
+   * staleTime: 300s
+   */
+  studentDetail: (id: string) =>
+    queryOptions({
+      queryKey: ['bendahara', 'students', 'detail', id] as const,
+      queryFn: () => bendaharaService.getStudentDetail(id),
+      staleTime: 300 * 1000,
+      enabled: !!id,
+    }),
 }
 
 /**

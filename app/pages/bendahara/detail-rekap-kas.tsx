@@ -69,7 +69,15 @@ function BendaharaDetailRekapKasContent() {
 
   const location = useLocation()
   const { userId } = useParams()
-  const nama = location.state?.nama || 'Mahasiswa'
+
+  // Fetch user detail to ensure name persistence even after URL param changes
+  const { data: userData, isLoading: isUserLoading } = useQuery({
+    ...bendaharaQueries.studentDetail(userId || ''),
+    enabled: !!userId,
+  })
+
+  // Prefer data from API, fallback to location state (if navigated from list), then default
+  const nama = userData?.name || location.state?.nama || (isUserLoading ? 'Memuat...' : 'Mahasiswa')
 
   const { data: response, isLoading } = useQuery({
     ...bendaharaQueries.cashBills(
