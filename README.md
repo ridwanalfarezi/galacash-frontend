@@ -2,7 +2,7 @@
 
 > **Modern financial management application for class treasurers**  
 > Built with React Router v7, TypeScript, TailwindCSS, and TanStack Query  
-> **Last Updated:** January 19, 2026
+> **Last Updated:** January 25, 2026
 
 ---
 
@@ -28,6 +28,7 @@ A full-stack application that enables treasurers and students to track and manag
 - 🏗️ [Zustand](https://zustand-demo.pmnd.rs/) for auth state management
 - 📡 [TanStack Query](https://tanstack.com/query/latest) for server state & caching
 - ✨ [Zod](https://zod.dev/) for schema validation
+- 🔔 [Sonner](https://sonner.emilkowal.ski/) for toast notifications
 - 📝 [React Hook Form](https://react-hook-form.com/) for form handling
 - 📊 [Recharts](https://recharts.org/) for data visualization
 - 🎨 [Lucide React](https://lucide.dev/) for icons
@@ -61,7 +62,7 @@ A full-stack application that enables treasurers and students to track and manag
 3. **Install Dependencies**
 
    ```bash
-   # Install project dependencies (uses pnpm@10.27.0)
+   # Install project dependencies (uses pnpm@10.28.0)
    pnpm install
 
    # Setup Git hooks
@@ -189,6 +190,7 @@ A full-stack application that enables treasurers and students to track and manag
 │       │   ├── aju-dana.tsx
 │       │   ├── kas-kelas.tsx
 │       │   ├── rekap-kas.tsx  # Financial recap
+│       │   ├── detail-rekap-kas.tsx
 │       │   └── settings.tsx
 │       ├── user/           # Student routes
 │       │   ├── dashboard.tsx
@@ -404,26 +406,27 @@ docs(readme): update deployment steps
 
 ## 📑 Scripts
 
-| Command             | Description                         |
-| ------------------- | ----------------------------------- |
-| `pnpm dev`          | Start development server            |
-| `pnpm build`        | Create production build             |
-| `pnpm start`        | Start production server             |
-| `pnpm typecheck`    | Generate types and check TypeScript |
-| `pnpm lint`         | Run ESLint                          |
-| `pnpm lint:fix`     | Fix ESLint issues                   |
-| `pnpm format`       | Format code with Prettier           |
-| `pnpm format:check` | Check code formatting               |
-| `pnpm type-check`   | Run TypeScript type checking        |
-| `pnpm prepare`      | Setup Husky git hooks               |
-| `pnpm commit`       | Interactive conventional commit     |
-| `pnpm clean`        | Clean build directory               |
-| `pnpm lint-staged`  | Run linters on staged files         |
+| Command               | Description                                       |
+| --------------------- | ------------------------------------------------- |
+| `pnpm dev`            | Start development server                          |
+| `pnpm build`          | Create production build                           |
+| `pnpm start`          | Start production server                           |
+| `pnpm typecheck`      | Generate types and check TypeScript (emits files) |
+| `pnpm types:generate` | Generate API types from OpenAPI spec              |
+| `pnpm lint`           | Run ESLint                                        |
+| `pnpm lint:fix`       | Fix ESLint issues                                 |
+| `pnpm format`         | Format code with Prettier                         |
+| `pnpm format:check`   | Check code formatting                             |
+| `pnpm type-check`     | Run TypeScript type checking                      |
+| `pnpm prepare`        | Setup Husky git hooks                             |
+| `pnpm commit`         | Interactive conventional commit                   |
+| `pnpm clean`          | Clean build directory                             |
+| `pnpm lint-staged`    | Run linters on staged files                       |
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](../CONTRIBUTING.md) for guidelines.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-MIT License - see [LICENSE](../LICENSE)
+MIT License - see [LICENSE](LICENSE)
