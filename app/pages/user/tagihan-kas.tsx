@@ -1,10 +1,15 @@
 'use client'
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ChevronRight, Receipt } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { BillStatusBadge, EmptyState, TagihanKasSkeleton } from '~/components/data-display'
+import {
+  BillStatusBadge,
+  EmptyState,
+  MobileCardListSkeleton,
+  TableBodySkeleton,
+} from '~/components/data-display'
 import { DetailTagihanKas } from '~/components/modals/DetailTagihanKas'
 import {
   DataCard,
@@ -63,7 +68,6 @@ function TagihanKasContent() {
       page: pagination.page,
       limit: pagination.limit,
     }),
-    placeholderData: keepPreviousData,
   })
 
   const tagihanKasList: TagihanKas[] = useMemo(() => {
@@ -108,8 +112,6 @@ function TagihanKasContent() {
     setSelectedTagihan(tagihan)
     setIsDetailModalOpen(true)
   }
-
-  if (isLoading) return <TagihanKasSkeleton />
 
   return (
     <Card className="overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
@@ -169,7 +171,9 @@ function TagihanKasContent() {
               </DataTableRow>
             </DataTableHeader>
             <DataTableBody>
-              {tagihanKasList.length > 0 ? (
+              {isLoading ? (
+                <TableBodySkeleton columns={6} />
+              ) : tagihanKasList.length > 0 ? (
                 tagihanKasList.map((t) => (
                   <DataTableRow
                     key={t.id}
@@ -211,7 +215,9 @@ function TagihanKasContent() {
 
         {/* Mobile Cards */}
         <DataCardContainer className="px-6 pb-6 sm:px-0 sm:pb-0">
-          {tagihanKasList.length === 0 ? (
+          {isLoading ? (
+            <MobileCardListSkeleton count={5} />
+          ) : tagihanKasList.length === 0 ? (
             <EmptyState
               icon={Receipt}
               title="Tidak ada tagihan"
