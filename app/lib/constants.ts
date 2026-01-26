@@ -140,12 +140,11 @@ export type TransactionCategoryKey = keyof typeof TRANSACTION_CATEGORIES
  */
 export const getTransactionCategoryOptions = (type: 'income' | 'expense') =>
   Object.entries(TRANSACTION_CATEGORIES)
-    .filter(
-      ([, config]) =>
-        (config.type === type || config.type === 'both') &&
-        !(config as any).system_only &&
-        !(config as any).hidden
-    )
+    .filter(([, config]) => {
+      // Safe access using type guard or unnecessary cast removal if types align
+      const c = config as { type: string; system_only?: boolean; hidden?: boolean; label: string }
+      return (c.type === type || c.type === 'both') && !c.system_only && !c.hidden
+    })
     .map(([value, config]) => ({
       value,
       label: config.label,

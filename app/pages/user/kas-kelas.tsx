@@ -69,7 +69,8 @@ function UserKasKelasContent() {
   const historyTransaction: HistoryTransaction[] = useMemo(() => {
     if (!transactionsData?.transactions) return []
     return transactionsData.transactions.map((t) => {
-      const tx = t as any
+      // Create extended type for API response
+      const tx = t as typeof t & { category?: string; attachmentUrl?: string | null }
       return {
         id: tx.id || '',
         date: tx.date || '',
