@@ -137,11 +137,16 @@ function BendaharaKasKelasContent() {
             Kelola Transaksi
           </CardTitle>
           <div className="flex flex-wrap items-center gap-3">
-            <Button onClick={handleExport} disabled={isExporting} variant="secondary">
+            <Button
+              onClick={handleExport}
+              disabled={isExporting}
+              variant="secondary"
+              className="w-full md:w-auto"
+            >
               <Download className="mr-2 size-4" />
               Export
             </Button>
-            <Button onClick={() => setIsBuatModalOpen(true)}>
+            <Button onClick={() => setIsBuatModalOpen(true)} className="w-full md:w-auto">
               <Plus className="mr-2 size-4" />
               Buat Transaksi
             </Button>
