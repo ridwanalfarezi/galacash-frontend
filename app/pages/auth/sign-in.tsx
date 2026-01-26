@@ -8,6 +8,7 @@ import EyeOff from '~/components/icons/eye-off'
 import { APIError } from '~/lib/api/errors'
 import { queryClient } from '~/lib/query-client'
 import { authService } from '~/lib/services/auth.service'
+import { useAuthStore } from '~/lib/stores/auth.store'
 
 function FormHeader() {
   return (
@@ -147,6 +148,7 @@ function SignInForm({
 
 function SignInPage() {
   const navigate = useNavigate()
+  const setUser = useAuthStore((state) => state.setUser)
   const [nim, setNim] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [showPassword, setShowPassword] = useState<boolean>(false)
@@ -156,6 +158,8 @@ function SignInPage() {
   const loginMutation = useMutation({
     mutationFn: (credentials: { nim: string; password: string }) => authService.login(credentials),
     onSuccess: (user) => {
+      // Cache user in Zustand BEFORE navigation to prevent race condition
+      setUser(user)
       // Invalidate auth queries to refetch user data
       queryClient.invalidateQueries({ queryKey: ['auth'] })
 
