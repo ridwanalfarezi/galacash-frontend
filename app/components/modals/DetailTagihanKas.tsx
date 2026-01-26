@@ -38,9 +38,9 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
 
   // Initialize payment method based on status - only auto-select for waiting confirmation
   const initialMethod = tagihan.status === 'Menunggu Konfirmasi' ? ('bank' as const) : undefined
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
-    'ewallet' | 'bank' | 'cash' | undefined
-  >(initialMethod)
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'bank' | 'cash' | undefined>(
+    initialMethod
+  )
   const [paymentProof, setPaymentProof] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
@@ -151,7 +151,7 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
     toast.success('Nomor rekening disalin')
   }
 
-  const handlePaymentMethodSelect = (method: 'ewallet' | 'bank' | 'cash') => {
+  const handlePaymentMethodSelect = (method: 'bank' | 'cash') => {
     setSelectedPaymentMethod(method)
   }
 
@@ -192,45 +192,23 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
             </button>
 
             {!showBankOnly && (
-              <>
-                {/* E-Wallet Option */}
-                <button
-                  onClick={() => handlePaymentMethodSelect('ewallet')}
-                  className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border-3 p-4 text-left transition-colors ${
-                    selectedPaymentMethod === 'ewallet'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-900 hover:border-blue-500 hover:bg-blue-50'
-                  }`}
+              <button
+                onClick={() => handlePaymentMethodSelect('cash')}
+                className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border-3 p-4 text-left transition-colors ${
+                  selectedPaymentMethod === 'cash'
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-900 hover:border-blue-500 hover:bg-blue-50'
+                }`}
+              >
+                <Icons.Money
+                  className={`h-5 w-5 ${selectedPaymentMethod === 'cash' ? 'text-blue-500' : 'text-gray-900'}`}
+                />
+                <span
+                  className={`font-medium ${selectedPaymentMethod === 'cash' ? 'text-blue-500' : 'text-gray-900'}`}
                 >
-                  <Icons.Wallet
-                    className={`h-5 w-5 ${selectedPaymentMethod === 'ewallet' ? 'text-blue-500' : 'text-gray-900'}`}
-                  />
-                  <span
-                    className={`font-medium ${selectedPaymentMethod === 'ewallet' ? 'text-blue-500' : 'text-gray-900'}`}
-                  >
-                    E-Wallet
-                  </span>
-                </button>
-
-                {/* Cash Option */}
-                <button
-                  onClick={() => handlePaymentMethodSelect('cash')}
-                  className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border-3 p-4 text-left transition-colors ${
-                    selectedPaymentMethod === 'cash'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-900 hover:border-blue-500 hover:bg-blue-50'
-                  }`}
-                >
-                  <Icons.Money
-                    className={`h-5 w-5 ${selectedPaymentMethod === 'cash' ? 'text-blue-500' : 'text-gray-900'}`}
-                  />
-                  <span
-                    className={`font-medium ${selectedPaymentMethod === 'cash' ? 'text-blue-500' : 'text-gray-900'}`}
-                  >
-                    Cash
-                  </span>
-                </button>
-              </>
+                  Cash
+                </span>
+              </button>
             )}
           </div>
         </div>
@@ -240,83 +218,14 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-lg border border-gray-500 p-4">
               <div>
-                <p className="font-medium">Bank Mandiri a.n Fathya Khairani R</p>
-                <p className="text-sm text-gray-500">123-456-789-000</p>
+                <p className="font-medium">Bank Mandiri a.n Fathya Khairani</p>
+                <p className="text-sm text-gray-500">156-00-2062920-2</p>
               </div>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleCopyAccountNumber('123-456-789-000')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between rounded-lg border border-gray-500 p-4">
-              <div>
-                <p className="font-medium">Bank Mandiri a.n Careal Alif Mafazi</p>
-                <p className="text-sm text-gray-500">123-456-789-000</p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleCopyAccountNumber('123-456-789-000')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* E-Wallet Account Details - Show when e-wallet is selected */}
-        {selectedPaymentMethod === 'ewallet' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div>
-                <p className="font-medium">GoPay - Fathya Khairani R</p>
-                <p className="text-sm text-gray-500">0812-3456-7890</p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleCopyAccountNumber('0812-3456-7890')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div>
-                <p className="font-medium">OVO - Careal Alif Mafazi</p>
-                <p className="text-sm text-gray-500">0856-7890-1234</p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleCopyAccountNumber('0856-7890-1234')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div>
-                <p className="font-medium">DANA - Fathya Khairani R</p>
-                <p className="text-sm text-gray-500">0821-9876-5432</p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleCopyAccountNumber('0821-9876-5432')}
+                  onClick={() => handleCopyAccountNumber('156-00-2062920-2')}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
