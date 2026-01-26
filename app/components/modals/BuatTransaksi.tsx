@@ -34,10 +34,14 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
   })
 
   // Get options based on selected type
-  const categoryOptions = useMemo(
-    () => getTransactionCategoryOptions(transaction.type),
-    [transaction.type]
-  )
+  const categoryOptions = useMemo(() => {
+    const options = getTransactionCategoryOptions(transaction.type)
+    // If income, only allow 'other' (Lainnya) as per requirement
+    if (transaction.type === 'income') {
+      return options.filter((opt) => opt.value === 'other')
+    }
+    return options
+  }, [transaction.type])
 
   const createTransaction = useCreateTransaction()
 

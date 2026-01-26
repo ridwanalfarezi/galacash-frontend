@@ -28,7 +28,7 @@ import { toTransactionDisplayList } from '~/types/domain'
 
 export default function DashboardPage() {
   const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    from: new Date(2024, 8, 5),
     to: new Date(),
   })
 

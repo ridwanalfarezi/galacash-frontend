@@ -106,9 +106,18 @@ export const bendaharaService = {
   /**
    * Create a manual transaction
    */
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async createTransaction(data: any) {
-    const response = await apiClient.post('/bendahara/transactions', data, {
+    const formData = new FormData()
+    formData.append('date', data.date)
+    formData.append('description', data.description)
+    formData.append('type', data.type)
+    formData.append('amount', String(data.amount))
+    if (data.category) formData.append('category', data.category)
+    if (data.attachment) formData.append('attachment', data.attachment)
+
+    const response = await apiClient.post('/bendahara/transactions', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

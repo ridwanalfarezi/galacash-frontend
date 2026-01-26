@@ -14,6 +14,32 @@ interface HistoryTransaction {
   purpose: string
   type: 'income' | 'expense'
   amount: number
+  category: string
+  attachmentUrl?: string | null
+}
+
+const formatCategoryName = (category: string) => {
+  const map: Record<string, string> = {
+    kas_kelas: 'Kas Kelas',
+    donation: 'Sumbangan',
+    fundraising: 'Penggalangan Dana',
+    office_supplies: 'Alat Tulis Kantor',
+    consumption: 'Konsumsi',
+    event: 'Acara',
+    maintenance: 'Pemeliharaan',
+    other: 'Lainnya',
+    education: 'Pendidikan',
+    health: 'Kesehatan',
+    emergency: 'Darurat',
+    equipment: 'Peralatan',
+    subscription: 'Langganan',
+    competition: 'Lomba',
+    printing: 'Cetak',
+    fine: 'Denda',
+    transport: 'Transportasi',
+    social: 'Sosial',
+  }
+  return map[category] || category
 }
 
 interface DetailTransaksiProps {
@@ -56,10 +82,40 @@ export function DetailTransaksi({ isOpen, onClose, transaction }: DetailTransaks
             </div>
 
             <div className="space-y-1">
+              <Label className="text-lg font-normal sm:text-xl">Kategori</Label>
+              <Input value={formatCategoryName(transaction.category)} readOnly />
+            </div>
+
+            <div className="space-y-1">
               <Label className="text-lg font-normal sm:text-xl">Nominal</Label>
               <Input value={formatCurrency(transaction.amount)} readOnly />
             </div>
           </div>
+
+          {transaction.attachmentUrl && (
+            <div className="space-y-1">
+              <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
+              <div className="mt-2 text-center">
+                {/* Check if image extension, otherwise show link */}
+                {transaction.attachmentUrl.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                  <img
+                    src={transaction.attachmentUrl}
+                    alt="Bukti Transaksi"
+                    className="mx-auto max-h-64 rounded-lg object-contain"
+                  />
+                ) : (
+                  <a
+                    href={transaction.attachmentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    Lihat Lampiran
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end pt-4">
             <Button onClick={onClose} className="px-10 py-2">

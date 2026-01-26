@@ -36,10 +36,18 @@ export type TransactionTypeKey = keyof typeof TRANSACTION_TYPES
 // ============================================================================
 
 export const FUND_CATEGORIES = {
-  education: { label: 'Pendidikan', labelEn: 'Education' },
-  health: { label: 'Kesehatan', labelEn: 'Health' },
-  emergency: { label: 'Darurat', labelEn: 'Emergency' },
-  equipment: { label: 'Peralatan', labelEn: 'Equipment' },
+  education: { label: 'Pendidikan', labelEn: 'Education', hidden: true }, // Legacy
+  health: { label: 'Kesehatan', labelEn: 'Health', hidden: true }, // Legacy
+  emergency: { label: 'Darurat', labelEn: 'Emergency', hidden: true }, // Legacy
+  equipment: { label: 'Peralatan', labelEn: 'Equipment', hidden: true }, // Legacy
+
+  // New Categories aligned with Expense
+  subscription: { label: 'Langganan', labelEn: 'Subscription' },
+  consumption: { label: 'Konsumsi', labelEn: 'Consumption' },
+  competition: { label: 'Lomba', labelEn: 'Competition' },
+  printing: { label: 'Cetak', labelEn: 'Printing' },
+  donation: { label: 'Sumbangan', labelEn: 'Donation' },
+  other: { label: 'Lainnya', labelEn: 'Other' },
 } as const
 
 export type FundCategoryKey = keyof typeof FUND_CATEGORIES
@@ -48,10 +56,13 @@ export type FundCategoryKey = keyof typeof FUND_CATEGORIES
  * Get fund category options for select dropdown
  */
 export const getFundCategoryOptions = () =>
-  Object.entries(FUND_CATEGORIES).map(([value, { label }]) => ({
-    value,
-    label,
-  }))
+  Object.entries(FUND_CATEGORIES)
+    // @ts-expect-error - System flags might not exist
+    .filter(([, config]) => !config.hidden)
+    .map(([value, { label }]) => ({
+      value,
+      label,
+    }))
 
 // ============================================================================
 // Transaction Categories
@@ -59,24 +70,67 @@ export const getFundCategoryOptions = () =>
 
 export const TRANSACTION_CATEGORIES = {
   // Income
-  kas_kelas: { label: 'Kas Kelas', type: 'income' },
-  donation: { label: 'Donasi', type: 'income' },
-  fundraising: { label: 'Fundraising', type: 'income' },
-  fine: { label: 'Denda', type: 'income' },
-  event: { label: 'Acara', type: 'both' }, // Events can store revenue or cost
+  kas_kelas: { label: 'Kas Kelas', type: 'income', system_only: true },
 
-  // Expense (Aligned with Fund Categories + Extras)
-  education: { label: 'Pendidikan', type: 'expense' },
-  health: { label: 'Kesehatan', type: 'expense' },
-  emergency: { label: 'Darurat', type: 'expense' },
-  equipment: { label: 'Peralatan', type: 'expense' },
-  office_supplies: { label: 'Alat Tulis Kantor', type: 'expense' },
+  // User said: "So we have only 2 categories for income and make sure bendahara only can select category lainnya when add transaction."
+  // So 'donation' should also be hidden or removed? Schema has 'donation'. User said "Income Categories: Only from users bill but for transaction creation purpose add lainnya. So we have only 2 categories for income".
+  // "Kas Kelas" (from bills) and "Lainnya" (manual).
+  // I will hide 'donation', 'fundraising', 'fine' from the options by checking against a strict allowed list or using system_only/hidden flag. Easiest is to just remove them from constants or mark them system_only or hidden.
+  // Let's add 'hidden: true' for those we want to keep in schema but hide in UI.
+  // Actually, I'll just comment them out or remove them from this object if they are not used elsewhere in frontend logic.
+  // But safest is to keep them but filter them out.
+  // Let's try strict approach: define only what's needed.
+  other: { label: 'Lainnya', type: 'both' }, // Income: Lainnya, Expense: Lainnya? User listed specific expenses. "Donation", "Subscription", "Consumption", "Competition", "Printing".
+  // Wait, user listed expense categories: "zoom premium bulanan", "konsum galameet", "lomba", "print krs", "sumbangan".
+  // And "your decide better names based on this".
+  // So:
+  // Subscription -> Langganan
+  // Consumption -> Konsumsi
+  // Competition -> Lomba
+  // Printing -> Cetak
+  // Donation -> Sumbangan
+
+  // Existing ones in schema that match:
+  // subscription (new)
+  // consumption (existing)
+  // competition (new)
+  // printing (existing)
+  // donation (existing - was income/donation, now needed for expense 'sumbangan')
+
+  // We need to manage 'donation' carefully. In schema it's just 'donation'.
+  // Constants defines: donation: { label: 'Donasi', type: 'income' }.
+  // I should change it to type 'expense' (or 'both' if legacy data needs it) and label 'Sumbangan'.
+
+  // Income:
+  // kas_kelas (system_only)
+  // other (manual)
+
+  fundraising: { label: 'Fundraising', type: 'income', hidden: true },
+  fine: { label: 'Denda', type: 'income', hidden: true },
+  event: { label: 'Acara', type: 'both', hidden: true },
+
+  // Expense
+  subscription: { label: 'Langganan', type: 'expense' },
   consumption: { label: 'Konsumsi', type: 'expense' },
-  maintenance: { label: 'Pemeliharaan', type: 'expense' },
-  printing: { label: 'Cetak & Fotokopi', type: 'expense' },
-  transport: { label: 'Transportasi', type: 'expense' },
-  social: { label: 'Sosial & Sumbangan', type: 'expense' },
-  other: { label: 'Lainnya', type: 'both' },
+  competition: { label: 'Lomba', type: 'expense' },
+  printing: { label: 'Cetak', type: 'expense' },
+  // donation: { label: 'Sumbangan', type: 'expense' }, // Reusing 'donation' key.
+  // Note: 'donation' was defined as income previously. If I change it here to expense, it affects the options.
+  // But wait, "Sumbangan" is requested as expense.
+  donation: { label: 'Sumbangan', type: 'expense' },
+
+  // Rest hide
+  education: { label: 'Pendidikan', type: 'expense', hidden: true },
+  health: { label: 'Kesehatan', type: 'expense', hidden: true },
+  emergency: { label: 'Darurat', type: 'expense', hidden: true },
+  equipment: { label: 'Peralatan', type: 'expense', hidden: true },
+  office_supplies: { label: 'Alat Tulis Kantor', type: 'expense', hidden: true },
+  maintenance: { label: 'Pemeliharaan', type: 'expense', hidden: true },
+  transport: { label: 'Transportasi', type: 'expense', hidden: true },
+  social: { label: 'Sosial', type: 'expense', hidden: true }, // 'social' was 'Sosial & Sumbangan'. User wants specific 'sumbangan'. I'll rely on 'donation' for sumbangan or 'social'.
+  // 'donation' exists in schema. 'social' exists in schema.
+  // User asked for 'sumbangan'. 'donation' fits better semantically for 'sumbangan' (charity/donation). 'social' is vague.
+  // Ill use 'donation' for Sumbangan.
 } as const
 
 export type TransactionCategoryKey = keyof typeof TRANSACTION_CATEGORIES
@@ -86,8 +140,12 @@ export type TransactionCategoryKey = keyof typeof TRANSACTION_CATEGORIES
  */
 export const getTransactionCategoryOptions = (type: 'income' | 'expense') =>
   Object.entries(TRANSACTION_CATEGORIES)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    .filter(([_, config]) => config.type === type || config.type === 'both')
+    .filter(
+      ([, config]) =>
+        (config.type === type || config.type === 'both') &&
+        !(config as any).system_only &&
+        !(config as any).hidden
+    )
     .map(([value, config]) => ({
       value,
       label: config.label,

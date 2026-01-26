@@ -39,6 +39,8 @@ interface HistoryTransaction {
   purpose: string
   type: 'income' | 'expense'
   amount: number
+  category: string
+  attachmentUrl?: string | null
 }
 
 interface KasKelasParams {
@@ -68,13 +70,18 @@ function BendaharaKasKelasContent() {
   // Convert API transactions to local format
   const historyTransaction: HistoryTransaction[] = useMemo(() => {
     if (!transactionsData?.transactions) return []
-    return transactionsData.transactions.map((t) => ({
-      id: t.id || '',
-      date: t.date || '',
-      purpose: t.description || '',
-      type: (t.type || 'income') as 'income' | 'expense',
-      amount: t.amount || 0,
-    }))
+    return transactionsData.transactions.map((t) => {
+      const tx = t as any
+      return {
+        id: tx.id || '',
+        date: tx.date || '',
+        purpose: tx.description || '',
+        type: (tx.type || 'income') as 'income' | 'expense',
+        amount: tx.amount || 0,
+        category: tx.category || 'other',
+        attachmentUrl: tx.attachmentUrl,
+      }
+    })
   }, [transactionsData])
 
   // Chart data logic
