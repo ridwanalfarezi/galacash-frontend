@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { Textarea } from '~/components/ui/textarea'
+import { type FundCategoryKey, getFundCategoryOptions } from '~/lib/constants'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
 import { fundApplicationService } from '~/lib/services/fund-application.service'
 
@@ -26,18 +27,19 @@ interface BuatAjuDanaModalProps {
   onClose: () => void
 }
 
-type Category = 'education' | 'health' | 'emergency' | 'equipment'
-
 export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
   const queryClient = useQueryClient()
   const [formData, setFormData] = useState({
     purpose: '',
     description: '',
-    category: '' as Category | '',
+    category: '' as FundCategoryKey | '',
     amount: 0,
     attachment: null as File | null,
     attachmentPreview: '' as string,
   })
+
+  // Get dynamic options
+  const categoryOptions = getFundCategoryOptions()
 
   const createApplication = useMutation({
     mutationFn: async () => {
@@ -46,7 +48,7 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
       }
       return fundApplicationService.createApplication({
         purpose: formData.purpose,
-        category: formData.category as Category,
+        category: formData.category as FundCategoryKey,
         amount: formData.amount,
         description: formData.description || undefined,
         attachment: formData.attachment || undefined,
@@ -96,7 +98,7 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
         className="max-h-[90vh] w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl border-0 sm:max-w-150"
         style={{ scrollbarWidth: 'none' }}
       >
-        <DialogHeader>
+        <DialogHeader className="text-left">
           <DialogTitle className="text-2xl font-semibold sm:text-3xl">Ajukan Dana</DialogTitle>
         </DialogHeader>
 
@@ -130,17 +132,18 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
               <Select
                 value={formData.category}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, category: value as Category }))
+                  setFormData((prev) => ({ ...prev, category: value as FundCategoryKey }))
                 }
               >
                 <SelectTrigger className="w-full rounded-md border-2 border-gray-500 py-4.5 text-base focus:border-gray-900">
                   <SelectValue placeholder="Pilih Kategori" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="education">Pendidikan</SelectItem>
-                  <SelectItem value="health">Kesehatan</SelectItem>
-                  <SelectItem value="emergency">Darurat</SelectItem>
-                  <SelectItem value="equipment">Peralatan</SelectItem>
+                  {categoryOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -175,7 +178,7 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
               <Button
                 type="button"
                 variant="secondary"
-                className="sm:flex-1 sm:px-10"
+                className="w-1/2 sm:flex-1 sm:px-10 md:w-auto"
                 onClick={onClose}
                 disabled={createApplication.isPending}
               >
@@ -183,7 +186,7 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
               </Button>
               <Button
                 type="submit"
-                className="sm:flex-1 sm:px-10"
+                className="w-1/2 sm:flex-1 sm:px-10 md:w-auto"
                 disabled={createApplication.isPending}
               >
                 {createApplication.isPending ? 'Memproses...' : 'Buat'}

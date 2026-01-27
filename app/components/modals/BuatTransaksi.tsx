@@ -189,7 +189,7 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
               <Button
                 type="button"
                 variant="secondary"
-                className="sm:flex-1 sm:px-10"
+                className="w-1/2 sm:flex-1 sm:px-10 md:w-auto"
                 onClick={onClose}
                 disabled={createTransaction.isPending}
               >
@@ -203,7 +203,7 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
                   !transaction.category ||
                   createTransaction.isPending
                 }
-                className="sm:flex-1 sm:px-10"
+                className="w-1/2 sm:flex-1 sm:px-10 md:w-auto"
               >
                 {createTransaction.isPending ? 'Menambahkan...' : 'Tambahkan'}
               </Button>

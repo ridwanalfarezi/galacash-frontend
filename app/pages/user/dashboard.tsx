@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { Calendar as CalendarIcon, Clock, HandCoins } from 'lucide-react'
+import { Clock, HandCoins } from 'lucide-react'
 import { useState } from 'react'
 import type { DateRange } from 'react-day-picker'
 import { Link } from 'react-router'
@@ -9,6 +9,7 @@ import { Link } from 'react-router'
 type CashBill = components['schemas']['CashBill']
 type FundApplication = components['schemas']['FundApplication']
 
+import { TagihanCard } from '~/components/dashboard/TagihanCard'
 import {
   EmptyState,
   StatCard,
@@ -17,7 +18,7 @@ import {
   TransactionListSkeleton,
 } from '~/components/data-display'
 import { Icons } from '~/components/icons'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DatePicker } from '~/components/ui/date-picker'
 import { Skeleton } from '~/components/ui/skeleton'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
@@ -132,6 +133,15 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Tagihan Notification (Mobile Only) */}
+      <TagihanCard
+        isLoading={isBillsLoading}
+        hasBills={hasBills}
+        totalBills={totalBills}
+        deadline={deadline}
+        className="mb-8 block lg:hidden"
+      />
+
       {/* Stat Cards - With skeleton loading */}
       {isSummaryLoading ? (
         <div className="mb-8">
@@ -139,6 +149,7 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {/* ... StatCards ... */}
           <StatCard
             icon={<Icons.MoneyTotal className="mr-2 h-6 w-6" />}
             title="Total Saldo"
@@ -167,83 +178,14 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Transaction History */}
         <div className="grid gap-4 lg:col-span-2">
-          {/* Tagihan Notification */}
-          {isBillsLoading ? (
-            <Card className="gap-2 rounded-4xl border-none bg-gray-200">
-              <CardHeader>
-                <Skeleton className="h-8 w-48" />
-              </CardHeader>
-              <CardContent className="flex flex-col gap-2">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-10 w-40" />
-              </CardContent>
-              <CardFooter>
-                <Skeleton className="h-4 w-64" />
-              </CardFooter>
-            </Card>
-          ) : hasBills && totalBills ? (
-            <Card className="gap-2 rounded-4xl border-none bg-red-700 text-gray-100">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-start gap-2 text-lg font-semibold md:text-2xl xl:text-3xl">
-                  <Icons.Alert className="size-6" />
-                  Tagihan Kas Anda
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col">
-                <div className="flex items-center gap-2 text-sm">
-                  <CalendarIcon className="size-4" />
-                  {totalBills.date.toLocaleDateString('id', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}{' '}
-                  -{' '}
-                  {deadline?.toLocaleDateString('id', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </div>
-                <div className="text-xl font-bold md:text-3xl xl:text-4xl">
-                  {formatCurrency(totalBills.amount)}
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between gap-2">
-                <div className="hidden md:block">
-                  Harap bayar tagihan anda sebelum{' '}
-                  <span className="font-semibold">
-                    {deadline?.toLocaleDateString('id', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </span>
-                </div>
-                <Link to="/user/tagihan-kas" className="font-semibold hover:underline">
-                  Bayar Sekarang
-                </Link>
-              </CardFooter>
-            </Card>
-          ) : (
-            <Card className="gap-2 rounded-4xl border-none bg-green-600 text-gray-100">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-start gap-2 text-lg font-semibold md:text-2xl xl:text-3xl">
-                  <Icons.Check className="size-6" />
-                  Tagihan Lunas
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm md:text-base">
-                  Tidak ada tagihan yang belum dibayar. Terima kasih!
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Link to="/user/tagihan-kas" className="font-semibold hover:underline">
-                  Lihat Riwayat Pembayaran
-                </Link>
-              </CardFooter>
-            </Card>
-          )}
+          {/* Tagihan Notification (Desktop Only) */}
+          <TagihanCard
+            isLoading={isBillsLoading}
+            hasBills={hasBills}
+            totalBills={totalBills}
+            deadline={deadline}
+            className="hidden lg:block"
+          />
 
           {/* Transaction History Card */}
           <Card className="rounded-4xl border-none">

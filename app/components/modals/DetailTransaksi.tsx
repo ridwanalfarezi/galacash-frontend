@@ -61,9 +61,9 @@ export function DetailTransaksi({ isOpen, onClose, transaction }: DetailTransaks
         className="max-h-[90vh] w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl sm:max-w-150"
         style={{ scrollbarWidth: 'none' }}
       >
-        <DialogHeader className="flex-row items-center gap-4">
-          <DialogTitle className="text-2xl font-semibold sm:text-3xl">Detail Transaksi</DialogTitle>
-          <div className="flex items-center gap-2 rounded-lg border-2 border-gray-900 px-3 py-1">
+        <DialogHeader className="flex-col gap-4 md:flex-row">
+          <DialogTitle className="text-left text-2xl font-semibold">Detail Transaksi</DialogTitle>
+          <div className="flex w-full items-center gap-2 rounded-lg border-2 border-gray-900 px-3 py-1 md:w-auto">
             <Calendar size={20} />
             <span className="">
               {new Date(transaction.date).toLocaleDateString('id-ID', {
@@ -126,7 +126,7 @@ export function DetailTransaksi({ isOpen, onClose, transaction }: DetailTransaks
           </div>
 
           <div className="flex justify-end pt-4">
-            <Button onClick={onClose} className="px-10 py-2">
+            <Button onClick={onClose} className="w-full px-10 py-2 md:w-auto">
               Tutup
             </Button>
           </div>

@@ -7,6 +7,7 @@ import type { DateRange } from 'react-day-picker'
 import { Button } from '~/components/ui/button'
 import { Calendar } from '~/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
+import { useIsMobile } from '~/hooks/use-mobile'
 import { cn } from '~/lib/utils'
 
 interface DatePickerProps {
@@ -15,6 +16,8 @@ interface DatePickerProps {
 }
 
 export function DatePicker({ date, onChange }: DatePickerProps) {
+  const isMobile = useIsMobile()
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -44,8 +47,7 @@ export function DatePicker({ date, onChange }: DatePickerProps) {
           onSelect={(range) => {
             onChange?.(range)
           }}
-          numberOfMonths={2}
-          animate
+          numberOfMonths={isMobile ? 1 : 2}
         />
       </PopoverContent>
     </Popover>

@@ -296,7 +296,7 @@ export function DetailTagihanKas({ isOpen, onClose, tagihan }: DetailTagihanKasP
         className="max-h-[90vh] w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl sm:max-w-150"
         style={{ scrollbarWidth: 'none' }}
       >
-        <DialogHeader className="space-y-4">
+        <DialogHeader className="space-y-4 text-left">
           <DialogTitle className="text-2xl font-semibold">Detail Tagihan Kas</DialogTitle>
         </DialogHeader>
 

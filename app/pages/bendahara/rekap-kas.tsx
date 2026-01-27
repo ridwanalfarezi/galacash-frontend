@@ -118,13 +118,12 @@ function BendaharaRekapKasContent() {
         <CardTitle className="text-xl font-bold text-gray-900 md:text-2xl">
           Rekap Tagihan Kas
         </CardTitle>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 md:w-auto">
           <Button
             onClick={handleExport}
             disabled={isExporting}
             variant="secondary"
-            size="sm"
-            className="px-4 shadow-sm"
+            className="w-full px-4 shadow-sm md:w-auto"
           >
             <Download className="mr-2 size-4" />
             Export Data

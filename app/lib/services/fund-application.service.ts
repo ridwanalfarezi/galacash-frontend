@@ -1,4 +1,5 @@
 import { apiClient, uploadFile } from '~/lib/api/client'
+import type { FundCategoryKey } from '~/lib/constants'
 import { mapPaginatedResponse } from '~/lib/utils/api-helper'
 import type { components } from '~/types/api'
 
@@ -9,7 +10,7 @@ export interface FundApplicationFilters {
   page?: number
   limit?: number
   status?: 'pending' | 'approved' | 'rejected'
-  category?: 'education' | 'health' | 'emergency' | 'equipment'
+  category?: FundCategoryKey
   sortBy?: 'date' | 'amount' | 'status'
   sortOrder?: 'asc' | 'desc'
   search?: string
@@ -17,7 +18,7 @@ export interface FundApplicationFilters {
 
 export interface CreateFundApplicationData {
   purpose: string
-  category: 'education' | 'health' | 'emergency' | 'equipment'
+  category: FundCategoryKey
   amount: number
   description?: string
   attachment?: File

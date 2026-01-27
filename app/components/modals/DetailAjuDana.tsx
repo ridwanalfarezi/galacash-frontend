@@ -46,7 +46,7 @@ export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDa
         className="max-h-[90vh] w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl sm:max-w-150"
         style={{ scrollbarWidth: 'none' }}
       >
-        <DialogHeader>
+        <DialogHeader className="text-left">
           <DialogTitle className="text-2xl font-semibold sm:text-3xl">Detail Pengajuan</DialogTitle>
         </DialogHeader>
 
@@ -107,7 +107,7 @@ export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDa
           </div>
 
           <div className="flex justify-end pt-4">
-            <Button onClick={onClose} className="px-10 py-2">
+            <Button onClick={onClose} className="w-full px-10 py-2 md:w-auto">
               Tutup
             </Button>
           </div>
