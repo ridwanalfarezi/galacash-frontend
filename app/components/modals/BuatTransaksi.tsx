@@ -87,7 +87,7 @@ export function BuatTransaksi({ isOpen, onClose }: BuatTransaksiProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-h-[90vh] w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl border-0 sm:max-w-150"
+        className="max-h-[90vh] w-full overflow-y-auto rounded-3xl border-0 sm:max-w-150"
         style={{ scrollbarWidth: 'none' }}
       >
         <DialogHeader className="flex-row items-center gap-4">

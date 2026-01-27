@@ -19,7 +19,7 @@ import {
 } from '~/components/ui/select'
 import { Textarea } from '~/components/ui/textarea'
 import { type FundCategoryKey, getFundCategoryOptions } from '~/lib/constants'
-import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
+import { queryKeys } from '~/lib/queries/keys'
 import { fundApplicationService } from '~/lib/services/fund-application.service'
 
 interface BuatAjuDanaModalProps {
@@ -56,7 +56,7 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
     },
     onSuccess: () => {
       toast.success('Pengajuan dana berhasil dibuat')
-      queryClient.invalidateQueries({ queryKey: fundApplicationQueries.my().queryKey })
+      queryClient.invalidateQueries({ queryKey: queryKeys.fundApplications.all })
       setFormData({
         purpose: '',
         description: '',
