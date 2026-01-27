@@ -1,12 +1,12 @@
 'use client'
 
-import { Calendar } from 'lucide-react'
+import { Calendar, File } from 'lucide-react'
 
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { formatCurrency } from '~/lib/utils'
+import { formatCurrency, getFilenameFromUrl } from '~/lib/utils'
 
 interface HistoryTransaction {
   id: string
@@ -49,6 +49,12 @@ interface DetailTransaksiProps {
 }
 
 export function DetailTransaksi({ isOpen, onClose, transaction }: DetailTransaksiProps) {
+  const handleOpenAttachment = () => {
+    if (transaction.attachmentUrl) {
+      window.open(transaction.attachmentUrl, '_blank', 'noopener,noreferrer')
+    }
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
@@ -92,30 +98,32 @@ export function DetailTransaksi({ isOpen, onClose, transaction }: DetailTransaks
             </div>
           </div>
 
-          {transaction.attachmentUrl && (
-            <div className="space-y-1">
-              <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
-              <div className="mt-2 text-center">
-                {/* Check if image extension, otherwise show link */}
-                {transaction.attachmentUrl.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                  <img
-                    src={transaction.attachmentUrl}
-                    alt="Bukti Transaksi"
-                    className="mx-auto max-h-64 rounded-lg object-contain"
-                  />
-                ) : (
-                  <a
-                    href={transaction.attachmentUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    Lihat Lampiran
-                  </a>
-                )}
-              </div>
+          <div className="space-y-1">
+            <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
+            <div
+              onClick={handleOpenAttachment}
+              className={`flex w-full items-center justify-between rounded-md border-2 px-3 py-2 transition-colors ${
+                transaction.attachmentUrl
+                  ? 'cursor-pointer border-gray-500 hover:border-blue-500 hover:bg-blue-50'
+                  : 'cursor-default border-gray-300 bg-gray-100'
+              }`}
+            >
+              <span
+                className={`truncate ${
+                  transaction.attachmentUrl ? 'text-gray-900 hover:text-blue-600' : 'text-gray-500'
+                }`}
+              >
+                {transaction.attachmentUrl
+                  ? getFilenameFromUrl(transaction.attachmentUrl)
+                  : 'Tidak ada lampiran'}
+              </span>
+              <File
+                className={`h-5 w-5 ${
+                  transaction.attachmentUrl ? 'text-gray-900 hover:text-blue-600' : 'text-gray-400'
+                }`}
+              />
             </div>
-          )}
+          </div>
 
           <div className="flex justify-end pt-4">
             <Button onClick={onClose} className="px-10 py-2">
