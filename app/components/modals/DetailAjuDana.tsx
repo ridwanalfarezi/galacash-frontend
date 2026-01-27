@@ -43,14 +43,14 @@ export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDa
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-h-[90vh] w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl sm:max-w-150"
+        className="max-h-[90vh] w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl sm:max-w-2xl"
         style={{ scrollbarWidth: 'none' }}
       >
         <DialogHeader className="text-left">
           <DialogTitle className="text-2xl font-semibold sm:text-3xl">Detail Pengajuan</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <div className="space-y-1">
             <Label className="text-lg font-normal sm:text-xl">Keperluan</Label>
             <Input value={application.purpose} readOnly />

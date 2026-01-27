@@ -107,11 +107,11 @@ export function DetailAjuDanaBendahara({ isOpen, onClose, application }: DetailA
         className="max-h-[90vh] w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl sm:max-w-150"
         style={{ scrollbarWidth: 'none' }}
       >
-        <DialogHeader>
+        <DialogHeader className="text-left">
           <DialogTitle className="text-2xl font-semibold sm:text-3xl">Detail Pengajuan</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <div className="space-y-1">
             <Label className="text-lg font-normal sm:text-xl">Keperluan</Label>
             <Input value={application.purpose} readOnly />
@@ -204,14 +204,14 @@ export function DetailAjuDanaBendahara({ isOpen, onClose, application }: DetailA
                 <Button
                   onClick={handleReject}
                   disabled={isProcessing || !isPending}
-                  className="bg-red-700 text-white hover:bg-red-800 disabled:bg-gray-400"
+                  className="w-1/2 bg-red-700 text-white hover:bg-red-800 disabled:bg-gray-400 md:w-auto"
                 >
                   {!isPending ? 'Sudah Diproses' : 'Tolak'}
                 </Button>
                 <Button
                   onClick={handleApprove}
                   disabled={isProcessing || !isPending}
-                  className="bg-green-700 text-white hover:bg-green-800 disabled:bg-gray-400"
+                  className="w-1/2 bg-green-700 text-white hover:bg-green-800 disabled:bg-gray-400 md:w-auto"
                 >
                   {approveMutation.isPending
                     ? 'Memproses...'

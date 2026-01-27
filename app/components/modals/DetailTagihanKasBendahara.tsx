@@ -184,7 +184,7 @@ export function DetailTagihanKasBendahara({ isOpen, onClose, tagihan }: DetailTa
 
               <div className="flex justify-between">
                 <Label className="font-medium">Nama:</Label>
-                <span className="text-gray-600">{tagihan.name}</span>
+                <span className="text-right text-gray-600">{tagihan.name}</span>
               </div>
 
               <div className="flex justify-between">
