@@ -91,11 +91,11 @@ export function DetailTransaksi({ isOpen, onClose, transaction }: DetailTransaks
               <Label className="text-lg font-normal sm:text-xl">Kategori</Label>
               <Input value={formatCategoryName(transaction.category)} readOnly />
             </div>
+          </div>
 
-            <div className="space-y-1">
-              <Label className="text-lg font-normal sm:text-xl">Nominal</Label>
-              <Input value={formatCurrency(transaction.amount)} readOnly />
-            </div>
+          <div className="space-y-1">
+            <Label className="text-lg font-normal sm:text-xl">Nominal</Label>
+            <Input value={formatCurrency(transaction.amount)} readOnly />
           </div>
 
           <div className="space-y-1">
