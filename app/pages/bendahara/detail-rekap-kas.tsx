@@ -162,7 +162,7 @@ function BendaharaDetailRekapKasContent() {
           <DataMobileFilters
             search={search}
             onSearchChange={setSearch}
-            placeholder="Cari ID tagihan..."
+            placeholder="Cari ID tagihan, bulan, atau nominal..."
           />
         </div>
 
@@ -195,7 +195,7 @@ function BendaharaDetailRekapKasContent() {
                 <DataTableHead
                   filterValue={search}
                   onFilterChange={setSearch}
-                  filterPlaceholder="Cari ID tagihan..."
+                  filterPlaceholder="Cari ID tagihan, bulan, atau nominal..."
                 >
                   ID Tagihan
                 </DataTableHead>

@@ -126,7 +126,7 @@ function TagihanKasContent() {
           <DataMobileFilters
             search={search}
             onSearchChange={setSearch}
-            placeholder="Cari ID tagihan..."
+            placeholder="Cari ID tagihan, bulan, atau nominal..."
           />
         </div>
 
@@ -155,7 +155,13 @@ function TagihanKasContent() {
                 >
                   Status
                 </DataTableHead>
-                <DataTableHead>ID Tagihan</DataTableHead>
+                <DataTableHead
+                  filterValue={search}
+                  onFilterChange={setSearch}
+                  filterPlaceholder="Cari ID tagihan, bulan, atau nominal..."
+                >
+                  ID Tagihan
+                </DataTableHead>
                 <DataTableHead sortKey="dueDate" currentSort={sort} onSort={setSort}>
                   Tenggat Waktu
                 </DataTableHead>
