@@ -213,15 +213,10 @@ export default function DashboardPage() {
                       <div>
                         <h3 className="text-base font-medium">{submission.name}</h3>
                         <h4 className="text-sm text-gray-500">{submission.description}</h4>
-                        <h5 className="block text-xs text-yellow-500 capitalize md:hidden">
-                          {submission.status}
-                        </h5>
+                        <h5 className="text-sm capitalize">{formatCurrency(submission.amount)}</h5>
                       </div>
                     </div>
                     <div className="flex min-w-0 items-center gap-2">
-                      <h3 className="min-w-0 flex-1 truncate text-base font-medium">
-                        {formatCurrency(submission.amount)}
-                      </h3>
                       <div className="flex shrink-0 items-center justify-center overflow-hidden rounded-xl">
                         <Button
                           className="rounded-none bg-red-700 hover:bg-red-500"
