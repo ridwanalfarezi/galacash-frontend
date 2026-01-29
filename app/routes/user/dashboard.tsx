@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react'
 
 import { DashboardSkeleton } from '~/components/data-display'
 import { requireAuth } from '~/lib/auth'
+import { DEFAULT_DASHBOARD_START_DATE } from '~/lib/constants'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { dashboardQueries } from '~/lib/queries/dashboard.queries'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
@@ -24,14 +25,14 @@ export async function clientLoader() {
   await requireAuth()
 
   // Calculate initial date range (current month)
-  const startDate = formatDateForAPI(new Date(new Date().getFullYear(), new Date().getMonth(), 1))
+  const startDate = formatDateForAPI(DEFAULT_DASHBOARD_START_DATE)
   const endDate = formatDateForAPI(new Date())
 
   // Prefetch critical queries
   await Promise.all([
     queryClient.prefetchQuery(dashboardQueries.summary({ startDate, endDate })),
     queryClient.prefetchQuery(transactionQueries.list({ limit: 5, page: 1, startDate, endDate })),
-    queryClient.prefetchQuery(cashBillQueries.my({ status: 'belum_dibayar', limit: 5 })),
+    queryClient.prefetchQuery(cashBillQueries.my({ status: 'belum_dibayar', limit: 100 })),
     queryClient.prefetchQuery(fundApplicationQueries.my({ status: 'pending', limit: 5 })),
   ])
 

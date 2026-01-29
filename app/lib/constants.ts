@@ -242,3 +242,9 @@ export const DATE_RANGE_PRESETS = {
     to: new Date(),
   }),
 } as const
+
+// ============================================================================
+// Dashboard Settings
+// ============================================================================
+
+export const DEFAULT_DASHBOARD_START_DATE = new Date(2024, 8, 5) // September 5, 2024
