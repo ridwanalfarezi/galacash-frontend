@@ -1,5 +1,5 @@
 import { Eye, EyeClosed, Upload } from 'lucide-react'
-import React, { useState } from 'react'
+import { type ChangeEvent, type FormEvent, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
@@ -27,8 +27,8 @@ const SettingsPage = () => {
 
   // Form states
   const [profileData, setProfileData] = useState({
-    name: '',
-    email: '',
+    name: user?.name || '',
+    email: user?.email || '',
   })
 
   const [passwordData, setPasswordData] = useState({
@@ -43,18 +43,8 @@ const SettingsPage = () => {
     confirm: false,
   })
 
-  // Update profile form when user data loads
-  React.useEffect(() => {
-    if (user) {
-      setProfileData({
-        name: user.name || '',
-        email: user.email || '',
-      })
-    }
-  }, [user])
-
   // Handle profile update
-  const handleProfileSubmit = async (e: React.FormEvent) => {
+  const handleProfileSubmit = async (e: FormEvent) => {
     e.preventDefault()
     try {
       await updateProfileMutation.mutateAsync(profileData)
@@ -65,7 +55,7 @@ const SettingsPage = () => {
   }
 
   // Handle password change
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: FormEvent) => {
     e.preventDefault()
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -95,7 +85,7 @@ const SettingsPage = () => {
   }
 
   // Handle avatar upload
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -172,7 +162,7 @@ const SettingsPage = () => {
               disabled={uploadAvatarMutation.isPending}
             />
           </div>
-          <form className="space-y-4" onSubmit={handleProfileSubmit}>
+          <form className="space-y-4" onSubmit={handleProfileSubmit} key={user?.id}>
             <div className="space-y-1">
               <Label className="text-xl">Nama</Label>
               <Input

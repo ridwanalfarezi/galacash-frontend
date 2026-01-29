@@ -1,7 +1,6 @@
 import { fixupConfigRules, fixupPluginRules } from '@eslint/compat'
 import { FlatCompat } from '@eslint/eslintrc'
 import js from '@eslint/js'
-// eslint-disable-next-line import/no-unresolved
 import tsParser from '@typescript-eslint/parser'
 import _import from 'eslint-plugin-import'
 import react from 'eslint-plugin-react'
@@ -28,6 +27,19 @@ function cleanGlobals(globalsObj) {
 export default [
   {
     ignores: ['build/**', '.react-router/**', 'node_modules/**'],
+  },
+  {
+    settings: {
+      react: {
+        version: 'detect',
+      },
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.json',
+        },
+      },
+    },
   },
   js.configs.recommended,
   ...fixupConfigRules(
@@ -64,19 +76,6 @@ export default [
         },
 
         project: './tsconfig.json',
-      },
-    },
-
-    settings: {
-      react: {
-        version: 'detect',
-      },
-
-      'import/resolver': {
-        typescript: {
-          alwaysTryTypes: true,
-          project: './tsconfig.json',
-        },
       },
     },
 
