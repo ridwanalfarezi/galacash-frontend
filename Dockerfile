@@ -1,27 +1,22 @@
-FROM node:20-alpine AS development-dependencies-env
-RUN corepack enable pnpm
-COPY . /app
+FROM oven/bun:1-alpine AS base
 WORKDIR /app
-RUN pnpm install --frozen-lockfile
 
-FROM node:20-alpine AS production-dependencies-env
-RUN corepack enable pnpm
-COPY ./package.json pnpm-lock.yaml /app/
-WORKDIR /app
-RUN pnpm install --frozen-lockfile --prod
+FROM base AS development-dependencies-env
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
-FROM node:20-alpine AS build-env
-RUN corepack enable pnpm
-COPY . /app/
+FROM base AS production-dependencies-env
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile --production
+
+FROM base AS build-env
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
-WORKDIR /app
-RUN pnpm run build
+COPY . .
+RUN bun run build
 
-FROM node:20-alpine
-RUN corepack enable pnpm
-COPY ./package.json pnpm-lock.yaml /app/
+FROM base
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
-WORKDIR /app
+COPY package.json bun.lock server.ts ./
 EXPOSE 3000
-CMD ["pnpm", "run", "start"]
+CMD ["bun", "run", "start"]
