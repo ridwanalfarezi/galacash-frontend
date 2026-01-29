@@ -32,6 +32,7 @@ A full-stack application that enables treasurers and students to track and manag
 - 📝 [React Hook Form](https://react-hook-form.com/) for form handling
 - 📊 [Recharts](https://recharts.org/) for data visualization
 - 🎨 [Lucide React](https://lucide.dev/) for icons
+- 🎭 [Playwright](https://playwright.dev/) for End-to-End testing
 
 ## 🚀 Getting Started
 
@@ -113,6 +114,9 @@ A full-stack application that enables treasurers and students to track and manag
 
    # Check formatting
    pnpm format:check
+
+   # Run End-to-End Tests
+   pnpm test:e2e
    ```
 
 3. **Making Commits**
@@ -431,6 +435,7 @@ docs(readme): update deployment steps
 | `pnpm commit`         | Interactive conventional commit                   |
 | `pnpm clean`          | Clean build directory                             |
 | `pnpm lint-staged`    | Run linters on staged files                       |
+| `pnpm test:e2e`       | Run End-to-End tests using Playwright             |
 
 ## Contributing
 
