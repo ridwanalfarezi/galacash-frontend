@@ -69,8 +69,11 @@ export default function DashboardPage() {
   )
 
   // Convert API transactions to display type using centralized converter
-  const filteredTransactions = toTransactionDisplayList(transactionsData?.transactions || [])
-  const groupedTransactions = groupTransactionsByDate(filteredTransactions)
+  const { groupedTransactions } = useMemo(() => {
+    const filtered = toTransactionDisplayList(transactionsData?.transactions || [])
+    const grouped = groupTransactionsByDate(filtered)
+    return { groupedTransactions: grouped }
+  }, [transactionsData?.transactions])
 
   const filteredSummary = {
     totalBalance: summary?.totalBalance ?? 0,
