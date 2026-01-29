@@ -25,7 +25,7 @@ export const mockBendahara = {
 export const mockBillPending = {
   id: 'bill-id-1',
   billId: 'BILL-001',
-  month: 'Januari',
+  month: '1',
   year: 2024,
   status: 'belum_dibayar',
   dueDate: '2024-01-31',
