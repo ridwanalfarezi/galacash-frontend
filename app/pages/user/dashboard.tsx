@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { Clock, HandCoins } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { DateRange } from 'react-day-picker'
 import { Link } from 'react-router'
 
@@ -21,6 +21,7 @@ import { Icons } from '~/components/icons'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DatePicker } from '~/components/ui/date-picker'
 import { Skeleton } from '~/components/ui/skeleton'
+import { calculateDeadline, calculateTotalBills } from '~/lib/calculations'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { dashboardQueries } from '~/lib/queries/dashboard.queries'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
@@ -77,52 +78,12 @@ export default function DashboardPage() {
   }
 
   // Handle flat data response for bills
-  const bills = (billsData?.data || []) as CashBill[]
+  const bills = useMemo(() => (billsData?.data || []) as CashBill[], [billsData?.data])
   const hasBills = bills.length > 0
-  const totalBills = hasBills
-    ? bills.reduce(
-        (acc: { amount: number; date: Date; latestDate: Date }, bill: CashBill, index: number) => {
-          const amount = Number(bill.totalAmount || 0)
-          // Construct date from month (1-12) and year values
-          const billMonth = Number(bill.month) || 1
-          const billYear = Number(bill.year) || new Date().getFullYear()
-          const billDate = new Date(billYear, billMonth - 1, 1) // month is 0-indexed in JS
-
-          if (index === 0) {
-            return {
-              amount,
-              date: billDate,
-              latestDate: billDate,
-            }
-          }
-
-          acc.amount += amount
-          acc.date = new Date(Math.min(acc.date.getTime(), billDate.getTime()))
-          acc.latestDate = new Date(Math.max(acc.latestDate.getTime(), billDate.getTime()))
-          return acc
-        },
-        {
-          amount: 0,
-          date: new Date(),
-          latestDate: new Date(0),
-        }
-      )
-    : null
+  const totalBills = useMemo(() => calculateTotalBills(bills), [bills])
 
   // Calculate dynamic deadline: 1st of the next non-excluded month from the latest bill
-  const deadline = totalBills
-    ? (() => {
-        const excludedMonths = [0, 1, 6, 7] // Jan, Feb, Jul, Aug
-        const date = new Date(totalBills.latestDate)
-        date.setMonth(date.getMonth() + 1)
-        date.setDate(1)
-
-        while (excludedMonths.includes(date.getMonth())) {
-          date.setMonth(date.getMonth() + 1)
-        }
-        return date
-      })()
-    : null
+  const deadline = useMemo(() => calculateDeadline(totalBills), [totalBills])
 
   return (
     <div className="p-6">
