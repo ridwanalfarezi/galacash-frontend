@@ -87,8 +87,28 @@ test.describe('Fund Application Lifecycle', () => {
       await route.fulfill({ json: { success: true, data: mockFundApplicationApproved } })
     })
 
+    // Click Approve (Check icon)
+    // There are multiple buttons (Reject and Approve).
+    // I need to target the one for this specific row.
+    // The code:
+    /*
+        <div key={submission.id} ...>
+           ...
+           <Button onClick={() => handleApprove(submission.id)} ...>
+    */
+    // I can use locator with hasText/has to find the row, then find the button.
     const row = page.locator('div').filter({ hasText: mockFundApplication.purpose }).first()
-    await row.locator('button').nth(1).click() // 0 is Reject, 1 is Approve
+    await row.locator('button').nth(1).click() // 0 is Reject, 1 is Approve based on code order: Reject(X), Approve(Check) -> Wait, code says:
+    /*
+      <Button ... onClick={handleReject} ...><Icons.X ... /></Button>
+      <Button ... onClick={handleApprove} ...><Icons.Check ... /></Button>
+    */
+    // So yes, 2nd button is Approve.
+
+    // Or better, filter by icon
+    // But icons are SVGs.
+    // Let's assume nth(1) works or use aria-label if present.
+    // Code does not show aria-label.
   })
 
   test('Treasurer can reject fund application', async ({ page }) => {

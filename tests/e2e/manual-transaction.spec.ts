@@ -53,6 +53,8 @@ test.describe('Manual Transaction Recording', () => {
     })
 
     // Fill form
+    // Date picker usually defaults to today, assume we leave it or pick a date.
+    // Inputs
     await page.getByPlaceholder('Masukkan keperluan').fill('Buying Office Supplies')
 
     // Type (Select)
@@ -80,7 +82,9 @@ test.describe('Manual Transaction Recording', () => {
     // Submit
     await page.getByRole('button', { name: 'Tambahkan' }).click()
 
-    // Verify success
+    // Verify success (modal closes, or success toast)
+    // Assuming toast or modal close.
+    // We can check if modal is hidden.
     await expect(page.getByRole('dialog')).toBeHidden()
   })
 })
