@@ -21,6 +21,7 @@ import { Icons } from '~/components/icons'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DatePicker } from '~/components/ui/date-picker'
 import { Skeleton } from '~/components/ui/skeleton'
+import { DEFAULT_DASHBOARD_START_DATE } from '~/lib/constants'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
 import { dashboardQueries } from '~/lib/queries/dashboard.queries'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
@@ -31,7 +32,7 @@ import { toTransactionDisplayList } from '~/types/domain'
 
 export default function DashboardPage() {
   const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(2024, 8, 5), // September 5, 2024
+    from: DEFAULT_DASHBOARD_START_DATE,
     to: new Date(),
   })
 
