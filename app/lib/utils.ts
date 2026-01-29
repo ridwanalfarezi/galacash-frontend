@@ -7,14 +7,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+const currencyFormatter = new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  minimumFractionDigits: 2,
+})
+
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 2,
-  })
-    .format(amount)
-    .replace('IDR', 'Rp')
+  return currencyFormatter.format(amount).replace('IDR', 'Rp')
 }
 
 export const formatDate = (dateString: string): string => {
