@@ -42,6 +42,7 @@ function Button({ className, variant, size, asChild = false, ...props }: ButtonP
   const Comp = asChild ? Slot : 'button'
 
   return (
+    // @ts-expect-error React 19 typings mismatch
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}

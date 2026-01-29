@@ -31,6 +31,7 @@ function Badge({
 }: React.ComponentProps<'span'> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : 'span'
 
+  // @ts-expect-error React 19 typings mismatch
   return <Comp data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />
 }
 

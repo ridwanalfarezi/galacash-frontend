@@ -41,6 +41,7 @@ function BreadcrumbLink({
   const Comp = asChild ? Slot : 'a'
 
   return (
+    // @ts-expect-error React 19 typings mismatch
     <Comp
       data-slot="breadcrumb-link"
       className={cn('hover:text-foreground transition-colors', className)}
