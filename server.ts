@@ -1,5 +1,3 @@
-import { type ServeOptions } from "bun";
-
 const BASE_PATH = "build/client";
 const PROXY_TARGET = process.env.API_URL || "https://galacash-server-2-66220284668.asia-southeast2.run.app";
 
