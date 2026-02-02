@@ -1,7 +1,7 @@
 # Run lint-staged for code formatting and linting
 
-pnpm run lint-staged
+bun run lint-staged
 
 # Run type checking (re-enabled after fixing TS errors)
 
-pnpm run type-check
+bun run type-check

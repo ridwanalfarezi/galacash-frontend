@@ -20,10 +20,10 @@ A full-stack application that enables treasurers and students to track and manag
 ## 🛠 Tech Stack
 
 - ⚛️ [React 19](https://react.dev/) with TypeScript
-- 🛣️ [React Router v7](https://reactrouter.com/) for routing and SSR
+- 🛣️ [React Router v7](https://reactrouter.com/) with Bun runtime
 - 🎨 [TailwindCSS](https://tailwindcss.com/) with custom theme
 - 🎯 [TypeScript](https://www.typescriptlang.org/) for type safety
-- 📦 [Vite](https://vitejs.dev/) for fast builds
+- 📦 [Bun](https://bun.sh/) for performance, bundling, and testing
 - 🎭 [Shadcn UI](https://ui.shadcn.com/) - Accessible components built on Radix UI
 - 🏗️ [Zustand](https://zustand-demo.pmnd.rs/) for auth state management
 - 📡 [TanStack Query](https://tanstack.com/query/latest) for server state & caching
@@ -38,8 +38,7 @@ A full-stack application that enables treasurers and students to track and manag
 
 ### Prerequisites
 
-- Node.js (LTS version) - specified in [.nvmrc](.nvmrc)
-- pnpm (package manager)
+- [Bun](https://bun.sh/) (latest version)
 - Git
 - VS Code (recommended)
 
@@ -63,11 +62,11 @@ A full-stack application that enables treasurers and students to track and manag
 3. **Install Dependencies**
 
    ```bash
-   # Install project dependencies (uses pnpm@10.28.0)
-   pnpm install
+   # Install project dependencies
+   bun install
 
    # Setup Git hooks
-   pnpm run prepare
+   bun run prepare
    ```
 
 4. **VS Code Setup**
@@ -92,7 +91,7 @@ A full-stack application that enables treasurers and students to track and manag
 1. **Start Development Server**
 
    ```bash
-   pnpm dev
+   bun dev
    ```
 
    Visit: http://localhost:5173
@@ -101,22 +100,22 @@ A full-stack application that enables treasurers and students to track and manag
 
    ```bash
    # Type checking
-   pnpm run typecheck
+   bun run typecheck
 
    # Lint code
-   pnpm lint
+   bun run lint
 
    # Fix lint issues
-   pnpm lint:fix
+   bun run lint:fix
 
    # Format code
-   pnpm format
+   bun run format
 
    # Check formatting
-   pnpm format:check
+   bun run format:check
 
    # Run End-to-End Tests
-   pnpm test:e2e
+   bun run test:e2e
    ```
 
 3. **Making Commits**
@@ -126,7 +125,7 @@ A full-stack application that enables treasurers and students to track and manag
    git add .
 
    # Commit using conventional commits
-   pnpm commit
+   bun run commit
    ```
 
 ## ✨ Key Features & Optimizations
@@ -330,7 +329,7 @@ export async function clientLoader() {
 
 - Services encapsulate all API calls
 - Consistent error handling with `APIError` class
-- Automatic token refresh on 401 responses
+- Automatic token refresh handled by custom `FetchClient`
 - Type-safe responses from generated OpenAPI types
 
 **Date Filtering**:
@@ -383,7 +382,7 @@ const totalBalance = summary?.totalBalance || 0 // ❌ Fails for 0
 ### Production Build
 
 ```bash
-pnpm build
+bun run build
 ```
 
 ### Docker Deployment
@@ -419,23 +418,23 @@ docs(readme): update deployment steps
 
 ## 📑 Scripts
 
-| Command               | Description                                       |
-| --------------------- | ------------------------------------------------- |
-| `pnpm dev`            | Start development server                          |
-| `pnpm build`          | Create production build                           |
-| `pnpm start`          | Start production server                           |
-| `pnpm typecheck`      | Generate types and check TypeScript (emits files) |
-| `pnpm types:generate` | Generate API types from OpenAPI spec              |
-| `pnpm lint`           | Run ESLint                                        |
-| `pnpm lint:fix`       | Fix ESLint issues                                 |
-| `pnpm format`         | Format code with Prettier                         |
-| `pnpm format:check`   | Check code formatting                             |
-| `pnpm type-check`     | Run TypeScript type checking                      |
-| `pnpm prepare`        | Setup Husky git hooks                             |
-| `pnpm commit`         | Interactive conventional commit                   |
-| `pnpm clean`          | Clean build directory                             |
-| `pnpm lint-staged`    | Run linters on staged files                       |
-| `pnpm test:e2e`       | Run End-to-End tests using Playwright             |
+| Command                  | Description                                       |
+| ------------------------ | ------------------------------------------------- |
+| `bun dev`                | Start development server                          |
+| `bun run build`          | Create production build                           |
+| `bun run start`          | Start production server (Bun native server)       |
+| `bun run typecheck`      | Generate types and check TypeScript (emits files) |
+| `bun run types:generate` | Generate API types from OpenAPI spec              |
+| `bun run lint`           | Run ESLint                                        |
+| `bun run lint:fix`       | Fix ESLint issues                                 |
+| `bun run format`         | Format code with Prettier                         |
+| `bun run format:check`   | Check code formatting                             |
+| `bun run type-check`     | Run TypeScript type checking                      |
+| `bun run prepare`        | Setup Husky git hooks                             |
+| `bun run commit`         | Interactive conventional commit                   |
+| `bun run clean`          | Clean build directory (Bun one-liner)             |
+| `bun run lint-staged`    | Run linters on staged files                       |
+| `bun run test:e2e`       | Run End-to-End tests using Playwright             |
 
 ## Contributing
 

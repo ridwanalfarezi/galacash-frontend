@@ -23,21 +23,32 @@ export class APIError extends Error {
    * Create APIError from axios error response
    */
   static fromResponse(error: unknown): APIError {
-    const axiosError = error as Record<string, unknown>
-    const response = axiosError?.response as Record<string, unknown> | undefined
+    // Handle existing APIError
+    if (error instanceof APIError) {
+      return error
+    }
 
-    if (!response) {
-      const message = (error as Record<string, unknown>)?.message || 'Network error'
+    const err = error as Record<string, unknown>
+    // Handle Axios-like response structure (kept for backward compatibility during migration)
+    const response = err?.response as Record<string, unknown> | undefined
+
+    // Handle Fetch-like response structure (if passed directly) or standard error object
+    const data = (response?.data || err) as Record<string, unknown> | undefined
+
+    if (!response && !data?.error) {
+      const message = err?.message || 'Network error'
       return new APIError(String(message), 'NETWORK_ERROR', 0, error)
     }
 
-    const data = response?.data as Record<string, unknown> | undefined
-    const message =
-      (data?.error as Record<string, unknown>)?.message || data?.message || 'An error occurred'
-    const code = (data?.error as Record<string, unknown>)?.code || 'API_ERROR'
-    const details = (data?.error as Record<string, unknown>)?.details || data?.details
+    const errorData = (data?.error || data) as Record<string, unknown>
+    const message = errorData?.message || 'An error occurred'
+    const code = errorData?.code || 'API_ERROR'
+    const details = errorData?.details
 
-    return new APIError(String(message), String(code), response?.status as number, details)
+    // Try to get status from property or response object
+    const status = (response?.status || err?.status || 0) as number
+
+    return new APIError(String(message), String(code), status, details)
   }
 
   /**
