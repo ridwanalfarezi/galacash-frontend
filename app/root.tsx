@@ -1,10 +1,12 @@
 import { QueryClientProvider } from '@tanstack/react-query'
+import { lazy } from 'react'
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
-import { Toaster } from 'sonner'
 
 import type { Route } from './+types/root'
 import './app.css'
 import { queryClient } from './lib/query-client'
+
+const Toaster = lazy(() => import('./components/Toaster'))
 
 export const links: Route.LinksFunction = () => [
   { rel: 'icon', href: '/logo.png', type: 'image/png' },
