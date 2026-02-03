@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+// eslint-disable-next-line import/no-unresolved
+import { describe, expect, it } from 'bun:test'
 
 import { formatCurrency } from './utils'
 
