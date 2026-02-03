@@ -1,5 +1,5 @@
 import { apiClient, uploadFile } from '~/lib/api/client'
-import { mapPaginatedResponse } from '~/lib/utils/api-helper'
+import { mapPaginatedResponse } from '~/lib/utils/apiHelper'
 import type { components } from '~/types/api'
 
 type CashBill = components['schemas']['CashBill']

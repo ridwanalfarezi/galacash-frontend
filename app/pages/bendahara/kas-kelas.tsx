@@ -5,7 +5,7 @@ import { ChevronRight, Download, Plus, Wallet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
-import { FinancialPieChart } from '~/components/chart/financial-pie-chart'
+import { FinancialPieChart } from '~/components/chart/FinancialPieChart'
 import {
   EmptyState,
   MobileCardListSkeleton,

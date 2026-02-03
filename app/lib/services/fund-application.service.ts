@@ -1,6 +1,6 @@
 import { apiClient, uploadFile } from '~/lib/api/client'
 import type { FundCategoryKey } from '~/lib/constants'
-import { mapPaginatedResponse } from '~/lib/utils/api-helper'
+import { mapPaginatedResponse } from '~/lib/utils/apiHelper'
 import type { components } from '~/types/api'
 
 type FundApplication = components['schemas']['FundApplication']
