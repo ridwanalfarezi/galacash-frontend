@@ -35,6 +35,7 @@ function Badge({
     <Comp
       data-slot="badge"
       className={cn(badgeVariants({ variant }), className)}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- React 19/Radix UI ref workaround
       {...(props as any)}
     />
   )

@@ -44,6 +44,7 @@ function BreadcrumbLink({
     <Comp
       data-slot="breadcrumb-link"
       className={cn('hover:text-foreground transition-colors', className)}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- React 19/Radix UI ref workaround
       {...(props as any)}
     />
   )

@@ -45,6 +45,7 @@ function Button({ className, variant, size, asChild = false, ...props }: ButtonP
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- React 19/Radix UI ref workaround
       {...(props as any)}
     />
   )
