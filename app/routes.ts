@@ -11,7 +11,7 @@ import { type RouteConfig, layout, prefix, route } from '@react-router/dev/route
  */
 export default [
   // Protected routes with shared layout
-  layout('./components/shared/layout/layout.tsx', [
+  layout('./components/shared/layout/Layout.tsx', [
     // Index redirect
     route('/', './routes/index.tsx'),
 
