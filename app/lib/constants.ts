@@ -247,4 +247,4 @@ export const DATE_RANGE_PRESETS = {
 // Dashboard Settings
 // ============================================================================
 
-export const DEFAULT_DASHBOARD_START_DATE = new Date(2024, 8, 5) // September 5, 2024
+export const DEFAULT_DASHBOARD_START_DATE = new Date(new Date().getFullYear(), 8, 5) // September 5 of current year
