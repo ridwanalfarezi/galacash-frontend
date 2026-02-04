@@ -18,6 +18,7 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DatePicker } from '~/components/ui/date-picker'
 import { Skeleton } from '~/components/ui/skeleton'
+import { DEFAULT_DASHBOARD_START_DATE } from '~/lib/constants'
 import {
   bendaharaQueries,
   useApproveFundApplication,
@@ -28,7 +29,7 @@ import { toTransactionDisplayList } from '~/types/domain'
 
 export default function DashboardPage() {
   const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(2024, 8, 5),
+    from: DEFAULT_DASHBOARD_START_DATE,
     to: new Date(),
   })
 
