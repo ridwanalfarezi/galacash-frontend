@@ -2,7 +2,13 @@ import type { TransactionDisplay } from '~/types/domain';
 
 import { groupTransactionsByDate } from './utils';
 
-// Helper to generate random date string YYYY-MM-DD
+/**
+ * Generate a random date string between two dates in YYYY-MM-DD format.
+ *
+ * @param start - The earliest date in the range
+ * @param end - The latest date in the range
+ * @returns A `YYYY-MM-DD` formatted string representing a date between `start` and `end`
+ */
 function getRandomDate(start: Date, end: Date): string {
   const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
   const year = date.getFullYear();
