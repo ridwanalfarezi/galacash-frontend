@@ -1,0 +1,3 @@
+$ bun run react-router dev
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
