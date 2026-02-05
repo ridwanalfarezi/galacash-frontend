@@ -1,5 +1,6 @@
-import { groupTransactionsByDate } from './utils';
 import type { TransactionDisplay } from '~/types/domain';
+
+import { groupTransactionsByDate } from './utils';
 
 // Helper to generate random date string YYYY-MM-DD
 function getRandomDate(start: Date, end: Date): string {
