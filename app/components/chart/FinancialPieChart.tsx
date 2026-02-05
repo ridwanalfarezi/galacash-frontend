@@ -22,7 +22,7 @@ interface FinancialPieChartProps {
   className?: string
 }
 
-export function FinancialPieChart({ data, title, className }: FinancialPieChartProps) {
+function FinancialPieChartBase({ data, title, className }: FinancialPieChartProps) {
   const total = React.useMemo(() => data.reduce((acc, item) => acc + item.value, 0), [data])
 
   const chartConfig = React.useMemo(() => {
@@ -95,3 +95,5 @@ export function FinancialPieChart({ data, title, className }: FinancialPieChartP
     </div>
   )
 }
+
+export const FinancialPieChart = React.memo(FinancialPieChartBase)
