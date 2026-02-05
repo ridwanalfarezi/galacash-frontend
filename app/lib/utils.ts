@@ -56,7 +56,7 @@ export const groupTransactionsByDate = (transactions: TransactionDisplay[]): Tra
   )
 
   return Object.entries(grouped)
-    .sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime())
+    .sort(([a], [b]) => (b > a ? 1 : -1))
     .map(([date, items]) => ({ date, items }))
 }
 
