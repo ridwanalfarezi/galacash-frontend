@@ -22,7 +22,11 @@ interface FinancialPieChartProps {
   className?: string
 }
 
-function FinancialPieChartBase({ data, title, className }: FinancialPieChartProps) {
+const renderActiveShape = ({ outerRadius = 0, ...props }: PieSectorDataItem) => {
+  return <Sector {...props} outerRadius={outerRadius + 10} />
+}
+
+function FinancialPieChartBase({ data, title, type, className }: FinancialPieChartProps) {
   const total = React.useMemo(() => data.reduce((acc, item) => acc + item.value, 0), [data])
 
   const chartConfig = React.useMemo(() => {
@@ -39,10 +43,6 @@ function FinancialPieChartBase({ data, title, className }: FinancialPieChartProp
 
     return config
   }, [data])
-
-  const renderActiveShape = ({ outerRadius = 0, ...props }: PieSectorDataItem) => {
-    return <Sector {...props} outerRadius={outerRadius + 10} />
-  }
 
   return (
     <div className={className}>
@@ -74,7 +74,7 @@ function FinancialPieChartBase({ data, title, className }: FinancialPieChartProp
             <tspan
               x="50%"
               dy="-1em"
-              className={`text-sm ${title.match('Pemasukan') ? 'fill-green-700' : 'fill-red-700'}`}
+              className={`text-sm ${type === 'income' ? 'fill-green-700' : 'fill-red-700'}`}
             >
               {title}
             </tspan>
