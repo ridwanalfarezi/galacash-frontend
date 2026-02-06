@@ -89,6 +89,11 @@ export default function DashboardPage() {
   // Calculate dynamic deadline: 1st of the next non-excluded month from the latest bill
   const deadline = useMemo(() => calculateDeadline(totalBills), [totalBills])
 
+  const pendingApplications = useMemo(() => {
+    const apps = (fundApplicationsData?.data || []) as FundApplication[]
+    return apps.filter((app) => app.status === 'pending')
+  }, [fundApplicationsData?.data])
+
   return (
     <div className="p-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
@@ -216,33 +221,31 @@ export default function DashboardPage() {
                     </div>
                   ))}
                 </div>
-              ) : fundApplicationsData?.data && fundApplicationsData.data.length > 0 ? (
-                (fundApplicationsData.data as FundApplication[])
-                  .filter((app: FundApplication) => app.status === 'pending')
-                  .map((application: FundApplication) => (
-                    <div
-                      key={application.id}
-                      className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="flex items-center justify-center rounded-full bg-gray-300 p-2">
-                          <HandCoins className="size-8 text-gray-900" />
-                        </div>
-                        <div>
-                          <h3 className="text-base font-medium">
-                            {formatCurrency(application.amount || 0)}
-                          </h3>
-                          <h4 className="text-sm text-gray-500">{application.purpose}</h4>
-                          <h5 className="block text-xs text-yellow-500 capitalize md:hidden">
-                            {application.status}
-                          </h5>
-                        </div>
+              ) : pendingApplications.length > 0 ? (
+                pendingApplications.map((application) => (
+                  <div
+                    key={application.id}
+                    className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center justify-center rounded-full bg-gray-300 p-2">
+                        <HandCoins className="size-8 text-gray-900" />
                       </div>
-                      <div className="hidden items-center justify-center space-x-2 rounded-xl bg-yellow-300 px-2 py-1 md:flex">
-                        <Clock className="size-6 text-gray-900" />
+                      <div>
+                        <h3 className="text-base font-medium">
+                          {formatCurrency(application.amount || 0)}
+                        </h3>
+                        <h4 className="text-sm text-gray-500">{application.purpose}</h4>
+                        <h5 className="block text-xs text-yellow-500 capitalize md:hidden">
+                          {application.status}
+                        </h5>
                       </div>
                     </div>
-                  ))
+                    <div className="hidden items-center justify-center space-x-2 rounded-xl bg-yellow-300 px-2 py-1 md:flex">
+                      <Clock className="size-6 text-gray-900" />
+                    </div>
+                  </div>
+                ))
               ) : (
                 <EmptyState
                   icon={HandCoins}
