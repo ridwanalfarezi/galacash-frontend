@@ -90,8 +90,7 @@ export default function DashboardPage() {
   const deadline = useMemo(() => calculateDeadline(totalBills), [totalBills])
 
   const pendingApplications = useMemo(() => {
-    const apps = (fundApplicationsData?.data || []) as FundApplication[]
-    return apps.filter((app) => app.status === 'pending')
+    return (fundApplicationsData?.data || []) as FundApplication[]
   }, [fundApplicationsData?.data])
 
   return (
