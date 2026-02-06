@@ -55,7 +55,7 @@ export default function DashboardPage() {
     return toTransactionDisplayList(dashboardData.recentTransactions)
   }, [dashboardData])
 
-  const groupedTransactions = groupTransactionsByDate(transactions)
+  const groupedTransactions = useMemo(() => groupTransactionsByDate(transactions), [transactions])
 
   // Summary from dashboard API
   const filteredSummary = {
