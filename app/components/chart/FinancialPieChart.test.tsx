@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
 import { describe, expect, it } from 'bun:test'
 
 import { FinancialPieChart } from './FinancialPieChart'

@@ -20,7 +20,7 @@ interface HistoryTransaction {
 }
 
 const formatCategoryName = (category: string) => {
-  if (category in TRANSACTION_CATEGORIES) {
+  if (Object.hasOwn(TRANSACTION_CATEGORIES, category)) {
     return TRANSACTION_CATEGORIES[category as TransactionCategoryKey].label
   }
   return category

@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
 import { describe, expect, it } from 'bun:test'
 
 import type { TransactionDisplay } from '~/types/domain'
