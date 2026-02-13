@@ -3,7 +3,23 @@ import { describe, expect, it } from 'bun:test'
 
 import type { TransactionDisplay } from '~/types/domain'
 
-import { formatCurrency, groupTransactionsByDate } from './utils'
+import { formatCurrency, formatMonthYear, groupTransactionsByDate } from './utils'
+
+describe('formatMonthYear', () => {
+  it('formats month and year correctly', () => {
+    // January 2023
+    expect(formatMonthYear(1, 2023)).toBe('Januari 2023')
+    // December 2024
+    expect(formatMonthYear(12, 2024)).toBe('Desember 2024')
+  })
+
+  it('handles month overflow/underflow gracefully (Date behavior)', () => {
+    // Month 13 of 2023 -> January 2024
+    expect(formatMonthYear(13, 2023)).toBe('Januari 2024')
+    // Month 0 of 2023 -> December 2022
+    expect(formatMonthYear(0, 2023)).toBe('Desember 2022')
+  })
+})
 
 describe('formatCurrency', () => {
   it('formats positive integers correctly', () => {
