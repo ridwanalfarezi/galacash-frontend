@@ -5,7 +5,6 @@ import { getTransactionCategoryOptions, TRANSACTION_CATEGORIES } from './constan
 
 describe('TRANSACTION_CATEGORIES', () => {
   test('donation category should be defined as expense', () => {
-    // @ts-expect-error - testing hidden/system properties
     const donation = TRANSACTION_CATEGORIES.donation
     expect(donation).toBeDefined()
     expect(donation.type).toBe('expense')
