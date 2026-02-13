@@ -17,10 +17,18 @@ export const formatCurrency = (amount: number): string => {
   return currencyFormatter.format(amount).replace('IDR', 'Rp')
 }
 
-export const formatDate = (dateString: string): string => {
+export const formatDate = (dateString: string | Date | number): string => {
   const date = new Date(dateString)
   return date.toLocaleDateString('id-ID', {
     day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
+export const formatMonthYear = (date: string | Date | number): string => {
+  const d = new Date(date)
+  return d.toLocaleDateString('id-ID', {
     month: 'long',
     year: 'numeric',
   })
