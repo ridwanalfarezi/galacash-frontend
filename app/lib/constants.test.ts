@@ -1,9 +1,11 @@
+// eslint-disable-next-line import/no-unresolved
 import { describe, expect, test } from 'bun:test'
+
 import { getTransactionCategoryOptions, TRANSACTION_CATEGORIES } from './constants'
 
 describe('TRANSACTION_CATEGORIES', () => {
   test('donation category should be defined as expense', () => {
-    // @ts-ignore
+    // @ts-expect-error - testing hidden/system properties
     const donation = TRANSACTION_CATEGORIES.donation
     expect(donation).toBeDefined()
     expect(donation.type).toBe('expense')
