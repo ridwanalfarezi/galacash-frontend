@@ -78,7 +78,8 @@ function TagihanKasContent() {
       // Construct date from month (1-12) and year values
       const monthNum = Number(bill.month) || 1
       const yearNum = Number(bill.year) || new Date().getFullYear()
-      const monthName = formatMonthYear(monthNum, yearNum)
+      const monthDate = new Date(yearNum, monthNum - 1) // monthNum - 1 because JS months are 0-indexed
+      const monthName = formatMonthYear(monthDate)
 
       const dueDateFormatted = bill.dueDate ? formatDate(bill.dueDate as string) : ''
 

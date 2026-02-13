@@ -28,7 +28,7 @@ import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/Expl
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
-import { formatCurrency, toTitleCase } from '~/lib/utils'
+import { formatCurrency, formatDate, toTitleCase } from '~/lib/utils'
 import type { components } from '~/types/api'
 
 type FundApplicationWithMeta = components['schemas']['FundApplication'] & {
@@ -99,13 +99,7 @@ function ApplicationListContent({
     const data = response?.data || []
     return data.map((app: FundApplicationWithMeta) => ({
       id: app.id || '',
-      date: app.createdAt
-        ? new Date(app.createdAt).toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })
-        : '',
+      date: app.createdAt ? formatDate(app.createdAt) : '',
       purpose: app.purpose || '',
       category: toTitleCase(app.category || 'Lainnya'),
       status: (app.status || 'pending') as 'pending' | 'approved' | 'rejected',
