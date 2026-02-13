@@ -62,7 +62,7 @@ export function ExplorerProvider<T extends Record<string, unknown>>({
   const getScopedKey = useCallback((key: string) => (scope ? `${scope}_${key}` : key), [scope])
 
   // --- Derived State from URL ---
-  const urlSearch = searchParams.get(getScopedKey('q')) || ''
+  const search = searchParams.get(getScopedKey('q')) || ''
   const page = Number(searchParams.get(getScopedKey('p')) || '1')
   const limit = Number(searchParams.get(getScopedKey('l')) || String(defaultLimit))
 
@@ -86,15 +86,7 @@ export function ExplorerProvider<T extends Record<string, unknown>>({
 
   const pagination = useMemo(() => ({ page, limit }), [page, limit])
 
-  // --- Search State & Debouncing ---
-  const [search, setSearchState] = useState(urlSearch)
-
-  // Sync local search when URL changes externally (e.g. back button)
-  useEffect(() => {
-    setSearchState(urlSearch)
-  }, [urlSearch])
-
-  // Debounced Search for API queries
+  // --- Debounced Search ---
   const [debouncedSearch, setDebouncedSearch] = useState(search)
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300)
@@ -122,20 +114,12 @@ export function ExplorerProvider<T extends Record<string, unknown>>({
     [setSearchParams]
   )
 
-  const setSearch = useCallback((newSearch: string) => {
-    setSearchState(newSearch)
-  }, [])
-
-  // Debounce URL update when local search changes
-  useEffect(() => {
-    if (search === urlSearch) return
-
-    const timer = setTimeout(() => {
-      updateParams({ [getScopedKey('q')]: search, [getScopedKey('p')]: '1' })
-    }, 300)
-
-    return () => clearTimeout(timer)
-  }, [search, urlSearch, getScopedKey, updateParams])
+  const setSearch = useCallback(
+    (newSearch: string) => {
+      updateParams({ [getScopedKey('q')]: newSearch, [getScopedKey('p')]: '1' })
+    },
+    [updateParams, getScopedKey]
+  )
 
   const setFilters = useCallback(
     (newFilters: Partial<T>) => {
