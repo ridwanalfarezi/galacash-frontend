@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { Card, CardContent, CardHeader } from '~/components/ui/card'
 import { Skeleton } from '~/components/ui/skeleton'
 
@@ -26,9 +28,10 @@ export function StatCardSkeleton() {
  * Grid of StatCard skeletons for dashboard loading state
  */
 export function StatCardsGridSkeleton({ count = 3 }: { count?: number }) {
+  const items = useMemo(() => new Array(count).fill(0), [count])
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:gap-6">
-      {Array.from({ length: count }).map((_, i) => (
+      {items.map((_, i) => (
         <StatCardSkeleton key={i} />
       ))}
     </div>
@@ -58,9 +61,10 @@ export function TransactionItemSkeleton() {
  * List of TransactionItem skeletons
  */
 export function TransactionListSkeleton({ count = 5 }: { count?: number }) {
+  const items = useMemo(() => new Array(count).fill(0), [count])
   return (
     <div className="space-y-1">
-      {Array.from({ length: count }).map((_, i) => (
+      {items.map((_, i) => (
         <TransactionItemSkeleton key={i} />
       ))}
     </div>
@@ -71,9 +75,10 @@ export function TransactionListSkeleton({ count = 5 }: { count?: number }) {
  * Skeleton for table rows (used in kas-kelas, aju-dana, etc.)
  */
 export function TableRowSkeleton({ columns = 5 }: { columns?: number }) {
+  const cols = useMemo(() => new Array(columns).fill(0), [columns])
   return (
     <tr className="border-b border-gray-300">
-      {Array.from({ length: columns }).map((_, i) => (
+      {cols.map((_, i) => (
         <td key={i} className="px-4 py-3">
           <Skeleton className="h-4 w-full max-w-24" />
         </td>
@@ -86,9 +91,10 @@ export function TableRowSkeleton({ columns = 5 }: { columns?: number }) {
  * Multiple table row skeletons
  */
 export function TableBodySkeleton({ rows = 5, columns = 5 }: { rows?: number; columns?: number }) {
+  const rowArray = useMemo(() => new Array(rows).fill(0), [rows])
   return (
     <>
-      {Array.from({ length: rows }).map((_, i) => (
+      {rowArray.map((_, i) => (
         <TableRowSkeleton key={i} columns={columns} />
       ))}
     </>
@@ -125,9 +131,10 @@ export function MobileCardSkeleton() {
  * Multiple mobile card skeletons
  */
 export function MobileCardListSkeleton({ count = 5 }: { count?: number }) {
+  const items = useMemo(() => new Array(count).fill(0), [count])
   return (
     <div className="space-y-4">
-      {Array.from({ length: count }).map((_, i) => (
+      {items.map((_, i) => (
         <MobileCardSkeleton key={i} />
       ))}
     </div>
@@ -176,6 +183,8 @@ export function DashboardSkeleton() {
   )
 }
 
+const KAS_KELAS_HEADER_COLS = new Array(5).fill(0)
+
 /**
  * Full page skeleton for kas-kelas type pages
  */
@@ -210,7 +219,7 @@ export function KasKelasSkeleton() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-300">
-                  {Array.from({ length: 5 }).map((_, i) => (
+                  {KAS_KELAS_HEADER_COLS.map((_, i) => (
                     <th key={i} className="px-4 py-3">
                       <Skeleton className="h-4 w-20" />
                     </th>
@@ -319,6 +328,9 @@ export function TagihanKasSkeleton() {
   )
 }
 
+const REKAP_KAS_TABLE_ROWS = new Array(8).fill(0)
+const REKAP_KAS_MOBILE_CARDS = new Array(4).fill(0)
+
 /**
  * Skeleton for Rekap Kas page (complex table)
  */
@@ -346,7 +358,7 @@ export function RekapKasSkeleton() {
               <Skeleton className="h-4 w-32" /> {/* Total */}
             </div>
             <div className="space-y-4">
-              {Array.from({ length: 8 }).map((_, i) => (
+              {REKAP_KAS_TABLE_ROWS.map((_, i) => (
                 <div key={i} className="flex space-x-4 border-b pb-3">
                   <Skeleton className="h-4 w-20" />
                   <Skeleton className="h-4 w-48" />
@@ -361,7 +373,7 @@ export function RekapKasSkeleton() {
           </div>
           {/* Mobile Cards */}
           <div className="space-y-4 sm:hidden">
-            {Array.from({ length: 4 }).map((_, i) => (
+            {REKAP_KAS_MOBILE_CARDS.map((_, i) => (
               <div key={i} className="rounded-xl border border-gray-200 p-4">
                 <div className="flex justify-between">
                   <Skeleton className="h-5 w-32" />
