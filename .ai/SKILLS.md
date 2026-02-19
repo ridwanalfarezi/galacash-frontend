@@ -79,7 +79,7 @@
 
 ## Debugging API Integration
 
-1. Check apiClient request/response interceptors
+1. Check FetchClient in `app/lib/api/fetch-client.ts` for request/response handling
 2. Verify proxy configuration in `vite.config.ts`
 3. Confirm environment variables in `.env`
 4. Check generated types match actual API
@@ -132,7 +132,7 @@
 4. Store user data in auth store on success
 5. Redirect based on user role after login
 6. Handle logout with store cleanup and redirect
-7. Check httpOnly cookie handling in `app/lib/api/`
+7. Check httpOnly cookie handling in FetchClient (`app/lib/api/fetch-client.ts`)
 
 ## Implementing Search and Filter
 
@@ -196,12 +196,15 @@
 
 ## Adding E2E Tests
 
-1. Create test file in `tests/` directory
+1. Create test file in `tests/e2e/` directory
 2. Use Playwright fixtures and page objects
 3. Test critical user flows (login, transactions, bills)
 4. Run with `bun run test:e2e`
-5. Add data-testid attributes to components
-6. Mock API responses where appropriate
+5. Mock API responses matching actual service endpoints:
+   - Bills: `/api/cash-bills/my*` (NOT `/api/dashboard/pending-bills`)
+   - Applications: `/api/fund-applications/my*` (NOT `/api/dashboard/pending-applications`)
+   - Auth: `/api/auth/me` and `/api/auth/login`
+6. Use correct route URLs: `/sign-in` (NOT `/auth/sign-in`)
 7. Run in CI with headless mode
 
 ## Handling API Errors

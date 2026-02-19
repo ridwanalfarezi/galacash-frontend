@@ -45,7 +45,7 @@
 
 - **Zustand auth store is non-persistent**. It exists only to prevent duplicate `/auth/me` calls during client-side navigation. On full page reload, `requireAuth()` revalidates against the API using httpOnly cookies.
 
-- **Token refresh is handled by Axios interceptor**, not by explicit refresh logic in components. Never call `/auth/refresh` directly from application code.
+- **Token refresh is handled by FetchClient interceptor**, not by explicit refresh logic in components. Never call `/auth/refresh` directly from application code.
 
 - **401 on `/auth/me` triggers retry logic with exponential backoff**. `requireAuth()` implements up to 2 retries (200ms, then 500ms delay) to handle race conditions on page refresh.
 
@@ -81,11 +81,11 @@ Query keys in `app/lib/queries/keys.ts` use a hierarchical factory pattern. **Ch
 
 ### API Client Global State
 
-The Axios instance in `app/lib/api/client.ts` maintains global state for token refresh:
+The FetchClient instance in `app/lib/api/fetch-client.ts` maintains global state for token refresh:
 
 ```typescript
-let isRefreshing = false
-let failedQueue: Array<{ resolve; reject }> = []
+private isRefreshing = false
+private failedQueue: Array<{ resolve; reject }> = []
 ```
 
 This prevents concurrent refresh calls but means **requests made during a refresh are queued, not rejected**. If the refresh fails, all queued requests fail with the same error. Do not add retry logic around these requests—it would cause thundering herd.
@@ -109,6 +109,7 @@ This prevents concurrent refresh calls but means **requests made during a refres
 | `app/lib/calculations.ts` | Financial summaries, deadlines           | Dashboard, rekap-kas, cash-bill flows     |
 | `app/lib/constants.ts`    | Status labels, categories, chart colors  | All forms, all display components         |
 | `app/types/api.d.ts`      | Type safety across entire app            | All services, all queries, all components |
+| `RouteErrorBoundary`      | Route-level error display                | All route `ErrorBoundary` exports         |
 
 ---
 
@@ -144,9 +145,12 @@ Query keys include user-specific filters but not the user ID. This assumes **one
 
 ## Historical Tradeoffs
 
-### Why Axios Instead of Fetch
+### Why Custom FetchClient Over Axios
 
-The codebase initially used a custom FetchClient (mentioned in early documentation) but migrated to Axios. The interceptor pattern for token refresh is significantly cleaner with Axios's `failedQueue` implementation. Migrating back to fetch would require reimplementing this queue logic.
+The codebase originally used Axios but migrated to a custom `FetchClient` class wrapping the native `fetch` API. The `FetchClient` in `app/lib/api/fetch-client.ts` replicates Axios's interceptor pattern (particularly the `failedQueue` for token refresh) while eliminating the Axios dependency. The `errors.ts` file retains some Axios-compatibility comments for backward compatibility during the migration.
+
+> [!WARNING]
+> Some comments in `app/lib/api/errors.ts` still reference Axios. These are legacy artifacts. The actual HTTP client is `FetchClient`.
 
 ### SPA Mode Over SSR
 

@@ -57,9 +57,10 @@ Senior software engineering agent for a React-based financial management SPA ser
 **Never modify without explicit permission:**
 
 - Query key factory pattern in `~/lib/queries/keys.ts`
-- API client architecture in `~/lib/api/`
+- API client architecture in `~/lib/api/` (FetchClient + token refresh)
 - Authentication flow in `~/lib/auth.ts` and `~/lib/stores/auth.store.ts`
 - Route protection guards (`requireAuth`, `requireRole`)
+- Route-level error boundary (`RouteErrorBoundary`)
 - Financial calculation utilities in `~/lib/calculations.ts`
 - OpenAPI type generation process
 - ESLint import ordering rules
@@ -103,13 +104,13 @@ Senior software engineering agent for a React-based financial management SPA ser
 **Avoid Adding**
 
 - Additional state management libraries (Zustand + React Query sufficient)
-- Alternative HTTP clients (native fetch or other libraries; Axios is standard)
+- Alternative HTTP clients (FetchClient wrapper over native fetch is standard)
 - Component libraries beyond Shadcn/Radix
 - Global CSS-in-JS solutions (Tailwind is standard)
 
 **Prohibited**
 
-- Custom Fetch implementations (Axios is required)
+- Axios or other third-party HTTP clients (custom FetchClient is standard)
 - Redux or MobX for state management
 - Moment.js (use date-fns)
 - Inline style objects
