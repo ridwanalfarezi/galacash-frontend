@@ -1,38 +1,47 @@
-import { apiClient } from '~/lib/api/client'
-import { mapPaginatedResponse } from '~/lib/utils/apiHelper'
-import type { components } from '~/types/api'
+import { apiClient } from '~/lib/api/client';
+import { mapPaginatedResponse } from '~/lib/utils/apiHelper';
+import type { components } from '~/types/api';
 
-type User = components['schemas']['User']
-type CashBill = components['schemas']['CashBill']
+type User = components['schemas']['User'];
+type CashBill = components['schemas']['CashBill'];
+
+interface StudentRekap extends User {
+  totalPaid?: number;
+  totalUnpaid?: number;
+  billsCount?: number;
+  userId?: string;
+  paymentStatus?: 'up-to-date' | 'has-arrears';
+  [key: string]: unknown;
+}
 
 interface PaginatedResponse<T> {
-  data: T[]
-  page: number
-  limit: number
-  total: number
-  totalPages: number
+  data: T[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 export interface BendaharaFilters {
-  page?: number
-  limit?: number
-  startDate?: string
-  endDate?: string
-  status?: string
-  userId?: string
-  search?: string
-  sortBy?: string
-  sortOrder?: 'asc' | 'desc'
-  paymentStatus?: 'up-to-date' | 'has-arrears'
+  page?: number;
+  limit?: number;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+  userId?: string;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  paymentStatus?: 'up-to-date' | 'has-arrears';
 }
 
 export interface CreateTransactionData {
-  type: 'income' | 'expense'
-  amount: number
-  description: string
-  date: string
-  category?: string
-  attachment?: File
+  type: 'income' | 'expense';
+  amount: number;
+  description: string;
+  date: string;
+  category?: string;
+  attachment?: File;
 }
 
 /**
@@ -44,32 +53,32 @@ export const bendaharaService = {
    * Get dashboard summary for bendahara
    */
   async getDashboard(params?: { startDate?: string; endDate?: string }) {
-    const response = await apiClient.get('/bendahara/dashboard', { params })
-    return response.data.data
+    const response = await apiClient.get('/bendahara/dashboard', { params });
+    return response.data.data;
   },
 
   /**
    * Get fund applications for review
    */
   async getPendingApplications() {
-    const response = await apiClient.get('/bendahara/fund-applications')
-    return response.data.data
+    const response = await apiClient.get('/bendahara/fund-applications');
+    return response.data.data;
   },
 
   /**
    * Get fund application detail
    */
   async getFundApplicationDetail(id: string) {
-    const response = await apiClient.get(`/bendahara/fund-applications/${id}`)
-    return response.data.data
+    const response = await apiClient.get(`/bendahara/fund-applications/${id}`);
+    return response.data.data;
   },
 
   /**
    * Approve fund application
    */
   async approveFundApplication(id: string) {
-    const response = await apiClient.post(`/bendahara/fund-applications/${id}/approve`)
-    return response.data.data
+    const response = await apiClient.post(`/bendahara/fund-applications/${id}/approve`);
+    return response.data.data;
   },
 
   /**
@@ -78,8 +87,8 @@ export const bendaharaService = {
   async rejectFundApplication(id: string, reason: string) {
     const response = await apiClient.post(`/bendahara/fund-applications/${id}/reject`, {
       rejectionReason: reason,
-    })
-    return response.data.data
+    });
+    return response.data.data;
   },
 
   /**
@@ -89,8 +98,8 @@ export const bendaharaService = {
     const response = await apiClient.get<{ success: boolean; data: PaginatedResponse<User> }>(
       '/bendahara/students',
       { params }
-    )
-    return response.data.data
+    );
+    return response.data.data;
   },
 
   /**
@@ -99,38 +108,36 @@ export const bendaharaService = {
   async getStudentDetail(id: string) {
     const response = await apiClient.get<{ success: boolean; data: User }>(
       `/bendahara/students/${id}`
-    )
-    return response.data.data
+    );
+    return response.data.data;
   },
 
   /**
    * Create a manual transaction
    */
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async createTransaction(data: any) {
-    const formData = new FormData()
-    formData.append('date', data.date)
-    formData.append('description', data.description)
-    formData.append('type', data.type)
-    formData.append('amount', String(data.amount))
-    if (data.category) formData.append('category', data.category)
-    if (data.attachment) formData.append('attachment', data.attachment)
+  async createTransaction(data: CreateTransactionData) {
+    const formData = new FormData();
+    formData.append('date', data.date);
+    formData.append('description', data.description);
+    formData.append('type', data.type);
+    formData.append('amount', String(data.amount));
+    if (data.category) formData.append('category', data.category);
+    if (data.attachment) formData.append('attachment', data.attachment);
 
     const response = await apiClient.post('/bendahara/transactions', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-    })
-    return response.data.data
+    });
+    return response.data.data;
   },
 
   /**
    * Get cash bills for review
    */
   async getCashBills(params?: BendaharaFilters) {
-    const response = await apiClient.get('/bendahara/cash-bills', { params })
-    return mapPaginatedResponse<CashBill>(response.data.data)
+    const response = await apiClient.get('/bendahara/cash-bills', { params });
+    return mapPaginatedResponse<CashBill>(response.data.data);
   },
 
   /**
@@ -138,11 +145,11 @@ export const bendaharaService = {
    */
   async confirmPayment(billId: string) {
     const response = await apiClient.post<{
-      success: boolean
-      data: CashBill
-      message: string
-    }>(`/bendahara/cash-bills/${billId}/confirm-payment`)
-    return response.data.data
+      success: boolean;
+      data: CashBill;
+      message: string;
+    }>(`/bendahara/cash-bills/${billId}/confirm-payment`);
+    return response.data.data;
   },
 
   /**
@@ -150,20 +157,19 @@ export const bendaharaService = {
    */
   async rejectPayment(billId: string, reason?: string) {
     const response = await apiClient.post<{
-      success: boolean
-      data: CashBill
-      message: string
-    }>(`/bendahara/cash-bills/${billId}/reject-payment`, { reason })
-    return response.data.data
+      success: boolean;
+      data: CashBill;
+      message: string;
+    }>(`/bendahara/cash-bills/${billId}/reject-payment`, { reason });
+    return response.data.data;
   },
 
   /**
    * Get financial recap (rekap kas)
    */
   async getRekapKas(params?: BendaharaFilters) {
-    const response = await apiClient.get('/bendahara/rekap-kas', { params })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mapped = mapPaginatedResponse<any>(response.data.data, 'students')
+    const response = await apiClient.get('/bendahara/rekap-kas', { params });
+    const mapped = mapPaginatedResponse<StudentRekap>(response.data.data, 'students');
 
     return {
       ...mapped,
@@ -171,15 +177,15 @@ export const bendaharaService = {
       transactions: response.data.data?.transactions,
       period: response.data.data?.period,
       students: mapped.data, // Backward compatibility with page expectations
-    }
+    };
   },
 
   /**
    * Get financial recap summary
    */
   async getRekapSummary(params?: { startDate?: string; endDate?: string }) {
-    const response = await apiClient.get('/bendahara/rekap-kas/summary', { params })
-    return response.data.data
+    const response = await apiClient.get('/bendahara/rekap-kas/summary', { params });
+    return response.data.data;
   },
 
   /**
@@ -189,7 +195,7 @@ export const bendaharaService = {
     const response = await apiClient.get('/bendahara/rekap-kas/export', {
       params,
       responseType: 'blob',
-    })
-    return response.data
+    });
+    return response.data;
   },
-}
+};

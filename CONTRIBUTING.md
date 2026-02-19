@@ -20,7 +20,7 @@ Please be respectful and constructive in all interactions. We aim to maintain a 
 ### Prerequisites
 
 - Node.js (LTS version) - see `.nvmrc`
-- pnpm v10 or higher
+- Bun runtime
 - Git
 - VS Code (recommended)
 
@@ -47,12 +47,12 @@ galacash-frontend/
 2. **Install dependencies**
 
    ```bash
-   pnpm install
+   bun install
    ```
 
 3. **Start development server**
    ```bash
-   pnpm dev
+   bun dev
    ```
 
 ## Making Contributions
@@ -87,7 +87,7 @@ galacash-frontend/
 
 1. Ensure your code follows the project's coding standards
 2. Update documentation if needed
-3. Ensure all checks pass (`pnpm typecheck`, `pnpm lint`)
+3. Ensure all checks pass (`bun run typecheck`, `bun run lint`)
 4. Request review from maintainers
 5. Address any feedback
 
@@ -127,16 +127,16 @@ chore:    Maintenance tasks
 
 ```bash
 # Run linting
-pnpm lint
+bun run lint
 
 # Fix lint issues
-pnpm lint:fix
+bun run lint --fix
 
 # Format code
-pnpm format
+bun run format
 
 # Type checking
-pnpm typecheck
+bun run tsc --noEmit
 ```
 
 ## Questions?

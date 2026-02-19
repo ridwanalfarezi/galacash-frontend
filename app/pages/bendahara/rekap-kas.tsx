@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import { useQuery } from '@tanstack/react-query'
-import { Check, ChevronRight, Download, Receipt, X } from 'lucide-react'
-import { useState } from 'react'
-import { Link } from 'react-router'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query';
+import { Check, ChevronRight, Download, Receipt, X } from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router';
+import { toast } from 'sonner';
 
-import { EmptyState, MobileCardListSkeleton, TableBodySkeleton } from '~/components/data-display'
+import { EmptyState, MobileCardListSkeleton, TableBodySkeleton } from '~/components/data-display';
 import {
   DataCard,
   DataCardContainer,
@@ -17,26 +17,26 @@ import {
   DataTableHead,
   DataTableHeader,
   DataTableRow,
-} from '~/components/shared/data-table/DataTable'
-import { DataTablePagination } from '~/components/shared/data-table/DataTablePagination'
-import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/ExplorerContext'
-import { Badge } from '~/components/ui/badge'
-import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
-import { bendaharaService } from '~/lib/services/bendahara.service'
-import { formatCurrency } from '~/lib/utils'
+} from '~/components/shared/data-table/DataTable';
+import { DataTablePagination } from '~/components/shared/data-table/DataTablePagination';
+import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/ExplorerContext';
+import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { bendaharaQueries } from '~/lib/queries/bendahara.queries';
+import { bendaharaService } from '~/lib/services/bendahara.service';
+import { formatCurrency } from '~/lib/utils';
 
 interface RekapKasParams {
-  search?: string
-  status?: 'up-to-date' | 'has-arrears'
-  [key: string]: unknown
+  search?: string;
+  status?: 'up-to-date' | 'has-arrears';
+  [key: string]: unknown;
 }
 
 function BendaharaRekapKasContent() {
   const { search, debouncedSearch, setSearch, filters, setFilters, pagination } =
-    useExplorer<RekapKasParams>()
-  const [isExporting, setIsExporting] = useState(false)
+    useExplorer<RekapKasParams>();
+  const [isExporting, setIsExporting] = useState(false);
 
   // Fetch rekap kas data
   const { data: rekapData, isLoading } = useQuery({
@@ -46,7 +46,7 @@ function BendaharaRekapKasContent() {
       page: pagination.page,
       limit: pagination.limit,
     }),
-  })
+  });
 
   function getStatusBadge(status: 'up-to-date' | 'has-arrears') {
     if (status === 'up-to-date') {
@@ -58,7 +58,7 @@ function BendaharaRekapKasContent() {
           <Check className="mr-1 size-3" />
           Lunas
         </Badge>
-      )
+      );
     }
     return (
       <Badge
@@ -68,15 +68,15 @@ function BendaharaRekapKasContent() {
         <X className="mr-1 size-3" />
         Menunggak
       </Badge>
-    )
+    );
   }
 
   const handleExport = async () => {
     try {
-      setIsExporting(true)
-      const queryParams = new URLSearchParams()
-      if (search) queryParams.append('search', search)
-      if (filters.status) queryParams.append('paymentStatus', filters.status)
+      setIsExporting(true);
+      const queryParams = new URLSearchParams();
+      if (search) queryParams.append('search', search);
+      if (filters.status) queryParams.append('paymentStatus', filters.status);
       // Add date filters if ExplorerContext supports them (it seems to support search/status mainly, let's just pass what we have)
       // Note: The UI doesn't specifically show date pickers in the code snippet provided, but if they exist in ExplorerContext they should be passed.
       // Based on previous logs, date filtering might be handled via explorer.
@@ -92,25 +92,25 @@ function BendaharaRekapKasContent() {
       const blob = await bendaharaService.exportRekapKas({
         search: search || undefined,
         paymentStatus: filters.status,
-      })
+      });
 
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `rekap-kas-mahasiswa-${new Date().toISOString().split('T')[0]}.xlsx`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
-      toast.success('Berhasil mengekspor rekap kas')
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `rekap-kas-mahasiswa-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Berhasil mengekspor rekap kas');
     } catch {
-      toast.error('Gagal mengekspor rekap kas')
+      toast.error('Gagal mengekspor rekap kas');
     } finally {
-      setIsExporting(false)
+      setIsExporting(false);
     }
-  }
+  };
 
-  const students = rekapData?.students || []
+  const students = rekapData?.students || [];
 
   return (
     <Card className="overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
@@ -187,10 +187,10 @@ function BendaharaRekapKasContent() {
                     </DataTableCell>
                     <DataTableCell className="font-bold text-gray-900">{item.name}</DataTableCell>
                     <DataTableCell className="text-right font-medium text-green-600">
-                      {formatCurrency(item.totalPaid)}
+                      {formatCurrency(item.totalPaid ?? 0)}
                     </DataTableCell>
                     <DataTableCell className="text-right font-bold text-red-600">
-                      {formatCurrency(item.totalUnpaid)}
+                      {formatCurrency(item.totalUnpaid ?? 0)}
                     </DataTableCell>
                     <DataTableCell className="text-center">
                       {getStatusBadge(item.paymentStatus as 'up-to-date' | 'has-arrears')}
@@ -246,7 +246,7 @@ function BendaharaRekapKasContent() {
                         Terbayar
                       </p>
                       <p className="font-semibold text-green-600">
-                        {formatCurrency(student.totalPaid)}
+                        {formatCurrency(student.totalPaid ?? 0)}
                       </p>
                     </div>
                     <div className="text-right">
@@ -254,7 +254,7 @@ function BendaharaRekapKasContent() {
                         Tunggakan
                       </p>
                       <p className="font-bold text-red-600">
-                        {formatCurrency(student.totalUnpaid)}
+                        {formatCurrency(student.totalUnpaid ?? 0)}
                       </p>
                     </div>
                   </div>
@@ -272,7 +272,7 @@ function BendaharaRekapKasContent() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export default function BendaharaRekapKasPage() {
@@ -284,5 +284,5 @@ export default function BendaharaRekapKasPage() {
         </ExplorerProvider>
       </div>
     </div>
-  )
+  );
 }
