@@ -29,21 +29,27 @@ test.describe('Mobile Responsive', () => {
       });
     });
 
-    await page.route('**/api/dashboard/pending-bills*', async (route) => {
+    await page.route('**/api/cash-bills/my*', async (route) => {
       await route.fulfill({
-        json: { success: true, data: [] },
+        json: {
+          success: true,
+          data: { data: [], pagination: { totalItems: 0 } },
+        },
       });
     });
 
-    await page.route('**/api/dashboard/pending-applications*', async (route) => {
+    await page.route('**/api/fund-applications/my*', async (route) => {
       await route.fulfill({
-        json: { success: true, data: [] },
+        json: {
+          success: true,
+          data: { data: [], pagination: { totalItems: 0 } },
+        },
       });
     });
   });
 
   test('login page should render correctly on mobile', async ({ page }) => {
-    await page.goto('/auth/sign-in');
+    await page.goto('/sign-in');
 
     // Form should be visible and usable
     await expect(page.getByPlaceholder('NIM')).toBeVisible();

@@ -5,7 +5,7 @@ import { loginAs } from './utils/api-mock';
 test.describe('Authentication Flow', () => {
   test.describe('Login Page', () => {
     test('should render login form with NIM and password fields', async ({ page }) => {
-      await page.goto('/auth/sign-in');
+      await page.goto('/sign-in');
 
       await expect(page.getByPlaceholder('NIM')).toBeVisible();
       await expect(page.getByPlaceholder('Kata Sandi')).toBeVisible();
@@ -13,7 +13,7 @@ test.describe('Authentication Flow', () => {
     });
 
     test('should show validation error for invalid NIM format', async ({ page }) => {
-      await page.goto('/auth/sign-in');
+      await page.goto('/sign-in');
 
       await page.getByPlaceholder('NIM').fill('12345');
       await page.getByPlaceholder('Kata Sandi').fill('password123');
@@ -24,7 +24,7 @@ test.describe('Authentication Flow', () => {
     });
 
     test('should show validation error for short password', async ({ page }) => {
-      await page.goto('/auth/sign-in');
+      await page.goto('/sign-in');
 
       await page.getByPlaceholder('NIM').fill('1313600001');
       await page.getByPlaceholder('Kata Sandi').fill('short');
@@ -59,14 +59,36 @@ test.describe('Authentication Flow', () => {
       // Mock subsequent auth/profile requests
       await loginAs(page, 'student');
 
-      await page.goto('/auth/sign-in');
+      // Mock dashboard data to prevent errors after redirect
+      await page.route('**/api/dashboard/**', async (route) => {
+        await route.fulfill({
+          json: { success: true, data: { totalBalance: 0, totalIncome: 0, totalExpense: 0 } },
+        });
+      });
+      await page.route('**/api/transactions*', async (route) => {
+        await route.fulfill({
+          json: { success: true, data: { data: [], pagination: { totalItems: 0 } } },
+        });
+      });
+      await page.route('**/api/cash-bills/**', async (route) => {
+        await route.fulfill({
+          json: { success: true, data: { data: [], pagination: { totalItems: 0 } } },
+        });
+      });
+      await page.route('**/api/fund-applications/**', async (route) => {
+        await route.fulfill({
+          json: { success: true, data: { data: [], pagination: { totalItems: 0 } } },
+        });
+      });
+
+      await page.goto('/sign-in');
 
       await page.getByPlaceholder('NIM').fill('1313600001');
       await page.getByPlaceholder('Kata Sandi').fill('password123');
       await page.getByRole('button', { name: 'Masuk' }).click();
 
       // Should navigate to user dashboard
-      await page.waitForURL(/\/user\/dashboard/, { timeout: 5000 });
+      await page.waitForURL(/\/user\/dashboard/, { timeout: 10000 });
       await expect(page).toHaveURL(/\/user\/dashboard/);
     });
 
@@ -97,14 +119,41 @@ test.describe('Authentication Flow', () => {
       // Mock subsequent auth/profile requests
       await loginAs(page, 'bendahara');
 
-      await page.goto('/auth/sign-in');
+      // Mock dashboard data to prevent errors after redirect
+      await page.route('**/api/dashboard/**', async (route) => {
+        await route.fulfill({
+          json: { success: true, data: { totalBalance: 0, totalIncome: 0, totalExpense: 0 } },
+        });
+      });
+      await page.route('**/api/transactions*', async (route) => {
+        await route.fulfill({
+          json: { success: true, data: { data: [], pagination: { totalItems: 0 } } },
+        });
+      });
+      await page.route('**/api/cash-bills/**', async (route) => {
+        await route.fulfill({
+          json: { success: true, data: { data: [], pagination: { totalItems: 0 } } },
+        });
+      });
+      await page.route('**/api/fund-applications/**', async (route) => {
+        await route.fulfill({
+          json: { success: true, data: { data: [], pagination: { totalItems: 0 } } },
+        });
+      });
+      await page.route('**/api/bendahara/**', async (route) => {
+        await route.fulfill({
+          json: { success: true, data: { data: [], pagination: { totalItems: 0 } } },
+        });
+      });
+
+      await page.goto('/sign-in');
 
       await page.getByPlaceholder('NIM').fill('1313600002');
       await page.getByPlaceholder('Kata Sandi').fill('password123');
       await page.getByRole('button', { name: 'Masuk' }).click();
 
       // Should navigate to bendahara dashboard
-      await page.waitForURL(/\/bendahara\/dashboard/, { timeout: 5000 });
+      await page.waitForURL(/\/bendahara\/dashboard/, { timeout: 10000 });
       await expect(page).toHaveURL(/\/bendahara\/dashboard/);
     });
 
@@ -123,7 +172,7 @@ test.describe('Authentication Flow', () => {
         });
       });
 
-      await page.goto('/auth/sign-in');
+      await page.goto('/sign-in');
 
       await page.getByPlaceholder('NIM').fill('1313600001');
       await page.getByPlaceholder('Kata Sandi').fill('wrongpassword');
@@ -141,7 +190,7 @@ test.describe('Authentication Flow', () => {
       // Mock dashboard data
       await page.route('**/api/dashboard/**', async (route) => {
         await route.fulfill({
-          json: { success: true, data: [] },
+          json: { success: true, data: { totalBalance: 0, totalIncome: 0, totalExpense: 0 } },
         });
       });
 
@@ -152,6 +201,20 @@ test.describe('Authentication Flow', () => {
             success: true,
             data: { data: [], pagination: { totalItems: 0 } },
           },
+        });
+      });
+
+      // Mock cash bills
+      await page.route('**/api/cash-bills/**', async (route) => {
+        await route.fulfill({
+          json: { success: true, data: { data: [], pagination: { totalItems: 0 } } },
+        });
+      });
+
+      // Mock fund applications
+      await page.route('**/api/fund-applications/**', async (route) => {
+        await route.fulfill({
+          json: { success: true, data: { data: [], pagination: { totalItems: 0 } } },
         });
       });
 

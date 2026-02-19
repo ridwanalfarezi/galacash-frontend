@@ -30,9 +30,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'bun run build && bun run server',
+    command: 'bun run build && bun run start',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
+    stdout: 'pipe',
   },
 });
