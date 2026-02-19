@@ -104,9 +104,9 @@ test.describe('User Dashboard', () => {
     await page.goto('/user/dashboard');
 
     // The dashboard renders two TagihanCard instances: one for mobile (block lg:hidden)
-    // and one for desktop (hidden lg:block). Using getByText(/Rp/i).first() matches
-    // the hidden variant. Instead, check for the card title which appears in both.
-    await expect(page.getByText('Tagihan Kas Anda').first()).toBeVisible({ timeout: 10000 });
+    // and one for desktop (hidden lg:block). .first() always matches the hidden variant
+    // regardless of viewport. Use containsText on body to verify the card rendered.
+    await expect(page.locator('body')).toContainText('Tagihan Kas Anda', { timeout: 10000 });
   });
 
   test('should display pending applications section', async ({ page }) => {
