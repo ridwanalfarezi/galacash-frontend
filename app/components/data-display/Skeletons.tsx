@@ -1,5 +1,3 @@
-import { useMemo } from 'react'
-
 import { Card, CardContent, CardHeader } from '~/components/ui/card'
 import { Skeleton } from '~/components/ui/skeleton'
 
@@ -28,10 +26,9 @@ export function StatCardSkeleton() {
  * Grid of StatCard skeletons for dashboard loading state
  */
 export function StatCardsGridSkeleton({ count = 3 }: { count?: number }) {
-  const items = useMemo(() => new Array(count).fill(0), [count])
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:gap-6">
-      {items.map((_, i) => (
+      {Array.from({ length: count }).map((_, i) => (
         <StatCardSkeleton key={i} />
       ))}
     </div>
@@ -61,10 +58,9 @@ export function TransactionItemSkeleton() {
  * List of TransactionItem skeletons
  */
 export function TransactionListSkeleton({ count = 5 }: { count?: number }) {
-  const items = useMemo(() => new Array(count).fill(0), [count])
   return (
     <div className="space-y-1">
-      {items.map((_, i) => (
+      {Array.from({ length: count }).map((_, i) => (
         <TransactionItemSkeleton key={i} />
       ))}
     </div>
@@ -74,8 +70,7 @@ export function TransactionListSkeleton({ count = 5 }: { count?: number }) {
 /**
  * Skeleton for table rows (used in kas-kelas, aju-dana, etc.)
  */
-export function TableRowSkeleton({ columns = 5 }: { columns?: number }) {
-  const cols = useMemo(() => new Array(columns).fill(0), [columns])
+export function TableRowSkeleton({ cols }: { cols: number[] }) {
   return (
     <tr className="border-b border-gray-300">
       {cols.map((_, i) => (
@@ -91,11 +86,11 @@ export function TableRowSkeleton({ columns = 5 }: { columns?: number }) {
  * Multiple table row skeletons
  */
 export function TableBodySkeleton({ rows = 5, columns = 5 }: { rows?: number; columns?: number }) {
-  const rowArray = useMemo(() => new Array(rows).fill(0), [rows])
+  const cols = Array.from<number>({ length: columns })
   return (
     <>
-      {rowArray.map((_, i) => (
-        <TableRowSkeleton key={i} columns={columns} />
+      {Array.from({ length: rows }).map((_, i) => (
+        <TableRowSkeleton key={i} cols={cols} />
       ))}
     </>
   )
@@ -131,10 +126,9 @@ export function MobileCardSkeleton() {
  * Multiple mobile card skeletons
  */
 export function MobileCardListSkeleton({ count = 5 }: { count?: number }) {
-  const items = useMemo(() => new Array(count).fill(0), [count])
   return (
     <div className="space-y-4">
-      {items.map((_, i) => (
+      {Array.from({ length: count }).map((_, i) => (
         <MobileCardSkeleton key={i} />
       ))}
     </div>
