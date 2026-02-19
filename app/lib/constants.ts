@@ -11,9 +11,9 @@ export const STATUS_LABELS = {
   belum_dibayar: { label: 'Unpaid', labelId: 'Belum Dibayar', color: 'red' },
   menunggu_konfirmasi: { label: 'Pending', labelId: 'Menunggu Konfirmasi', color: 'yellow' },
   sudah_dibayar: { label: 'Paid', labelId: 'Sudah Dibayar', color: 'green' },
-} as const
+} as const;
 
-export type StatusKey = keyof typeof STATUS_LABELS
+export type StatusKey = keyof typeof STATUS_LABELS;
 
 // ============================================================================
 // Transaction Types
@@ -27,9 +27,9 @@ export const TRANSACTION_TYPES = {
     textColor: 'text-green-700',
   },
   expense: { label: 'Pengeluaran', color: 'red', bgColor: 'bg-red-50', textColor: 'text-red-700' },
-} as const
+} as const;
 
-export type TransactionTypeKey = keyof typeof TRANSACTION_TYPES
+export type TransactionTypeKey = keyof typeof TRANSACTION_TYPES;
 
 // ============================================================================
 // Fund Categories
@@ -48,9 +48,9 @@ export const FUND_CATEGORIES = {
   printing: { label: 'Cetak', labelEn: 'Printing' },
   donation: { label: 'Sumbangan', labelEn: 'Donation' },
   other: { label: 'Lainnya', labelEn: 'Other' },
-} as const
+} as const;
 
-export type FundCategoryKey = keyof typeof FUND_CATEGORIES
+export type FundCategoryKey = keyof typeof FUND_CATEGORIES;
 
 /**
  * Get fund category options for select dropdown
@@ -62,7 +62,7 @@ export const getFundCategoryOptions = () =>
     .map(([value, { label }]) => ({
       value,
       label,
-    }))
+    }));
 
 // ============================================================================
 // Transaction Categories
@@ -94,9 +94,9 @@ export const TRANSACTION_CATEGORIES = {
   maintenance: { label: 'Pemeliharaan', type: 'expense', hidden: true },
   transport: { label: 'Transportasi', type: 'expense', hidden: true },
   social: { label: 'Sosial', type: 'expense', hidden: true },
-} as const
+} as const;
 
-export type TransactionCategoryKey = keyof typeof TRANSACTION_CATEGORIES
+export type TransactionCategoryKey = keyof typeof TRANSACTION_CATEGORIES;
 
 /**
  * Get transaction category options by type
@@ -105,13 +105,13 @@ export const getTransactionCategoryOptions = (type: 'income' | 'expense') =>
   Object.entries(TRANSACTION_CATEGORIES)
     .filter(([, config]) => {
       // Safe access using type guard or unnecessary cast removal if types align
-      const c = config as { type: string; system_only?: boolean; hidden?: boolean; label: string }
-      return (c.type === type || c.type === 'both') && !c.system_only && !c.hidden
+      const c = config as { type: string; system_only?: boolean; hidden?: boolean; label: string };
+      return (c.type === type || c.type === 'both') && !c.system_only && !c.hidden;
     })
     .map(([value, config]) => ({
       value,
       label: config.label,
-    }))
+    }));
 
 // ============================================================================
 // Chart Colors
@@ -120,15 +120,15 @@ export const getTransactionCategoryOptions = (type: 'income' | 'expense') =>
 export const CHART_COLORS = {
   income: ['#50b89a', '#8cd9a7', '#34a0a4', '#2d7a8e', '#1c5f6f'],
   expense: ['#920c22', '#af2038', '#800016', '#c92a3f', '#e04855'],
-} as const
+} as const;
 
 /**
  * Get chart color by index with cycling
  */
 export const getChartColor = (type: 'income' | 'expense', index: number): string => {
-  const colors = CHART_COLORS[type]
-  return colors[index % colors.length]
-}
+  const colors = CHART_COLORS[type];
+  return colors[index % colors.length];
+};
 
 // ============================================================================
 // Filter Options
@@ -138,13 +138,13 @@ export const FILTER_STATUS_OPTIONS = [
   { id: 'approved', label: 'Diterima', color: 'bg-green-50 text-green-700' },
   { id: 'rejected', label: 'Ditolak', color: 'bg-red-50 text-red-700' },
   { id: 'pending', label: 'Menunggu', color: 'bg-yellow-300 text-yellow-700' },
-] as const
+] as const;
 
 export const TRANSACTION_TYPE_OPTIONS = [
   { value: 'all', label: 'Semua' },
   { value: 'income', label: 'Pemasukan' },
   { value: 'expense', label: 'Pengeluaran' },
-] as const
+] as const;
 
 export const SORT_OPTIONS = {
   transactions: [
@@ -153,7 +153,7 @@ export const SORT_OPTIONS = {
     { sortBy: 'amount', sortOrder: 'desc', label: 'Nominal Tertinggi' },
     { sortBy: 'amount', sortOrder: 'asc', label: 'Nominal Terendah' },
   ],
-} as const
+} as const;
 
 // ============================================================================
 // Pagination Defaults
@@ -163,7 +163,7 @@ export const PAGINATION_DEFAULTS = {
   page: 1,
   limit: 10,
   maxLimit: 100,
-} as const
+} as const;
 
 // ============================================================================
 // Month Names (Bahasa Indonesia)
@@ -182,7 +182,7 @@ export const MONTH_NAMES = [
   'Oktober',
   'November',
   'Desember',
-] as const
+] as const;
 
 // ============================================================================
 // Date Range Presets
@@ -194,20 +194,46 @@ export const DATE_RANGE_PRESETS = {
     to: new Date(),
   }),
   lastMonth: () => {
-    const now = new Date()
+    const now = new Date();
     return {
       from: new Date(now.getFullYear(), now.getMonth() - 1, 1),
       to: new Date(now.getFullYear(), now.getMonth(), 0),
-    }
+    };
   },
   thisYear: () => ({
     from: new Date(new Date().getFullYear(), 0, 1),
     to: new Date(),
   }),
-} as const
+} as const;
 
 // ============================================================================
 // Dashboard Settings
 // ============================================================================
 
-export const DEFAULT_DASHBOARD_START_DATE = new Date(2024, 8, 5) // September 5, 2024
+/**
+ * Calculate the start of the current semester
+ * Indonesian academic semesters:
+ * - Semester 1 (Ganjil): September - December (active)
+ * - Semester 2 (Genap): March - June (active)
+ * - Breaks: January-February, July-August
+ *
+ * Returns start of current/last active semester:
+ * - Sep-Dec: returns September 1 (current year)
+ * - Jan-Feb: returns September 1 (previous year, showing last semester data)
+ * - Mar-Aug: returns March 1 (current year)
+ */
+export const getSemesterStart = (): Date => {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  if (currentMonth >= 8) {
+    return new Date(currentYear, 8, 1);
+  }
+  if (currentMonth >= 2) {
+    return new Date(currentYear, 2, 1);
+  }
+  return new Date(currentYear - 1, 8, 1);
+};
+
+export const DEFAULT_DASHBOARD_START_DATE = getSemesterStart();
