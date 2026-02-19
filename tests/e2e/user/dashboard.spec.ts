@@ -103,9 +103,10 @@ test.describe('User Dashboard', () => {
 
     await page.goto('/user/dashboard');
 
-    // The dashboard shows a TagihanCard with total unpaid amount, not individual billIds.
-    // Check that the tagihan notification section renders (it shows when hasBills is true)
-    await expect(page.getByText(/Rp/i).first()).toBeVisible({ timeout: 10000 });
+    // The dashboard renders two TagihanCard instances: one for mobile (block lg:hidden)
+    // and one for desktop (hidden lg:block). Using getByText(/Rp/i).first() matches
+    // the hidden variant. Instead, check for the card title which appears in both.
+    await expect(page.getByText('Tagihan Kas Anda').first()).toBeVisible({ timeout: 10000 });
   });
 
   test('should display pending applications section', async ({ page }) => {
