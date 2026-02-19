@@ -1,12 +1,12 @@
-import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
-import { queryKeys } from '~/lib/queries/keys'
+import { queryKeys } from '~/lib/queries/keys';
 import {
   cashBillService,
   type CashBillFilters,
   type PayBillData,
-} from '~/lib/services/cash-bill.service'
+} from '~/lib/services/cash-bill.service';
 
 /**
  * Cash Bill query factory
@@ -35,49 +35,49 @@ export const cashBillQueries = {
       staleTime: 300 * 1000,
       enabled: !!id,
     }),
-}
+};
 
 /**
  * Mutation hook for paying a bill
  */
 export function usePayBill() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ billId, data }: { billId: string; data: PayBillData }) =>
       cashBillService.payBill(billId, data),
     onSuccess: () => {
       // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['transactions'] })
-      toast.success('Bukti pembayaran berhasil diupload')
+      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+      toast.success('Bukti pembayaran berhasil diupload');
     },
     onError: () => {
-      toast.error('Gagal mengupload bukti pembayaran')
+      toast.error('Gagal mengupload bukti pembayaran');
     },
-  })
+  });
 }
 
 /**
  * Mutation hook for canceling a payment
  */
 export function useCancelPayment() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (billId: string) => cashBillService.cancelPayment(billId),
     onSuccess: () => {
       // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['transactions'] })
-      toast.success('Pembayaran berhasil dibatalkan')
+      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+      toast.success('Pembayaran berhasil dibatalkan');
     },
     onError: () => {
-      toast.error('Gagal membatalkan pembayaran')
+      toast.error('Gagal membatalkan pembayaran');
     },
-  })
+  });
 }

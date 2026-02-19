@@ -1,19 +1,19 @@
-'use client'
+'use client';
 
-import { useQuery } from '@tanstack/react-query'
-import { ChevronRight, Download, Plus, Wallet } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query';
+import { ChevronRight, Download, Plus, Wallet } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
-import { FinancialPieChart } from '~/components/chart/FinancialPieChart'
+import { FinancialPieChart } from '~/components/chart/FinancialPieChart';
 import {
   EmptyState,
   MobileCardListSkeleton,
   TableBodySkeleton,
   TransactionTypeBadge,
-} from '~/components/data-display'
-import { BuatTransaksi } from '~/components/modals/BuatTransaksi'
-import { DetailTransaksi } from '~/components/modals/DetailTransaksi'
+} from '~/components/data-display';
+import { BuatTransaksi } from '~/components/modals/BuatTransaksi';
+import { DetailTransaksi } from '~/components/modals/DetailTransaksi';
 import {
   DataCard,
   DataCardContainer,
@@ -24,29 +24,40 @@ import {
   DataTableHead,
   DataTableHeader,
   DataTableRow,
-} from '~/components/shared/data-table/DataTable'
-import { DataTablePagination } from '~/components/shared/data-table/DataTablePagination'
-import { useExplorer } from '~/components/shared/explorer/ExplorerContext'
-import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { transactionQueries } from '~/lib/queries/transaction.queries'
-import { transactionService } from '~/lib/services/transaction.service'
-import { cn, formatCurrency, formatDate } from '~/lib/utils'
-import type { HistoryTransaction } from '~/types/domain'
+} from '~/components/shared/data-table/DataTable';
+import { DataTablePagination } from '~/components/shared/data-table/DataTablePagination';
+import { useExplorer } from '~/components/shared/explorer/ExplorerContext';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { transactionQueries } from '~/lib/queries/transaction.queries';
+import { transactionService } from '~/lib/services/transaction.service';
+import { cn, formatCurrency, formatDate } from '~/lib/utils';
+import type { HistoryTransaction } from '~/types/domain';
 
 interface KasKelasParams {
-  type?: 'income' | 'expense'
-  [key: string]: unknown
+  type?: 'income' | 'expense';
+  [key: string]: unknown;
 }
 
+/** Props for the KasKelasBase shared component */
 export interface KasKelasBaseProps {
-  variant: 'user' | 'bendahara'
-  title?: string
-  chartTitle?: string
-  showCreateButton?: boolean
-  exportFilename?: string
+  /** Role variant — controls create button visibility and empty state text */
+  variant: 'user' | 'bendahara';
+  /** Table card title (default: 'Riwayat Transaksi') */
+  title?: string;
+  /** Chart section title (default: 'Visualisasi Keuangan') */
+  chartTitle?: string;
+  /** Show the "Buat Transaksi" button (bendahara only) */
+  showCreateButton?: boolean;
+  /** Custom filename prefix for Excel export */
+  exportFilename?: string;
 }
 
+/**
+ * Shared transaction history page component used by both user and bendahara roles.
+ * Renders a financial pie chart breakdown and a paginated, sortable transaction table
+ * with search, export, and optional transaction creation functionality.
+ */
 export function KasKelasBase({
   variant,
   title = 'Riwayat Transaksi',
@@ -55,10 +66,10 @@ export function KasKelasBase({
   exportFilename,
 }: KasKelasBaseProps) {
   const { search, debouncedSearch, setSearch, filters, setFilters, sort, setSort, pagination } =
-    useExplorer<KasKelasParams>()
-  const [detailModal, setDetailModal] = useState<HistoryTransaction | null>(null)
-  const [isBuatModalOpen, setIsBuatModalOpen] = useState(false)
-  const [isExporting, setIsExporting] = useState(false)
+    useExplorer<KasKelasParams>();
+  const [detailModal, setDetailModal] = useState<HistoryTransaction | null>(null);
+  const [isBuatModalOpen, setIsBuatModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const { data: transactionsData, isLoading } = useQuery({
     ...transactionQueries.list({
@@ -69,12 +80,12 @@ export function KasKelasBase({
       sortBy: (sort?.key as 'date' | 'amount') || 'date',
       sortOrder: (sort?.direction as 'asc' | 'desc') || 'desc',
     }),
-  })
+  });
 
   const historyTransaction: HistoryTransaction[] = useMemo(() => {
-    if (!transactionsData?.transactions) return []
+    if (!transactionsData?.transactions) return [];
     return transactionsData.transactions.map((t) => {
-      const tx = t as typeof t & { category?: string; attachmentUrl?: string | null }
+      const tx = t as typeof t & { category?: string; attachmentUrl?: string | null };
       return {
         id: tx.id || '',
         date: tx.date || '',
@@ -83,39 +94,39 @@ export function KasKelasBase({
         amount: tx.amount || 0,
         category: tx.category || 'other',
         attachmentUrl: tx.attachmentUrl,
-      }
-    })
-  }, [transactionsData])
+      };
+    });
+  }, [transactionsData]);
 
-  const { data: incomeData } = useQuery(transactionQueries.breakdown({ type: 'income' }))
-  const { data: expenseData } = useQuery(transactionQueries.breakdown({ type: 'expense' }))
+  const { data: incomeData } = useQuery(transactionQueries.breakdown({ type: 'income' }));
+  const { data: expenseData } = useQuery(transactionQueries.breakdown({ type: 'expense' }));
 
   const handleExport = async () => {
     try {
-      setIsExporting(true)
-      const blob = await transactionService.exportTransactions({ type: filters.type })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
+      setIsExporting(true);
+      const blob = await transactionService.exportTransactions({ type: filters.type });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
       const defaultFilename =
-        exportFilename || `${variant}-kas-kelas-${new Date().toISOString().split('T')[0]}`
-      a.download = `${defaultFilename}.xlsx`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
-      toast.success('Berhasil mengekspor data')
+        exportFilename || `${variant}-kas-kelas-${new Date().toISOString().split('T')[0]}`;
+      a.download = `${defaultFilename}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Berhasil mengekspor data');
     } catch {
-      toast.error('Gagal mengekspor data')
+      toast.error('Gagal mengekspor data');
     } finally {
-      setIsExporting(false)
+      setIsExporting(false);
     }
-  }
+  };
 
   const emptyStateDescription =
     variant === 'bendahara'
       ? 'Coba gunakan filter lain atau buat transaksi baru'
-      : 'Belum ada data transaksi'
+      : 'Belum ada data transaksi';
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -305,5 +316,5 @@ export function KasKelasBase({
         <BuatTransaksi isOpen={isBuatModalOpen} onClose={() => setIsBuatModalOpen(false)} />
       )}
     </div>
-  )
+  );
 }

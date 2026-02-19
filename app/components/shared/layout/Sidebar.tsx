@@ -1,41 +1,41 @@
-'use client'
+'use client';
 
-import { ChevronUp } from 'lucide-react'
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router'
+import { ChevronUp } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router';
 
-import { Icons } from '~/components/icons'
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
-import { Button } from '~/components/ui/button'
+import { Icons } from '~/components/icons';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
+import { Button } from '~/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
-import { useLogout } from '~/lib/queries/auth.queries'
-import { useCurrentUser, useUserInitials } from '~/lib/stores/auth.store'
+} from '~/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
+import { useLogout } from '~/lib/queries/auth.queries';
+import { useCurrentUser, useUserInitials } from '~/lib/stores/auth.store';
 
-import { navigationBendahara, navigationUser, type NavigationItem } from './navdata'
+import { navigationBendahara, navigationUser, type NavigationItem } from './navdata';
 
 export function Sidebar() {
-  const location = useLocation()
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const location = useLocation();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Use auth store instead of API call - user is already cached from route loader
-  const user = useCurrentUser()
-  const userInitials = useUserInitials()
-  const logoutMutation = useLogout()
+  const user = useCurrentUser();
+  const userInitials = useUserInitials();
+  const logoutMutation = useLogout();
 
   const signOut = () => {
-    logoutMutation.mutate()
-  }
+    logoutMutation.mutate();
+  };
 
   const navigation: NavigationItem[] = location.pathname.startsWith('/bendahara')
     ? navigationBendahara
-    : navigationUser
+    : navigationUser;
 
   return (
     <TooltipProvider>
@@ -45,7 +45,12 @@ export function Sidebar() {
         }`}
       >
         <div className="p-6">
-          <img src="/logo.png" alt="Logo" className={sidebarCollapsed ? 'w-auto' : 'w-40'} />
+          <img
+            src="/logo.png"
+            alt="Logo"
+            loading="lazy"
+            className={sidebarCollapsed ? 'w-auto' : 'w-40'}
+          />
         </div>
 
         <div className="p-4">
@@ -79,7 +84,7 @@ export function Sidebar() {
         <nav className="flex-1 p-4">
           <div className="space-y-4">
             {navigation.map((item: NavigationItem) => {
-              const isActive = location.pathname.includes(item.href)
+              const isActive = location.pathname.includes(item.href);
               return (
                 <Link key={item.name} to={item.href} className="block">
                   {sidebarCollapsed ? (
@@ -106,12 +111,12 @@ export function Sidebar() {
                       <div className="flex size-6 items-center justify-center">
                         <item.icon className={item.className} />
                       </div>
-                      {/* <item.icon className={item.className} /> */}
+
                       <span className="text-xl xl:text-2xl">{item.name}</span>
                     </Button>
                   )}
                 </Link>
-              )
+              );
             })}
           </div>
         </nav>
@@ -187,5 +192,5 @@ export function Sidebar() {
         </div>
       </div>
     </TooltipProvider>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-import type { TransactionFilters } from '~/lib/services/transaction.service'
+import type { TransactionFilters } from '~/lib/services/transaction.service';
 
-import type { BendaharaFilters } from '../services/bendahara.service'
+import type { BendaharaFilters } from '../services/bendahara.service';
 
 // ============================================================================
 // Query Keys Factory
@@ -24,10 +24,10 @@ export const queryKeys = {
     recent: (limit: number) => [...queryKeys.transactions.all, 'recent', limit] as const,
     detail: (id: string) => [...queryKeys.transactions.all, 'detail', id] as const,
     chart: (params: {
-      type: 'income' | 'expense'
-      startDate?: string
-      endDate?: string
-      view?: string
+      type: 'income' | 'expense';
+      startDate?: string;
+      endDate?: string;
+      view?: string;
     }) => [...queryKeys.transactions.all, 'chart', params] as const,
   },
 
@@ -92,5 +92,8 @@ export const queryKeys = {
       [...queryKeys.bendahara.all, 'students', filters] as const,
     rekapKas: (filters?: BendaharaFilters) =>
       [...queryKeys.bendahara.all, 'rekap-kas', filters] as const,
+    fundApplicationDetail: (id: string) =>
+      [...queryKeys.bendahara.all, 'fundApplications', 'detail', id] as const,
+    studentDetail: (id: string) => [...queryKeys.bendahara.all, 'students', 'detail', id] as const,
   },
-} as const
+} as const;

@@ -1,18 +1,18 @@
-'use client'
+'use client';
 
-import { useQuery } from '@tanstack/react-query'
-import { ChevronRight, HandCoins, Plus } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query';
+import { ChevronRight, HandCoins, Plus } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 import {
   EmptyState,
   MobileCardListSkeleton,
   StatusBadge,
   TableBodySkeleton,
-} from '~/components/data-display'
-import { BuatAjuDanaModal } from '~/components/modals/BuatAjuDana'
-import { DetailAjuDanaModal } from '~/components/modals/DetailAjuDana'
-import { DetailAjuDanaBendahara } from '~/components/modals/DetailAjuDanaBendahara'
+} from '~/components/data-display';
+import { BuatAjuDanaModal } from '~/components/modals/BuatAjuDana';
+import { DetailAjuDanaModal } from '~/components/modals/DetailAjuDana';
+import { DetailAjuDanaBendahara } from '~/components/modals/DetailAjuDanaBendahara';
 import {
   DataCard,
   DataCardContainer,
@@ -23,36 +23,46 @@ import {
   DataTableHead,
   DataTableHeader,
   DataTableRow,
-} from '~/components/shared/data-table/DataTable'
-import { DataTablePagination } from '~/components/shared/data-table/DataTablePagination'
-import { useExplorer } from '~/components/shared/explorer/ExplorerContext'
-import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
-import { formatCurrency, formatDate, toTitleCase } from '~/lib/utils'
-import type { components } from '~/types/api'
-import type { Application } from '~/types/domain'
+} from '~/components/shared/data-table/DataTable';
+import { DataTablePagination } from '~/components/shared/data-table/DataTablePagination';
+import { useExplorer } from '~/components/shared/explorer/ExplorerContext';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { fundApplicationQueries } from '~/lib/queries/fund-application.queries';
+import { formatCurrency, formatDate, toTitleCase } from '~/lib/utils';
+import type { components } from '~/types/api';
+import type { Application } from '~/types/domain';
 
 type FundApplicationWithMeta = components['schemas']['FundApplication'] & {
-  createdAt?: string
-  user?: { name?: string }
-  description?: string
-  attachmentUrl?: string
-}
+  createdAt?: string;
+  user?: { name?: string };
+  description?: string;
+  attachmentUrl?: string;
+};
 
 interface ApplicationParams {
-  status?: 'pending' | 'approved' | 'rejected'
-  search?: string
-  [key: string]: unknown
+  status?: 'pending' | 'approved' | 'rejected';
+  search?: string;
+  [key: string]: unknown;
 }
 
+/** Props for the AjuDanaList shared component */
 export interface AjuDanaListProps {
-  title: string
-  variant: 'my' | 'all'
-  showCreateButton?: boolean
-  onOpenModal?: () => void
+  /** Card title */
+  title: string;
+  /** 'my' shows user's own applications, 'all' shows all (for bendahara) */
+  variant: 'my' | 'all';
+  /** Show the "Ajukan Dana" create button */
+  showCreateButton?: boolean;
+  /** Callback when the create modal should open */
+  onOpenModal?: () => void;
 }
 
+/**
+ * Shared fund application list component.
+ * Supports both user ('my' applications) and bendahara ('all' applications) views
+ * with pagination, filtering by status, sorting, and search.
+ */
 export function AjuDanaList({
   title,
   variant,
@@ -60,9 +70,9 @@ export function AjuDanaList({
   onOpenModal,
 }: AjuDanaListProps) {
   const { search, debouncedSearch, setSearch, filters, setFilters, sort, setSort, pagination } =
-    useExplorer<ApplicationParams>()
-  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+    useExplorer<ApplicationParams>();
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const myQuery = useQuery({
     ...fundApplicationQueries.my({
@@ -72,7 +82,7 @@ export function AjuDanaList({
       search: debouncedSearch || undefined,
     }),
     enabled: variant === 'my',
-  })
+  });
 
   const listQuery = useQuery({
     ...fundApplicationQueries.list({
@@ -84,13 +94,13 @@ export function AjuDanaList({
       sortOrder: (sort?.direction as 'asc' | 'desc') ?? 'desc',
     }),
     enabled: variant === 'all',
-  })
+  });
 
-  const response = variant === 'my' ? myQuery.data : listQuery.data
-  const isLoading = variant === 'my' ? myQuery.isLoading : listQuery.isLoading
+  const response = variant === 'my' ? myQuery.data : listQuery.data;
+  const isLoading = variant === 'my' ? myQuery.isLoading : listQuery.isLoading;
 
   const applications: Application[] = useMemo(() => {
-    const data = response?.data || []
+    const data = response?.data || [];
     return data.map((app: FundApplicationWithMeta) => ({
       id: app.id || '',
       date: app.createdAt ? formatDate(app.createdAt) : '',
@@ -101,13 +111,13 @@ export function AjuDanaList({
       applicant: variant === 'my' ? 'Anda' : app.user?.name || 'Unknown',
       description: app.description,
       attachment: app.attachmentUrl,
-    }))
-  }, [response?.data, variant])
+    }));
+  }, [response?.data, variant]);
 
   const handleViewDetail = (app: Application) => {
-    setSelectedApplication(app)
-    setIsDetailModalOpen(true)
-  }
+    setSelectedApplication(app);
+    setIsDetailModalOpen(true);
+  };
 
   return (
     <>
@@ -274,20 +284,26 @@ export function AjuDanaList({
         />
       )}
     </>
-  )
+  );
 }
 
+/** Props for the AjuDanaBendaharaList component */
 export interface AjuDanaBendaharaListProps {
-  title?: string
+  /** Card title (default: 'Rekap Pengajuan Dana') */
+  title?: string;
 }
 
+/**
+ * Bendahara-specific fund application recap list.
+ * Shows all applications with detail modal for review/approval actions.
+ */
 export function AjuDanaBendaharaList({
   title = 'Rekap Pengajuan Dana',
 }: AjuDanaBendaharaListProps) {
   const { search, debouncedSearch, setSearch, filters, setFilters, sort, setSort, pagination } =
-    useExplorer<ApplicationParams>()
-  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+    useExplorer<ApplicationParams>();
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const { data: response, isLoading } = useQuery({
     ...fundApplicationQueries.list({
@@ -298,10 +314,10 @@ export function AjuDanaBendaharaList({
       sortBy: (sort?.key as 'date' | 'amount' | 'status') ?? 'date',
       sortOrder: (sort?.direction as 'asc' | 'desc') ?? 'desc',
     }),
-  })
+  });
 
   const applications: Application[] = useMemo(() => {
-    const data = response?.data || []
+    const data = response?.data || [];
     return data.map((app: FundApplicationWithMeta) => ({
       id: app.id || '',
       date: app.createdAt ? formatDate(app.createdAt) : '',
@@ -312,13 +328,13 @@ export function AjuDanaBendaharaList({
       applicant: app.user?.name || 'Unknown',
       description: app.description,
       attachment: app.attachmentUrl,
-    }))
-  }, [response?.data])
+    }));
+  }, [response?.data]);
 
   const handleViewDetail = (app: Application) => {
-    setSelectedApplication(app)
-    setIsDetailModalOpen(true)
-  }
+    setSelectedApplication(app);
+    setIsDetailModalOpen(true);
+  };
 
   return (
     <Card className="gap-0 overflow-hidden rounded-4xl border-0 shadow-lg shadow-gray-100">
@@ -346,8 +362,8 @@ export function AjuDanaBendaharaList({
                 <DataTableHead
                   filterValue={filters.status}
                   onFilterChange={(v) => {
-                    const params = v as 'pending' | 'approved' | 'rejected'
-                    setFilters({ status: params })
+                    const params = v as 'pending' | 'approved' | 'rejected';
+                    setFilters({ status: params });
                   }}
                   filterOptions={[
                     { label: 'Semua Status', value: '' },
@@ -474,7 +490,7 @@ export function AjuDanaBendaharaList({
         />
       )}
     </Card>
-  )
+  );
 }
 
-export { BuatAjuDanaModal }
+export { BuatAjuDanaModal };

@@ -1,13 +1,13 @@
-import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
-import { getErrorMessage } from '~/lib/api/errors'
-import { queryKeys } from '~/lib/queries/keys'
+import { getErrorMessage } from '~/lib/api/errors';
+import { queryKeys } from '~/lib/queries/keys';
 import {
   bendaharaService,
   type BendaharaFilters,
   type CreateTransactionData,
-} from '~/lib/services/bendahara.service'
+} from '~/lib/services/bendahara.service';
 
 /**
  * Bendahara query factory
@@ -31,7 +31,7 @@ export const bendaharaQueries = {
    */
   fundApplicationDetail: (id: string) =>
     queryOptions({
-      queryKey: ['bendahara', 'fundApplications', 'detail', id] as const,
+      queryKey: queryKeys.bendahara.fundApplicationDetail(id),
       queryFn: () => bendaharaService.getFundApplicationDetail(id),
       staleTime: 300 * 1000,
       enabled: !!id,
@@ -76,12 +76,12 @@ export const bendaharaQueries = {
    */
   studentDetail: (id: string) =>
     queryOptions({
-      queryKey: ['bendahara', 'students', 'detail', id] as const,
+      queryKey: queryKeys.bendahara.studentDetail(id),
       queryFn: () => bendaharaService.getStudentDetail(id),
       staleTime: 300 * 1000,
       enabled: !!id,
     }),
-}
+};
 
 /**
  * Mutation hooks for bendahara operations
@@ -91,109 +91,109 @@ export const bendaharaQueries = {
  * Approve fund application mutation
  */
 export const useApproveFundApplication = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: string) => bendaharaService.approveFundApplication(id),
     onSuccess: () => {
       // Invalidate all fund application related queries
-      queryClient.invalidateQueries({ queryKey: ['fund-applications'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['transactions'] })
-      toast.success('Pengajuan dana berhasil disetujui')
+      queryClient.invalidateQueries({ queryKey: queryKeys.fundApplications.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+      toast.success('Pengajuan dana berhasil disetujui');
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, 'Gagal menyetujui pengajuan dana'))
+      toast.error(getErrorMessage(error, 'Gagal menyetujui pengajuan dana'));
     },
-  })
-}
+  });
+};
 
 /**
  * Reject fund application mutation
  */
 export const useRejectFundApplication = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, rejectionReason }: { id: string; rejectionReason: string }) =>
       bendaharaService.rejectFundApplication(id, rejectionReason),
     onSuccess: () => {
       // Invalidate all fund application related queries
-      queryClient.invalidateQueries({ queryKey: ['fund-applications'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['transactions'] })
-      toast.success('Pengajuan dana berhasil ditolak')
+      queryClient.invalidateQueries({ queryKey: queryKeys.fundApplications.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+      toast.success('Pengajuan dana berhasil ditolak');
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, 'Gagal menolak pengajuan dana'))
+      toast.error(getErrorMessage(error, 'Gagal menolak pengajuan dana'));
     },
-  })
-}
+  });
+};
 
 /**
  * Confirm cash bill payment mutation
  */
 export const useConfirmPayment = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (billId: string) => bendaharaService.confirmPayment(billId),
     onSuccess: () => {
       // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
-      queryClient.invalidateQueries({ queryKey: ['transactions'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Pembayaran berhasil dikonfirmasi')
+      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      toast.success('Pembayaran berhasil dikonfirmasi');
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, 'Gagal mengonfirmasi pembayaran'))
+      toast.error(getErrorMessage(error, 'Gagal mengonfirmasi pembayaran'));
     },
-  })
-}
+  });
+};
 
 /**
  * Reject cash bill payment mutation
  */
 export const useRejectPayment = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ billId, reason }: { billId: string; reason?: string }) =>
       bendaharaService.rejectPayment(billId, reason),
     onSuccess: () => {
       // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: ['cash-bills'] })
-      queryClient.invalidateQueries({ queryKey: ['bendahara'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Pembayaran berhasil ditolak')
+      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      toast.success('Pembayaran berhasil ditolak');
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, 'Gagal menolak pembayaran'))
+      toast.error(getErrorMessage(error, 'Gagal menolak pembayaran'));
     },
-  })
-}
+  });
+};
 
 /**
  * Create manual transaction mutation
  */
 export const useCreateTransaction = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: CreateTransactionData) => bendaharaService.createTransaction(data),
     onSuccess: () => {
       // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all })
-      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all })
-      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all })
-      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all })
-      toast.success('Transaksi berhasil dibuat')
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all });
+      toast.success('Transaksi berhasil dibuat');
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, 'Gagal membuat transaksi'))
+      toast.error(getErrorMessage(error, 'Gagal membuat transaksi'));
     },
-  })
-}
+  });
+};
