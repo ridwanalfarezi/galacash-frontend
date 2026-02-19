@@ -28,7 +28,7 @@ import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/Expl
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { bendaharaQueries } from '~/lib/queries/bendahara.queries'
-import { formatCurrency } from '~/lib/utils'
+import { formatCurrency, formatDate, formatMonthYear } from '~/lib/utils'
 import type { components } from '~/types/api'
 
 type CashBill = components['schemas']['CashBill']
@@ -105,14 +105,8 @@ function BendaharaDetailRekapKasContent() {
       const monthNum = Number(bill.month) || 1
       const yearNum = Number(bill.year) || new Date().getFullYear()
       const monthDate = new Date(yearNum, monthNum - 1)
-      const monthName = monthDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
-      const dueDateFormatted = bill.dueDate
-        ? new Date(bill.dueDate).toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })
-        : ''
+      const monthName = formatMonthYear(monthDate)
+      const dueDateFormatted = bill.dueDate ? formatDate(bill.dueDate) : ''
 
       let displayStatus: Tagihan['status'] = 'Belum Dibayar'
       if (bill.status === 'sudah_dibayar') displayStatus = 'Sudah Dibayar'

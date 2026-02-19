@@ -27,7 +27,7 @@ import { ExplorerProvider, useExplorer } from '~/components/shared/explorer/Expl
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
-import { formatCurrency } from '~/lib/utils'
+import { formatCurrency, formatDate, formatMonthYear } from '~/lib/utils'
 
 interface TagihanKas {
   id: string
@@ -79,15 +79,9 @@ function TagihanKasContent() {
       const monthNum = Number(bill.month) || 1
       const yearNum = Number(bill.year) || new Date().getFullYear()
       const monthDate = new Date(yearNum, monthNum - 1) // monthNum - 1 because JS months are 0-indexed
-      const monthName = monthDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+      const monthName = formatMonthYear(monthDate)
 
-      const dueDateFormatted = bill.dueDate
-        ? new Date(bill.dueDate as string).toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })
-        : ''
+      const dueDateFormatted = bill.dueDate ? formatDate(bill.dueDate as string) : ''
 
       let displayStatus: TagihanKas['status'] = 'Belum Dibayar'
       if (bill.status === 'sudah_dibayar') displayStatus = 'Sudah Dibayar'

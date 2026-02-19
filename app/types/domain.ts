@@ -14,6 +14,41 @@ export type Pagination = components['schemas']['Pagination']
 // Derived/UI-Specific Types
 // ============================================================================
 
+export interface HistoryTransaction {
+  id: string
+  date: string
+  purpose: string
+  type: 'income' | 'expense'
+  amount: number
+  category: string
+  attachmentUrl?: string | null
+}
+
+export interface Application {
+  id: string
+  date: string
+  purpose: string
+  category: string
+  status: 'pending' | 'approved' | 'rejected'
+  amount: number
+  applicant: string
+  description?: string
+  attachment?: string
+}
+
+export interface TagihanKas {
+  id: string
+  month: string
+  status: 'Belum Dibayar' | 'Menunggu Konfirmasi' | 'Sudah Dibayar'
+  billId: string
+  dueDate: string
+  totalAmount: number
+  name: string
+  kasKelas: number
+  biayaAdmin: number
+  paymentProofUrl?: string | null
+}
+
 /**
  * Simplified transaction type for display purposes
  * Used in dashboard and transaction list components

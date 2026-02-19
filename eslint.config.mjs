@@ -37,6 +37,7 @@ export default [
         typescript: {
           alwaysTryTypes: true,
           project: './tsconfig.json',
+          bun: true,
         },
       },
     },

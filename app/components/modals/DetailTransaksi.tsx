@@ -6,6 +6,7 @@ import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import { TRANSACTION_CATEGORIES, type TransactionCategoryKey } from '~/lib/constants'
 import { formatCurrency, getFilenameFromUrl } from '~/lib/utils'
 
 interface HistoryTransaction {
@@ -19,27 +20,10 @@ interface HistoryTransaction {
 }
 
 const formatCategoryName = (category: string) => {
-  const map: Record<string, string> = {
-    kas_kelas: 'Kas Kelas',
-    donation: 'Sumbangan',
-    fundraising: 'Penggalangan Dana',
-    office_supplies: 'Alat Tulis Kantor',
-    consumption: 'Konsumsi',
-    event: 'Acara',
-    maintenance: 'Pemeliharaan',
-    other: 'Lainnya',
-    education: 'Pendidikan',
-    health: 'Kesehatan',
-    emergency: 'Darurat',
-    equipment: 'Peralatan',
-    subscription: 'Langganan',
-    competition: 'Lomba',
-    printing: 'Cetak',
-    fine: 'Denda',
-    transport: 'Transportasi',
-    social: 'Sosial',
+  if (Object.hasOwn(TRANSACTION_CATEGORIES, category)) {
+    return TRANSACTION_CATEGORIES[category as TransactionCategoryKey].label
   }
-  return map[category] || category
+  return category
 }
 
 interface DetailTransaksiProps {
