@@ -14,7 +14,7 @@ function PieChartSkeleton() {
 }
 
 // Lazy load the actual pie chart component
-const FinancialPieChartBase = React.lazy(() => import('./FinancialPieChartBase'));
+const FinancialPieChartBaseInner = React.lazy(() => import('./FinancialPieChartBase'));
 
 interface FinancialPieChartProps {
   data: Array<{
@@ -28,10 +28,12 @@ interface FinancialPieChartProps {
   className?: string;
 }
 
-export function FinancialPieChart(props: FinancialPieChartProps) {
+const FinancialPieChart = React.memo(function FinancialPieChart(props: FinancialPieChartProps) {
   return (
     <React.Suspense fallback={<PieChartSkeleton />}>
-      <FinancialPieChartBase {...props} />
+      <FinancialPieChartBaseInner {...props} />
     </React.Suspense>
   );
-}
+});
+
+export { FinancialPieChart };
