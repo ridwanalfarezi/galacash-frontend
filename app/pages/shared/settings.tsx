@@ -1,119 +1,119 @@
-import { Eye, EyeClosed, Upload } from 'lucide-react'
-import { type ChangeEvent, type FormEvent, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router'
-import { toast } from 'sonner'
+import { Eye, EyeClosed, Upload } from 'lucide-react';
+import { type ChangeEvent, type FormEvent, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import { toast } from 'sonner';
 
-import { SettingsSkeleton } from '~/components/data-display'
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
+import { SettingsSkeleton } from '~/components/data-display';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
 import {
   useChangePassword,
   useUpdateProfile,
   useUploadAvatar,
   useUserProfile,
-} from '~/lib/queries/user.queries'
+} from '~/lib/queries/user.queries';
 
 const SettingsPage = () => {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const isBendahara = location.pathname.startsWith('/bendahara')
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isBendahara = location.pathname.startsWith('/bendahara');
 
   // Queries and mutations
-  const { data: user, isLoading } = useUserProfile()
-  const updateProfileMutation = useUpdateProfile()
-  const changePasswordMutation = useChangePassword()
-  const uploadAvatarMutation = useUploadAvatar()
+  const { data: user, isLoading } = useUserProfile();
+  const updateProfileMutation = useUpdateProfile();
+  const changePasswordMutation = useChangePassword();
+  const uploadAvatarMutation = useUploadAvatar();
 
   // Form states
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     email: user?.email || '',
-  })
+  });
 
   const [passwordData, setPasswordData] = useState({
     oldPassword: '',
     newPassword: '',
     confirmPassword: '',
-  })
+  });
 
   const [showPassword, setShowPassword] = useState({
     old: false,
     new: false,
     confirm: false,
-  })
+  });
 
   // Handle profile update
   const handleProfileSubmit = async (e: FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      await updateProfileMutation.mutateAsync(profileData)
-      toast.success('Profil berhasil diperbarui')
+      await updateProfileMutation.mutateAsync(profileData);
+      toast.success('Profil berhasil diperbarui');
     } catch {
-      toast.error('Gagal memperbarui profil')
+      toast.error('Gagal memperbarui profil');
     }
-  }
+  };
 
   // Handle password change
   const handlePasswordSubmit = async (e: FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error('Kata sandi baru tidak cocok')
-      return
+      toast.error('Kata sandi baru tidak cocok');
+      return;
     }
 
     if (passwordData.newPassword.length < 8) {
-      toast.error('Kata sandi baru harus minimal 8 karakter')
-      return
+      toast.error('Kata sandi baru harus minimal 8 karakter');
+      return;
     }
 
     try {
       await changePasswordMutation.mutateAsync({
         oldPassword: passwordData.oldPassword,
         newPassword: passwordData.newPassword,
-      })
-      setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' })
-      toast.success('Kata sandi berhasil diubah. Silakan login kembali.')
+      });
+      setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+      toast.success('Kata sandi berhasil diubah. Silakan login kembali.');
       // Redirect to login and replace history to prevent back navigation
       setTimeout(() => {
-        navigate('/auth/sign-in', { replace: true })
-      }, 1500)
+        navigate('/auth/sign-in', { replace: true });
+      }, 1500);
     } catch {
-      toast.error('Gagal mengubah kata sandi')
+      toast.error('Gagal mengubah kata sandi');
     }
-  }
+  };
 
   // Handle avatar upload
   const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Ukuran file terlalu besar (max 5MB)')
-      return
+      toast.error('Ukuran file terlalu besar (max 5MB)');
+      return;
     }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast.error('File harus berupa gambar')
-      return
+      toast.error('File harus berupa gambar');
+      return;
     }
 
     try {
-      await uploadAvatarMutation.mutateAsync(file)
-      toast.success('Foto profil berhasil diubah')
+      await uploadAvatarMutation.mutateAsync(file);
+      toast.success('Foto profil berhasil diubah');
       // Reset file input
-      const input = e.target as HTMLInputElement
-      input.value = ''
+      const input = e.target as HTMLInputElement;
+      input.value = '';
     } catch {
-      toast.error('Gagal mengubah foto profil')
+      toast.error('Gagal mengubah foto profil');
     }
-  }
+  };
 
   if (isLoading) {
-    return <SettingsSkeleton />
+    return <SettingsSkeleton />;
   }
 
   return (
@@ -128,7 +128,11 @@ const SettingsPage = () => {
           <div className="mb-4 flex flex-col items-center justify-center gap-y-11">
             <div className="relative flex size-64 items-center justify-center overflow-hidden rounded-full bg-gray-200">
               {user?.avatarUrl ? (
-                <img src={user.avatarUrl} className="size-full object-cover" />
+                <img
+                  src={user.avatarUrl}
+                  alt={`${user.name}'s avatar`}
+                  className="size-full object-cover"
+                />
               ) : (
                 <div className="text-4xl font-bold text-gray-500">
                   {user?.name
@@ -257,7 +261,7 @@ const SettingsPage = () => {
                       ...showPassword,
                       new: !showPassword.new,
                       confirm: !showPassword.confirm,
-                    })
+                    });
                   }}
                 >
                   {showPassword.new ? <Eye /> : <EyeClosed />}
@@ -295,7 +299,7 @@ const SettingsPage = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SettingsPage
+export default SettingsPage;

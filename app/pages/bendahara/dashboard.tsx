@@ -1,10 +1,10 @@
-'use client'
+'use client';
 
-import { useQuery } from '@tanstack/react-query'
-import { Clock, HandCoins } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import type { DateRange } from 'react-day-picker'
-import { Link } from 'react-router'
+import { useQuery } from '@tanstack/react-query';
+import { Clock, HandCoins } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import type { DateRange } from 'react-day-picker';
+import { Link } from 'react-router';
 
 import {
   EmptyState,
@@ -12,26 +12,26 @@ import {
   StatCardsGridSkeleton,
   TransactionItem,
   TransactionListSkeleton,
-} from '~/components/data-display'
-import { Icons } from '~/components/icons'
-import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { DatePicker } from '~/components/ui/date-picker'
-import { Skeleton } from '~/components/ui/skeleton'
-import { DEFAULT_DASHBOARD_START_DATE } from '~/lib/constants'
+} from '~/components/data-display';
+import { Icons } from '~/components/icons';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { DatePicker } from '~/components/ui/date-picker';
+import { Skeleton } from '~/components/ui/skeleton';
+import { DEFAULT_DASHBOARD_START_DATE } from '~/lib/constants';
 import {
   bendaharaQueries,
   useApproveFundApplication,
   useRejectFundApplication,
-} from '~/lib/queries/bendahara.queries'
-import { formatCurrency, formatDate, formatDateForAPI, groupTransactionsByDate } from '~/lib/utils'
-import { toTransactionDisplayList } from '~/types/domain'
+} from '~/lib/queries/bendahara.queries';
+import { formatCurrency, formatDate, formatDateForAPI, groupTransactionsByDate } from '~/lib/utils';
+import { toTransactionDisplayList } from '~/types/domain';
 
 export default function DashboardPage() {
   const [date, setDate] = useState<DateRange | undefined>({
     from: DEFAULT_DASHBOARD_START_DATE,
     to: new Date(),
-  })
+  });
 
   // Fetch dashboard data from API with date filter
   const {
@@ -43,26 +43,26 @@ export default function DashboardPage() {
       startDate: date?.from ? formatDateForAPI(date.from) : undefined,
       endDate: date?.to ? formatDateForAPI(date.to) : undefined,
     })
-  )
+  );
 
   // Mutations for approve/reject
-  const approveMutation = useApproveFundApplication()
-  const rejectMutation = useRejectFundApplication()
+  const approveMutation = useApproveFundApplication();
+  const rejectMutation = useRejectFundApplication();
 
   // Map API transactions to display type using centralized converter
   const transactions = useMemo(() => {
-    if (!dashboardData?.recentTransactions) return []
-    return toTransactionDisplayList(dashboardData.recentTransactions)
-  }, [dashboardData])
+    if (!dashboardData?.recentTransactions) return [];
+    return toTransactionDisplayList(dashboardData.recentTransactions);
+  }, [dashboardData]);
 
-  const groupedTransactions = useMemo(() => groupTransactionsByDate(transactions), [transactions])
+  const groupedTransactions = useMemo(() => groupTransactionsByDate(transactions), [transactions]);
 
   // Summary from dashboard API
   const filteredSummary = {
     totalBalance: dashboardData?.totalBalance ?? 0,
     totalIncome: dashboardData?.totalIncome ?? 0,
     totalExpense: dashboardData?.totalExpense ?? 0,
-  }
+  };
 
   // Fund applications from API
   const pendingApplications = useMemo(() => {
@@ -80,16 +80,16 @@ export default function DashboardPage() {
           status: app.status || 'pending',
           createdAt: app.date || '',
         }))
-    )
-  }, [dashboardData])
+    );
+  }, [dashboardData]);
 
   const handleApprove = (id: string) => {
-    approveMutation.mutate(id)
-  }
+    approveMutation.mutate(id);
+  };
 
   const handleReject = (id: string) => {
-    rejectMutation.mutate({ id, rejectionReason: 'Ditolak oleh bendahara' })
-  }
+    rejectMutation.mutate({ id, rejectionReason: 'Ditolak oleh bendahara' });
+  };
 
   return (
     <div className="p-6">
@@ -190,8 +190,11 @@ export default function DashboardPage() {
             <CardContent className="space-y-4">
               {isLoading ? (
                 <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center justify-between">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={`dashboard-skeleton-bendahara-${i}`}
+                      className="flex items-center justify-between"
+                    >
                       <div className="flex-1 space-y-2">
                         <Skeleton className="h-4 w-32" />
                         <Skeleton className="h-3 w-48" />
@@ -254,5 +257,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

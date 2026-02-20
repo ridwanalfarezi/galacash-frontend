@@ -1,60 +1,60 @@
-'use client'
+'use client';
 
-import { ChevronDown, ChevronUp, Filter } from 'lucide-react'
-import { useState } from 'react'
+import { ChevronDown, ChevronUp, Filter } from 'lucide-react';
+import { useState } from 'react';
 
-import { Badge } from '~/components/ui/badge'
-import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { Checkbox } from '~/components/ui/checkbox'
-import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/ui/sheet'
-import { Slider } from '~/components/ui/slider'
+import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { Checkbox } from '~/components/ui/checkbox';
+import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/ui/sheet';
+import { Slider } from '~/components/ui/slider';
 
 export interface FilterState {
-  status: string[]
-  applicants: string[]
-  categories: string[]
-  amountRange: [number, number]
+  status: string[];
+  applicants: string[];
+  categories: string[];
+  amountRange: [number, number];
 }
 
 interface FilterComponentProps {
-  currentFilters: FilterState
-  onFilterChange: (filters: FilterState) => void
-  applicants: string[]
-  categories: string[]
-  maxAmount: number
-  className?: string
-  trigger?: React.ReactNode
+  currentFilters: FilterState;
+  onFilterChange: (filters: FilterState) => void;
+  applicants: string[];
+  categories: string[];
+  maxAmount: number;
+  className?: string;
+  trigger?: React.ReactNode;
 }
 
 const statusOptions = [
   { id: 'approved', label: 'Diterima', color: 'bg-green-50 text-green-700' },
   { id: 'rejected', label: 'Ditolak', color: 'bg-red-50 text-red-700' },
   { id: 'pending', label: 'Menunggu', color: 'bg-yellow-300 text-yellow-700' },
-]
+];
 
 type ExpandedSections = {
-  status: boolean
-  applicants: boolean
-  categories: boolean
-  amount: boolean
-}
+  status: boolean;
+  applicants: boolean;
+  categories: boolean;
+  amount: boolean;
+};
 
 interface FilterContentProps {
-  localFilters: FilterState
-  expandedSections: ExpandedSections
-  toggleSection: (section: keyof ExpandedSections) => void
-  handleStatusChange: (statusId: string, checked: boolean) => void
-  handleApplicantChange: (applicant: string, checked: boolean) => void
-  handleCategoryChange: (category: string, checked: boolean) => void
-  handleFilterChange: (key: keyof FilterState, value: FilterState[keyof FilterState]) => void
-  formatCurrency: (amount: number) => string
-  applicants: string[]
-  categories: string[]
-  maxAmount: number
+  localFilters: FilterState;
+  expandedSections: ExpandedSections;
+  toggleSection: (section: keyof ExpandedSections) => void;
+  handleStatusChange: (statusId: string, checked: boolean) => void;
+  handleApplicantChange: (applicant: string, checked: boolean) => void;
+  handleCategoryChange: (category: string, checked: boolean) => void;
+  handleFilterChange: (key: keyof FilterState, value: FilterState[keyof FilterState]) => void;
+  formatCurrency: (amount: number) => string;
+  applicants: string[];
+  categories: string[];
+  maxAmount: number;
 }
 
 function FilterContent({
@@ -233,9 +233,9 @@ function FilterContent({
                     type="number"
                     value={localFilters.amountRange[0]}
                     onChange={(e) => {
-                      const value = Number(e.target.value)
+                      const value = Number(e.target.value);
                       if (value >= 0 && value <= localFilters.amountRange[1]) {
-                        handleFilterChange('amountRange', [value, localFilters.amountRange[1]])
+                        handleFilterChange('amountRange', [value, localFilters.amountRange[1]]);
                       }
                     }}
                     className="h-9"
@@ -250,9 +250,9 @@ function FilterContent({
                     type="number"
                     value={localFilters.amountRange[1]}
                     onChange={(e) => {
-                      const value = Number(e.target.value)
+                      const value = Number(e.target.value);
                       if (value <= maxAmount && value >= localFilters.amountRange[0]) {
-                        handleFilterChange('amountRange', [localFilters.amountRange[0], value])
+                        handleFilterChange('amountRange', [localFilters.amountRange[0], value]);
                       }
                     }}
                     className="h-9"
@@ -264,7 +264,7 @@ function FilterContent({
         </Collapsible>
       </Card>
     </div>
-  )
+  );
 }
 
 export function FilterComponent({
@@ -276,65 +276,78 @@ export function FilterComponent({
   className,
   trigger,
 }: FilterComponentProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [localFilters, setLocalFilters] = useState<FilterState>(currentFilters)
+  const [isOpen, setIsOpen] = useState(false);
+  // Initialize with empty state, will be synced when sheet opens
+  const [localFilters, setLocalFilters] = useState<FilterState>({
+    status: [],
+    applicants: [],
+    categories: [],
+    amountRange: [0, maxAmount],
+  });
   const [expandedSections, setExpandedSections] = useState({
     status: true,
     applicants: true,
     categories: true,
     amount: true,
-  })
+  });
 
   const hasActiveFilters =
     currentFilters.status.length > 0 ||
     currentFilters.applicants.length > 0 ||
     currentFilters.categories.length > 0 ||
     currentFilters.amountRange[0] > 0 ||
-    currentFilters.amountRange[1] < maxAmount
+    currentFilters.amountRange[1] < maxAmount;
 
   const activeFilterCount =
     currentFilters.status.length +
     currentFilters.applicants.length +
     currentFilters.categories.length +
-    (currentFilters.amountRange[0] > 0 || currentFilters.amountRange[1] < maxAmount ? 1 : 0)
+    (currentFilters.amountRange[0] > 0 || currentFilters.amountRange[1] < maxAmount ? 1 : 0);
 
   const handleFilterChange = (key: keyof FilterState, value: FilterState[keyof FilterState]) => {
-    const newFilters = { ...localFilters, [key]: value }
-    setLocalFilters(newFilters)
-    onFilterChange(newFilters)
-  }
+    const newFilters = { ...localFilters, [key]: value };
+    setLocalFilters(newFilters);
+    onFilterChange(newFilters);
+  };
 
   const handleStatusChange = (statusId: string, checked: boolean) => {
     const newStatus = checked
       ? [...localFilters.status, statusId]
-      : localFilters.status.filter((s) => s !== statusId)
-    handleFilterChange('status', newStatus)
-  }
+      : localFilters.status.filter((s) => s !== statusId);
+    handleFilterChange('status', newStatus);
+  };
 
   const handleApplicantChange = (applicant: string, checked: boolean) => {
     const newApplicants = checked
       ? [...localFilters.applicants, applicant]
-      : localFilters.applicants.filter((a) => a !== applicant)
-    handleFilterChange('applicants', newApplicants)
-  }
+      : localFilters.applicants.filter((a) => a !== applicant);
+    handleFilterChange('applicants', newApplicants);
+  };
 
   const handleCategoryChange = (category: string, checked: boolean) => {
     const newCategories = checked
       ? [...localFilters.categories, category]
-      : localFilters.categories.filter((c) => c !== category)
-    handleFilterChange('categories', newCategories)
-  }
+      : localFilters.categories.filter((c) => c !== category);
+    handleFilterChange('categories', newCategories);
+  };
 
   const toggleSection = (section: keyof typeof expandedSections) => {
-    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }))
-  }
+    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
 
   const formatCurrency = (amount: number) => {
-    return amount.toLocaleString('id-ID')
-  }
+    return amount.toLocaleString('id-ID');
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (open) {
+      setLocalFilters(currentFilters);
+    }
+  };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
         {trigger || (
           <Button
@@ -372,5 +385,5 @@ export function FilterComponent({
         />
       </SheetContent>
     </Sheet>
-  )
+  );
 }

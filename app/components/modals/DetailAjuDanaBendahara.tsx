@@ -1,105 +1,105 @@
-'use client'
+'use client';
 
-import { useQuery } from '@tanstack/react-query'
-import { File } from 'lucide-react'
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query';
+import { File } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
-import { Button } from '~/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
-import { Textarea } from '~/components/ui/textarea'
+import { Button } from '~/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
+import { Textarea } from '~/components/ui/textarea';
 import {
   bendaharaQueries,
   useApproveFundApplication,
   useRejectFundApplication,
-} from '~/lib/queries/bendahara.queries'
-import { formatCurrency, getFilenameFromUrl } from '~/lib/utils'
+} from '~/lib/queries/bendahara.queries';
+import { formatCurrency, getFilenameFromUrl } from '~/lib/utils';
 
 interface Application {
-  id: string
-  date: string
-  purpose: string
-  category: string
-  status: 'pending' | 'approved' | 'rejected'
-  amount: number
-  applicant: string
-  description?: string
-  attachment?: string
+  id: string;
+  date: string;
+  purpose: string;
+  category: string;
+  status: 'pending' | 'approved' | 'rejected';
+  amount: number;
+  applicant: string;
+  description?: string;
+  attachment?: string;
 }
 
 interface DetailAjuDanaModalProps {
-  isOpen: boolean
-  onClose: () => void
-  application: Application
+  isOpen: boolean;
+  onClose: () => void;
+  application: Application;
 }
 
 export function DetailAjuDanaBendahara({ isOpen, onClose, application }: DetailAjuDanaModalProps) {
-  const { data: detailData } = useQuery(bendaharaQueries.fundApplicationDetail(application.id))
-  const [rejectionReason, setRejectionReason] = useState('')
-  const [showRejectInput, setShowRejectInput] = useState(false)
+  const { data: detailData } = useQuery(bendaharaQueries.fundApplicationDetail(application.id));
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [showRejectInput, setShowRejectInput] = useState(false);
 
-  const approveMutation = useApproveFundApplication()
-  const rejectMutation = useRejectFundApplication()
+  const approveMutation = useApproveFundApplication();
+  const rejectMutation = useRejectFundApplication();
 
-  const handleOpenAttachment = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    const attachmentUrl = detailData?.attachmentUrl || application.attachment
+  const handleOpenAttachment = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    e?.stopPropagation();
+    const attachmentUrl = detailData?.attachmentUrl || application.attachment;
     if (attachmentUrl) {
-      window.open(attachmentUrl, '_blank', 'noopener,noreferrer')
+      window.open(attachmentUrl, '_blank', 'noopener,noreferrer');
     }
-  }
+  };
 
   const handleApprove = async () => {
     if (application.status !== 'pending') {
-      toast.error('Hanya pengajuan dengan status pending yang bisa disetujui')
-      return
+      toast.error('Hanya pengajuan dengan status pending yang bisa disetujui');
+      return;
     }
 
     try {
-      await approveMutation.mutateAsync(application.id)
-      onClose()
+      await approveMutation.mutateAsync(application.id);
+      onClose();
     } catch (error) {
       // Error is already handled by mutation
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
   const handleReject = async () => {
     if (application.status !== 'pending') {
-      toast.error('Hanya pengajuan dengan status pending yang bisa ditolak')
-      return
+      toast.error('Hanya pengajuan dengan status pending yang bisa ditolak');
+      return;
     }
 
     if (!showRejectInput) {
-      setShowRejectInput(true)
-      return
+      setShowRejectInput(true);
+      return;
     }
 
     if (!rejectionReason.trim()) {
-      toast.error('Alasan penolakan harus diisi')
-      return
+      toast.error('Alasan penolakan harus diisi');
+      return;
     }
 
     try {
-      await rejectMutation.mutateAsync({ id: application.id, rejectionReason })
-      setShowRejectInput(false)
-      setRejectionReason('')
-      onClose()
+      await rejectMutation.mutateAsync({ id: application.id, rejectionReason });
+      setShowRejectInput(false);
+      setRejectionReason('');
+      onClose();
     } catch (error) {
       // Error is already handled by mutation
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
   const handleCancelReject = () => {
-    setShowRejectInput(false)
-    setRejectionReason('')
-  }
+    setShowRejectInput(false);
+    setRejectionReason('');
+  };
 
-  const isProcessing = approveMutation.isPending || rejectMutation.isPending
-  const isPending = application.status === 'pending'
+  const isProcessing = approveMutation.isPending || rejectMutation.isPending;
+  const isPending = application.status === 'pending';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -137,7 +137,19 @@ export function DetailAjuDanaBendahara({ isOpen, onClose, application }: DetailA
           <div className="space-y-1">
             <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
             <div
-              onClick={handleOpenAttachment}
+              {...(detailData?.attachmentUrl || application.attachment
+                ? {
+                    onClick: handleOpenAttachment,
+                    onKeyDown: (e: React.KeyboardEvent) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleOpenAttachment();
+                      }
+                    },
+                    role: 'button' as const,
+                    tabIndex: 0 as const,
+                  }
+                : {})}
               className={`flex w-full items-center justify-between rounded-md border-2 px-3 py-2 transition-colors ${
                 detailData?.attachmentUrl || application.attachment
                   ? 'cursor-pointer border-gray-500 hover:border-blue-500 hover:bg-blue-50'
@@ -225,5 +237,5 @@ export function DetailAjuDanaBendahara({ isOpen, onClose, application }: DetailA
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

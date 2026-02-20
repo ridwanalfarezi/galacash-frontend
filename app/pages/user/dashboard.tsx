@@ -1,41 +1,41 @@
-'use client'
+'use client';
 
-import { useQuery } from '@tanstack/react-query'
-import { Clock, HandCoins } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import type { DateRange } from 'react-day-picker'
-import { Link } from 'react-router'
+import { useQuery } from '@tanstack/react-query';
+import { Clock, HandCoins } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import type { DateRange } from 'react-day-picker';
+import { Link } from 'react-router';
 
-type CashBill = components['schemas']['CashBill']
-type FundApplication = components['schemas']['FundApplication']
+type CashBill = components['schemas']['CashBill'];
+type FundApplication = components['schemas']['FundApplication'];
 
-import { TagihanCard } from '~/components/dashboard/TagihanCard'
+import { TagihanCard } from '~/components/dashboard/TagihanCard';
 import {
   EmptyState,
   StatCard,
   StatCardsGridSkeleton,
   TransactionItem,
   TransactionListSkeleton,
-} from '~/components/data-display'
-import { Icons } from '~/components/icons'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { DatePicker } from '~/components/ui/date-picker'
-import { Skeleton } from '~/components/ui/skeleton'
-import { calculateDeadline, calculateTotalBills } from '~/lib/calculations'
-import { DEFAULT_DASHBOARD_START_DATE } from '~/lib/constants'
-import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
-import { dashboardQueries } from '~/lib/queries/dashboard.queries'
-import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
-import { transactionQueries } from '~/lib/queries/transaction.queries'
-import { formatCurrency, formatDate, formatDateForAPI, groupTransactionsByDate } from '~/lib/utils'
-import type { components } from '~/types/api'
-import { toTransactionDisplayList } from '~/types/domain'
+} from '~/components/data-display';
+import { Icons } from '~/components/icons';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { DatePicker } from '~/components/ui/date-picker';
+import { Skeleton } from '~/components/ui/skeleton';
+import { calculateDeadline, calculateTotalBills } from '~/lib/calculations';
+import { DEFAULT_DASHBOARD_START_DATE } from '~/lib/constants';
+import { cashBillQueries } from '~/lib/queries/cash-bill.queries';
+import { dashboardQueries } from '~/lib/queries/dashboard.queries';
+import { fundApplicationQueries } from '~/lib/queries/fund-application.queries';
+import { transactionQueries } from '~/lib/queries/transaction.queries';
+import { formatCurrency, formatDate, formatDateForAPI, groupTransactionsByDate } from '~/lib/utils';
+import type { components } from '~/types/api';
+import { toTransactionDisplayList } from '~/types/domain';
 
 export default function DashboardPage() {
   const [date, setDate] = useState<DateRange | undefined>({
     from: DEFAULT_DASHBOARD_START_DATE,
     to: new Date(),
-  })
+  });
 
   // Fetch dashboard data using React Query
   const { data: summary, isLoading: isSummaryLoading } = useQuery(
@@ -43,7 +43,7 @@ export default function DashboardPage() {
       startDate: date?.from ? formatDateForAPI(date.from) : undefined,
       endDate: date?.to ? formatDateForAPI(date.to) : undefined,
     })
-  )
+  );
 
   const { data: transactionsData, isLoading: isTransactionsLoading } = useQuery(
     transactionQueries.list({
@@ -52,46 +52,46 @@ export default function DashboardPage() {
       startDate: date?.from ? formatDateForAPI(date.from) : undefined,
       endDate: date?.to ? formatDateForAPI(date.to) : undefined,
     })
-  )
+  );
 
   const { data: billsData, isLoading: isBillsLoading } = useQuery(
     cashBillQueries.my({
       status: 'belum_dibayar',
       limit: 100,
     })
-  )
+  );
 
   const { data: fundApplicationsData, isLoading: isApplicationsLoading } = useQuery(
     fundApplicationQueries.my({
       status: 'pending',
       limit: 5,
     })
-  )
+  );
 
   // Convert API transactions to display type using centralized converter
   const { groupedTransactions } = useMemo(() => {
-    const filtered = toTransactionDisplayList(transactionsData?.transactions || [])
-    const grouped = groupTransactionsByDate(filtered)
-    return { groupedTransactions: grouped }
-  }, [transactionsData?.transactions])
+    const filtered = toTransactionDisplayList(transactionsData?.transactions || []);
+    const grouped = groupTransactionsByDate(filtered);
+    return { groupedTransactions: grouped };
+  }, [transactionsData?.transactions]);
 
   const filteredSummary = {
     totalBalance: summary?.totalBalance ?? 0,
     totalIncome: summary?.totalIncome ?? 0,
     totalExpense: summary?.totalExpense ?? 0,
-  }
+  };
 
   // Handle flat data response for bills
-  const bills = useMemo(() => (billsData?.data || []) as CashBill[], [billsData?.data])
-  const hasBills = bills.length > 0
-  const totalBills = useMemo(() => calculateTotalBills(bills), [bills])
+  const bills = useMemo(() => (billsData?.data || []) as CashBill[], [billsData?.data]);
+  const hasBills = bills.length > 0;
+  const totalBills = useMemo(() => calculateTotalBills(bills), [bills]);
 
   // Calculate dynamic deadline: 1st of the next non-excluded month from the latest bill
-  const deadline = useMemo(() => calculateDeadline(totalBills), [totalBills])
+  const deadline = useMemo(() => calculateDeadline(totalBills), [totalBills]);
 
   const pendingApplications = useMemo(() => {
-    return (fundApplicationsData?.data || []) as FundApplication[]
-  }, [fundApplicationsData?.data])
+    return (fundApplicationsData?.data || []) as FundApplication[];
+  }, [fundApplicationsData?.data]);
 
   return (
     <div className="p-6">
@@ -210,8 +210,11 @@ export default function DashboardPage() {
             <CardContent className="space-y-4">
               {isApplicationsLoading ? (
                 <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center space-x-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={`dashboard-skeleton-user-${i}`}
+                      className="flex items-center space-x-3"
+                    >
                       <Skeleton className="size-12 rounded-full" />
                       <div className="flex-1 space-y-2">
                         <Skeleton className="h-4 w-24" />
@@ -262,5 +265,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

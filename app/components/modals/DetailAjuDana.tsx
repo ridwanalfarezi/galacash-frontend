@@ -1,44 +1,44 @@
-'use client'
+'use client';
 
-import { useQuery } from '@tanstack/react-query'
-import { File } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query';
+import { File } from 'lucide-react';
 
-import { Button } from '~/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
-import { Textarea } from '~/components/ui/textarea'
-import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
-import { formatCurrency, getFilenameFromUrl } from '~/lib/utils'
+import { Button } from '~/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
+import { Textarea } from '~/components/ui/textarea';
+import { fundApplicationQueries } from '~/lib/queries/fund-application.queries';
+import { formatCurrency, getFilenameFromUrl } from '~/lib/utils';
 
 interface Application {
-  id: string
-  date: string
-  purpose: string
-  category: string
-  status: 'pending' | 'approved' | 'rejected'
-  amount: number
-  applicant: string
-  description?: string
-  attachment?: string
+  id: string;
+  date: string;
+  purpose: string;
+  category: string;
+  status: 'pending' | 'approved' | 'rejected';
+  amount: number;
+  applicant: string;
+  description?: string;
+  attachment?: string;
 }
 
 interface DetailAjuDanaModalProps {
-  isOpen: boolean
-  onClose: () => void
-  application: Application
+  isOpen: boolean;
+  onClose: () => void;
+  application: Application;
 }
 
 export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDanaModalProps) {
-  const { data: detailData } = useQuery(fundApplicationQueries.detail(application.id))
+  const { data: detailData } = useQuery(fundApplicationQueries.detail(application.id));
 
-  const handleOpenAttachment = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    const attachmentUrl = detailData?.attachmentUrl || application.attachment
+  const handleOpenAttachment = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    e?.stopPropagation();
+    const attachmentUrl = detailData?.attachmentUrl || application.attachment;
     if (attachmentUrl) {
-      window.open(attachmentUrl, '_blank', 'noopener,noreferrer')
+      window.open(attachmentUrl, '_blank', 'noopener,noreferrer');
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -76,7 +76,19 @@ export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDa
           <div className="space-y-1">
             <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
             <div
-              onClick={handleOpenAttachment}
+              {...(detailData?.attachmentUrl || application.attachment
+                ? {
+                    onClick: handleOpenAttachment,
+                    onKeyDown: (e: React.KeyboardEvent) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleOpenAttachment();
+                      }
+                    },
+                    role: 'button' as const,
+                    tabIndex: 0 as const,
+                  }
+                : {})}
               className={`flex w-full items-center justify-between rounded-md border-2 px-3 py-2 transition-colors ${
                 detailData?.attachmentUrl || application.attachment
                   ? 'cursor-pointer border-gray-500 hover:border-blue-500 hover:bg-blue-50'
@@ -114,5 +126,5 @@ export function DetailAjuDanaModal({ isOpen, onClose, application }: DetailAjuDa
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

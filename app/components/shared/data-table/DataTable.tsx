@@ -1,17 +1,17 @@
-import { ArrowDown, ArrowUp, ArrowUpDown, Filter, Search, X } from 'lucide-react'
-import * as React from 'react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Filter, Search, X } from 'lucide-react';
+import * as React from 'react';
 
-import { type SortConfig } from '~/components/shared/explorer/ExplorerContext'
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
-import { cn } from '~/lib/utils'
+import { type SortConfig } from '~/components/shared/explorer/ExplorerContext';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
+import { cn } from '~/lib/utils';
 
 // --- Table Components ---
 
 interface DataTableProps extends React.HTMLAttributes<HTMLTableElement> {
-  children: React.ReactNode
-  containerClassName?: string
+  children: React.ReactNode;
+  containerClassName?: string;
 }
 
 export function DataTable({ children, className, containerClassName, ...props }: DataTableProps) {
@@ -26,7 +26,7 @@ export function DataTable({ children, className, containerClassName, ...props }:
         {children}
       </table>
     </div>
-  )
+  );
 }
 
 export function DataTableHeader({
@@ -38,7 +38,7 @@ export function DataTableHeader({
     <thead className={cn('border-gray-100 bg-gray-50/50 [&_tr]:border-b', className)} {...props}>
       {children}
     </thead>
-  )
+  );
 }
 
 export function DataTableBody({
@@ -50,7 +50,7 @@ export function DataTableBody({
     <tbody className={cn('[&_tr:last-child]:border-0', className)} {...props}>
       {children}
     </tbody>
-  )
+  );
 }
 
 export function DataTableRow({
@@ -68,23 +68,23 @@ export function DataTableRow({
     >
       {children}
     </tr>
-  )
+  );
 }
 
 interface FilterOption {
-  label: string
-  value: string
+  label: string;
+  value: string;
 }
 
 interface DataTableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
-  sortKey?: string
-  currentSort?: SortConfig<unknown>
-  onSort?: (sort: SortConfig<unknown> | undefined) => void
-  filterValue?: string
-  onFilterChange?: (value: string) => void
-  filterPlaceholder?: string
-  filterOptions?: FilterOption[]
-  filterOnly?: boolean
+  sortKey?: string;
+  currentSort?: SortConfig<unknown>;
+  onSort?: (sort: SortConfig<unknown> | undefined) => void;
+  filterValue?: string;
+  onFilterChange?: (value: string) => void;
+  filterPlaceholder?: string;
+  filterOptions?: FilterOption[];
+  filterOnly?: boolean;
 }
 
 export function DataTableHead({
@@ -100,22 +100,22 @@ export function DataTableHead({
   filterOnly = false,
   ...props
 }: DataTableHeadProps) {
-  const isSorted = currentSort?.key === sortKey
-  const isAsc = currentSort?.direction === 'asc'
+  const isSorted = currentSort?.key === sortKey;
+  const isAsc = currentSort?.direction === 'asc';
 
   const handleSort = () => {
-    if (!sortKey || !onSort) return
+    if (!sortKey || !onSort) return;
 
     if (isSorted) {
       if (isAsc) {
-        onSort({ key: sortKey, direction: 'desc' })
+        onSort({ key: sortKey, direction: 'desc' });
       } else {
-        onSort(undefined)
+        onSort(undefined);
       }
     } else {
-      onSort({ key: sortKey, direction: 'asc' })
+      onSort({ key: sortKey, direction: 'asc' });
     }
-  }
+  };
 
   return (
     <th
@@ -166,7 +166,7 @@ export function DataTableHead({
               {filterOptions ? (
                 <div className="p-1">
                   {filterOptions.map((opt) => {
-                    const isActive = filterValue === opt.value
+                    const isActive = filterValue === opt.value;
                     return (
                       <button
                         key={opt.value}
@@ -180,7 +180,7 @@ export function DataTableHead({
                       >
                         {opt.label}
                       </button>
-                    )
+                    );
                   })}
                   {filterValue && (
                     <div className="mt-1 border-t border-gray-100 pt-1">
@@ -201,7 +201,7 @@ export function DataTableHead({
                     className="h-8 text-xs focus-visible:ring-1"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
-                        onFilterChange((e.target as HTMLInputElement).value)
+                        onFilterChange((e.target as HTMLInputElement).value);
                       }
                     }}
                   />
@@ -222,7 +222,7 @@ export function DataTableHead({
         )}
       </div>
     </th>
-  )
+  );
 }
 
 export function DataTableCell({
@@ -234,7 +234,7 @@ export function DataTableCell({
     <td className={cn('p-4 align-middle whitespace-nowrap', className)} {...props}>
       {children}
     </td>
-  )
+  );
 }
 
 // --- Card Components ---
@@ -243,10 +243,10 @@ export function DataCardContainer({
   children,
   className,
 }: {
-  children: React.ReactNode
-  className?: string
+  children: React.ReactNode;
+  className?: string;
 }) {
-  return <div className={cn('flex flex-col gap-4 lg:hidden', className)}>{children}</div>
+  return <div className={cn('flex flex-col gap-4 lg:hidden', className)}>{children}</div>;
 }
 
 export function DataCard({
@@ -254,10 +254,26 @@ export function DataCard({
   className,
   onClick,
 }: {
-  children: React.ReactNode
-  className?: string
-  onClick?: () => void
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
 }) {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
+  const interactiveProps = onClick
+    ? {
+        onClick,
+        onKeyDown: handleKeyDown,
+        role: 'button' as const,
+        tabIndex: 0 as const,
+      }
+    : {};
+
   return (
     <div
       className={cn(
@@ -265,11 +281,11 @@ export function DataCard({
         onClick ? 'cursor-pointer hover:border-blue-100' : '',
         className
       )}
-      onClick={onClick}
+      {...interactiveProps}
     >
       {children}
     </div>
-  )
+  );
 }
 
 // --- Mobile Helpers ---
@@ -279,9 +295,9 @@ export function DataMobileFilters({
   onSearchChange,
   placeholder = 'Cari data...',
 }: {
-  search: string
-  onSearchChange: (v: string) => void
-  placeholder?: string
+  search: string;
+  onSearchChange: (v: string) => void;
+  placeholder?: string;
 }) {
   return (
     <div className="relative w-full">
@@ -293,5 +309,5 @@ export function DataMobileFilters({
         className="w-full rounded-2xl border-gray-100 bg-white/50 pl-9 focus:bg-white focus:ring-blue-100"
       />
     </div>
-  )
+  );
 }

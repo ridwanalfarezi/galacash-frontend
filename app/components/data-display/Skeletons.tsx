@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader } from '~/components/ui/card'
-import { Skeleton } from '~/components/ui/skeleton'
+import { Card, CardContent, CardHeader } from '~/components/ui/card';
+import { Skeleton } from '~/components/ui/skeleton';
 
 /**
  * Skeleton for StatCard component
@@ -19,7 +19,7 @@ export function StatCardSkeleton() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 /**
@@ -32,7 +32,7 @@ export function StatCardsGridSkeleton({ count = 3 }: { count?: number }) {
         <StatCardSkeleton key={i} />
       ))}
     </div>
-  )
+  );
 }
 
 /**
@@ -51,7 +51,7 @@ export function TransactionItemSkeleton() {
       {/* Amount */}
       <Skeleton className="h-5 w-20" />
     </div>
-  )
+  );
 }
 
 /**
@@ -64,7 +64,7 @@ export function TransactionListSkeleton({ count = 5 }: { count?: number }) {
         <TransactionItemSkeleton key={i} />
       ))}
     </div>
-  )
+  );
 }
 
 /**
@@ -79,7 +79,7 @@ export function TableRowSkeleton({ cols }: { cols: number[] }) {
         </td>
       ))}
     </tr>
-  )
+  );
 }
 
 /**
@@ -93,7 +93,7 @@ export function TableBodySkeleton({ rows = 5, columns = 5 }: { rows?: number; co
         <TableRowSkeleton key={i} cols={cols} />
       ))}
     </>
-  )
+  );
 }
 
 /**
@@ -119,7 +119,7 @@ export function MobileCardSkeleton() {
         <Skeleton className="h-8 w-8 rounded" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -132,7 +132,7 @@ export function MobileCardListSkeleton({ count = 5 }: { count?: number }) {
         <MobileCardSkeleton key={i} />
       ))}
     </div>
-  )
+  );
 }
 
 /**
@@ -152,7 +152,7 @@ export function ChartSkeleton() {
         <Skeleton className="h-4 w-16" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -174,7 +174,7 @@ export function DashboardSkeleton() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 const KAS_KELAS_HEADER_COLS = new Array(5).fill(0)
@@ -232,7 +232,7 @@ export function KasKelasSkeleton() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 /**
@@ -248,7 +248,7 @@ export function FilterBarSkeleton() {
         <Skeleton className="hidden h-9 w-24 rounded sm:block" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -268,16 +268,20 @@ export function DataCardSkeleton({ titleWidth = 'w-48' }: { titleWidth?: string 
       <CardContent>
         {/* Desktop table */}
         <div className="hidden sm:block">
-          <div className="space-y-4">
-            <div className="flex justify-between border-b pb-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-4 w-24" />
-            </div>
-            <TableBodySkeleton rows={5} columns={6} />
-          </div>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-300">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <th key={i} className="px-4 py-3 text-left">
+                    <Skeleton className="h-4 w-20" />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <TableBodySkeleton rows={5} columns={6} />
+            </tbody>
+          </table>
         </div>
         {/* Mobile cards */}
         <div className="sm:hidden">
@@ -285,7 +289,7 @@ export function DataCardSkeleton({ titleWidth = 'w-48' }: { titleWidth?: string 
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 /**
@@ -297,7 +301,7 @@ export function AjuDanaUserSkeleton() {
       <DataCardSkeleton titleWidth="w-56" />
       <DataCardSkeleton titleWidth="w-56" />
     </div>
-  )
+  );
 }
 
 /**
@@ -308,7 +312,7 @@ export function AjuDanaBendaharaSkeleton() {
     <div className="mx-auto max-w-360 p-6">
       <DataCardSkeleton titleWidth="w-56" />
     </div>
-  )
+  );
 }
 
 /**
@@ -319,7 +323,7 @@ export function TagihanKasSkeleton() {
     <div className="mx-auto max-w-360 p-6">
       <DataCardSkeleton titleWidth="w-40" />
     </div>
-  )
+  );
 }
 
 const REKAP_KAS_TABLE_ROWS = new Array(8).fill(0)
@@ -389,7 +393,7 @@ export function RekapKasSkeleton() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 /**
@@ -452,5 +456,5 @@ export function SettingsSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,20 +1,20 @@
-import { CircleArrowDown, CircleArrowUp } from 'lucide-react'
+import { CircleArrowDown, CircleArrowUp } from 'lucide-react';
 
-import { formatCurrency } from '~/lib/utils'
-import type { TransactionDisplay } from '~/types/domain'
+import { formatCurrency } from '~/lib/utils';
+import type { TransactionDisplay } from '~/types/domain';
 
 interface TransactionItemProps {
-  transaction: TransactionDisplay
+  transaction: TransactionDisplay;
   /**
    * Click handler for viewing transaction details
    */
-  onClick?: () => void
+  onClick?: () => void;
   /**
    * Display variant
    * - 'compact': Shows type label (Pemasukan/Pengeluaran) as title
    * - 'full': Shows description as title with type as subtitle
    */
-  variant?: 'compact' | 'full'
+  variant?: 'compact' | 'full';
 }
 
 /**
@@ -30,14 +30,29 @@ export function TransactionItem({
   onClick,
   variant = 'compact',
 }: TransactionItemProps) {
-  const isIncome = transaction.type === 'income'
+  const isIncome = transaction.type === 'income';
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
+  const interactiveProps = onClick
+    ? {
+        onClick,
+        onKeyDown: handleKeyDown,
+        role: 'button' as const,
+        tabIndex: 0 as const,
+        style: { cursor: 'pointer' as const },
+      }
+    : {};
 
   return (
     <div
       className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-      onClick={onClick}
-      role={onClick ? 'button' : undefined}
-      style={onClick ? { cursor: 'pointer' } : undefined}
+      {...interactiveProps}
     >
       <div className="flex items-center space-x-3">
         <div
@@ -76,5 +91,5 @@ export function TransactionItem({
         {formatCurrency(transaction.amount)}
       </h6>
     </div>
-  )
+  );
 }

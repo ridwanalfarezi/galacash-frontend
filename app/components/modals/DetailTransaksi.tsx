@@ -1,43 +1,43 @@
-'use client'
+'use client';
 
-import { Calendar, File } from 'lucide-react'
+import { Calendar, File } from 'lucide-react';
 
-import { Button } from '~/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
-import { TRANSACTION_CATEGORIES, type TransactionCategoryKey } from '~/lib/constants'
-import { formatCurrency, getFilenameFromUrl } from '~/lib/utils'
+import { Button } from '~/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
+import { TRANSACTION_CATEGORIES, type TransactionCategoryKey } from '~/lib/constants';
+import { formatCurrency, getFilenameFromUrl } from '~/lib/utils';
 
 interface HistoryTransaction {
-  id: string
-  date: string
-  purpose: string
-  type: 'income' | 'expense'
-  amount: number
-  category: string
-  attachmentUrl?: string | null
+  id: string;
+  date: string;
+  purpose: string;
+  type: 'income' | 'expense';
+  amount: number;
+  category: string;
+  attachmentUrl?: string | null;
 }
 
 const formatCategoryName = (category: string) => {
   if (Object.hasOwn(TRANSACTION_CATEGORIES, category)) {
-    return TRANSACTION_CATEGORIES[category as TransactionCategoryKey].label
+    return TRANSACTION_CATEGORIES[category as TransactionCategoryKey].label;
   }
-  return category
-}
+  return category;
+};
 
 interface DetailTransaksiProps {
-  isOpen: boolean
-  onClose: () => void
-  transaction: HistoryTransaction
+  isOpen: boolean;
+  onClose: () => void;
+  transaction: HistoryTransaction;
 }
 
 export function DetailTransaksi({ isOpen, onClose, transaction }: DetailTransaksiProps) {
   const handleOpenAttachment = () => {
     if (transaction.attachmentUrl) {
-      window.open(transaction.attachmentUrl, '_blank', 'noopener,noreferrer')
+      window.open(transaction.attachmentUrl, '_blank', 'noopener,noreferrer');
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -85,7 +85,19 @@ export function DetailTransaksi({ isOpen, onClose, transaction }: DetailTransaks
           <div className="space-y-1">
             <Label className="text-lg font-normal sm:text-xl">Lampiran</Label>
             <div
-              onClick={handleOpenAttachment}
+              {...(transaction.attachmentUrl
+                ? {
+                    onClick: handleOpenAttachment,
+                    onKeyDown: (e: React.KeyboardEvent) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleOpenAttachment();
+                      }
+                    },
+                    role: 'button' as const,
+                    tabIndex: 0 as const,
+                  }
+                : {})}
               className={`flex w-full items-center justify-between rounded-md border-2 px-3 py-2 transition-colors ${
                 transaction.attachmentUrl
                   ? 'cursor-pointer border-gray-500 hover:border-blue-500 hover:bg-blue-50'
@@ -117,5 +129,5 @@ export function DetailTransaksi({ isOpen, onClose, transaction }: DetailTransaks
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
