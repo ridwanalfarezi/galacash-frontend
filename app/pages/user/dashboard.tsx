@@ -18,6 +18,7 @@ import {
   TransactionListSkeleton,
 } from '~/components/data-display';
 import { Icons } from '~/components/icons';
+import { BatchPaymentModal } from '~/components/modals/BatchPaymentModal';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { DatePicker } from '~/components/ui/date-picker';
 import { Skeleton } from '~/components/ui/skeleton';
@@ -27,7 +28,13 @@ import { cashBillQueries } from '~/lib/queries/cash-bill.queries';
 import { dashboardQueries } from '~/lib/queries/dashboard.queries';
 import { fundApplicationQueries } from '~/lib/queries/fund-application.queries';
 import { transactionQueries } from '~/lib/queries/transaction.queries';
-import { formatCurrency, formatDate, formatDateForAPI, groupTransactionsByDate } from '~/lib/utils';
+import {
+  formatCurrency,
+  formatDate,
+  formatDateForAPI,
+  formatMonthYear,
+  groupTransactionsByDate,
+} from '~/lib/utils';
 import type { components } from '~/types/api';
 import { toTransactionDisplayList } from '~/types/domain';
 
@@ -36,6 +43,7 @@ export default function DashboardPage() {
     from: DEFAULT_DASHBOARD_START_DATE,
     to: new Date(),
   });
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
 
   // Fetch dashboard data using React Query
   const { data: summary, isLoading: isSummaryLoading } = useQuery(
@@ -93,6 +101,23 @@ export default function DashboardPage() {
     return (fundApplicationsData?.data || []) as FundApplication[];
   }, [fundApplicationsData?.data]);
 
+  // Transform bills for BatchPaymentModal
+  const formattedBillsForModal = useMemo(() => {
+    return bills.map((bill) => {
+      const monthNum = Number(bill.month) || 1;
+      const yearNum = Number(bill.year) || new Date().getFullYear();
+      const monthDate = new Date(yearNum, monthNum - 1);
+      const monthName = formatMonthYear(monthDate);
+
+      return {
+        id: String(bill.id || ''),
+        month: monthName,
+        billId: String(bill.billId || ''),
+        totalAmount: Number(bill.totalAmount || 0),
+      };
+    });
+  }, [bills]);
+
   return (
     <div className="p-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
@@ -108,6 +133,7 @@ export default function DashboardPage() {
         hasBills={hasBills}
         totalBills={totalBills}
         deadline={deadline}
+        onPayNow={() => setIsBatchModalOpen(true)}
         className="mb-8 block lg:hidden"
       />
 
@@ -153,6 +179,7 @@ export default function DashboardPage() {
             hasBills={hasBills}
             totalBills={totalBills}
             deadline={deadline}
+            onPayNow={() => setIsBatchModalOpen(true)}
             className="hidden lg:block"
           />
 
@@ -264,6 +291,13 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+
+      <BatchPaymentModal
+        isOpen={isBatchModalOpen}
+        onClose={() => setIsBatchModalOpen(false)}
+        bills={formattedBillsForModal}
+        onSuccess={() => setIsBatchModalOpen(false)}
+      />
     </div>
   );
 }

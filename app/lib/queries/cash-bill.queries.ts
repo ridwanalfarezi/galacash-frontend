@@ -6,6 +6,7 @@ import {
   cashBillService,
   type CashBillFilters,
   type PayBillData,
+  type PayBillsBatchData,
 } from '~/lib/services/cash-bill.service';
 
 /**
@@ -53,6 +54,28 @@ export function usePayBill() {
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
       toast.success('Bukti pembayaran berhasil diupload');
+    },
+    onError: () => {
+      toast.error('Gagal mengupload bukti pembayaran');
+    },
+  });
+}
+
+/**
+ * Mutation hook for paying multiple bills at once
+ */
+export function usePayBillsBatch() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: PayBillsBatchData) => cashBillService.payBillsBatch(data),
+    onSuccess: (_data, variables) => {
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+      toast.success(`${variables.billIds.length} tagihan berhasil dibayar`);
     },
     onError: () => {
       toast.error('Gagal mengupload bukti pembayaran');

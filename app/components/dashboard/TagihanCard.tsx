@@ -1,17 +1,18 @@
-import { Calendar as CalendarIcon } from 'lucide-react'
-import { Link } from 'react-router'
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { Link } from 'react-router';
 
-import { Icons } from '~/components/icons'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
-import { Skeleton } from '~/components/ui/skeleton'
-import { formatCurrency } from '~/lib/utils'
+import { Icons } from '~/components/icons';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
+import { Skeleton } from '~/components/ui/skeleton';
+import { formatCurrency } from '~/lib/utils';
 
 interface TagihanCardProps {
-  isLoading: boolean
-  hasBills: boolean
-  totalBills: { amount: number; date: Date } | null
-  deadline: Date | null
-  className?: string
+  isLoading: boolean;
+  hasBills: boolean;
+  totalBills: { amount: number; date: Date } | null;
+  deadline: Date | null;
+  className?: string;
+  onPayNow?: () => void;
 }
 
 export function TagihanCard({
@@ -20,6 +21,7 @@ export function TagihanCard({
   totalBills,
   deadline,
   className,
+  onPayNow,
 }: TagihanCardProps) {
   if (isLoading) {
     return (
@@ -35,7 +37,7 @@ export function TagihanCard({
           <Skeleton className="h-4 w-64" />
         </CardFooter>
       </Card>
-    )
+    );
   }
 
   if (hasBills && totalBills) {
@@ -77,12 +79,26 @@ export function TagihanCard({
               })}
             </span>
           </div>
-          <Link to="/user/tagihan-kas" className="font-semibold hover:underline">
-            Bayar Sekarang
-          </Link>
+          <div className="mt-4 flex w-full items-center justify-between sm:mt-0 sm:w-auto">
+            {onPayNow ? (
+              <button
+                onClick={onPayNow}
+                className="cursor-pointer rounded-lg bg-white/90 px-3 py-1 font-bold text-blue-500 transition-all hover:scale-105 hover:underline active:scale-95"
+              >
+                Bayar Sekarang
+              </button>
+            ) : (
+              <Link
+                to="/user/tagihan-kas"
+                className="rounded-lg bg-white/90 px-3 py-1 font-semibold text-blue-500 hover:underline"
+              >
+                Bayar Sekarang
+              </Link>
+            )}
+          </div>
         </CardFooter>
       </Card>
-    )
+    );
   }
 
   return (
@@ -96,11 +112,14 @@ export function TagihanCard({
       <CardContent>
         <p className="text-sm md:text-base">Tidak ada tagihan yang belum dibayar. Terima kasih!</p>
       </CardContent>
-      <CardFooter>
-        <Link to="/user/tagihan-kas" className="font-semibold hover:underline">
+      <CardFooter className="flex justify-between gap-2">
+        <Link
+          to="/user/tagihan-kas"
+          className="rounded-lg bg-white/90 px-3 py-1 font-semibold text-blue-500 hover:underline"
+        >
           Lihat Riwayat Pembayaran
         </Link>
       </CardFooter>
     </Card>
-  )
+  );
 }
