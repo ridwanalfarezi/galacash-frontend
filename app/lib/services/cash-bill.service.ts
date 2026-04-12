@@ -24,7 +24,7 @@ export interface PayBillData {
 
 export interface PayBillsBatchData {
   billIds: string[];
-  paymentProof: File;
+  paymentProof?: File;
   paymentMethod: 'bank' | 'ewallet' | 'cash';
 }
 
@@ -72,7 +72,9 @@ export const cashBillService = {
    */
   async payBillsBatch(data: PayBillsBatchData) {
     const formData = new FormData();
-    formData.append('paymentProof', data.paymentProof);
+    if (data.paymentProof) {
+      formData.append('paymentProof', data.paymentProof);
+    }
     formData.append('paymentMethod', data.paymentMethod);
     formData.append('billIds', JSON.stringify(data.billIds));
 

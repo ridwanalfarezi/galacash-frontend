@@ -296,7 +296,7 @@ export default function DashboardPage() {
         isOpen={isBatchModalOpen}
         onClose={() => setIsBatchModalOpen(false)}
         bills={formattedBillsForModal}
-        onSuccess={() => setIsBatchModalOpen(false)}
+        onSuccess={() => {}}
       />
     </div>
   );

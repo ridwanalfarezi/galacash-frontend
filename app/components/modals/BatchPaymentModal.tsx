@@ -1,7 +1,7 @@
 'use client';
 
 import { Copy, Upload, X } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Badge } from '~/components/ui/badge';
@@ -35,10 +35,19 @@ export function BatchPaymentModal({ isOpen, onClose, bills, onSuccess }: BatchPa
   );
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isCopying, setIsCopying] = useState(false);
 
   const { mutate: payBillsBatch, isPending } = usePayBillsBatch();
 
   const grandTotal = bills.reduce((sum, b) => sum + b.totalAmount, 0);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const handleUploadProof = () => {
     fileInputRef.current?.click();
@@ -52,11 +61,14 @@ export function BatchPaymentModal({ isOpen, onClose, bills, onSuccess }: BatchPa
         return;
       }
       setPaymentProof(file);
+      // Revoke previous object URL to prevent memory leak
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
   const handleRemoveFile = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPaymentProof(null);
     setPreviewUrl(null);
     if (fileInputRef.current) {
@@ -78,13 +90,14 @@ export function BatchPaymentModal({ isOpen, onClose, bills, onSuccess }: BatchPa
       {
         billIds: bills.map((b) => b.id),
         paymentMethod: selectedPaymentMethod,
-        paymentProof: paymentProof!,
+        ...(paymentProof ? { paymentProof } : {}),
       },
       {
         onSuccess: () => {
           // Reset state
           setSelectedPaymentMethod(undefined);
           setPaymentProof(null);
+          if (previewUrl) URL.revokeObjectURL(previewUrl);
           setPreviewUrl(null);
           onSuccess();
           onClose();
@@ -93,15 +106,23 @@ export function BatchPaymentModal({ isOpen, onClose, bills, onSuccess }: BatchPa
     );
   };
 
-  const handleCopyAccountNumber = (accountNumber: string) => {
-    navigator.clipboard.writeText(accountNumber);
-    toast.success('Nomor rekening disalin');
+  const handleCopyAccountNumber = async (accountNumber: string) => {
+    try {
+      setIsCopying(true);
+      await navigator.clipboard.writeText(accountNumber);
+      toast.success('Nomor rekening disalin');
+    } catch {
+      toast.error('Gagal menyalin nomor rekening');
+    } finally {
+      setIsCopying(false);
+    }
   };
 
   const handleClose = () => {
     if (!isPending) {
       setSelectedPaymentMethod(undefined);
       setPaymentProof(null);
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
       onClose();
     }
@@ -213,6 +234,7 @@ export function BatchPaymentModal({ isOpen, onClose, bills, onSuccess }: BatchPa
                   <Button
                     variant="outline"
                     size="sm"
+                    disabled={isCopying}
                     onClick={() => handleCopyAccountNumber('156-00-2062920-2')}
                   >
                     <Copy className="h-4 w-4" />
@@ -224,10 +246,39 @@ export function BatchPaymentModal({ isOpen, onClose, bills, onSuccess }: BatchPa
 
           {/* Action Buttons */}
           <div className="space-y-3">
-            <Button variant="outline" className="w-full" onClick={handleUploadProof}>
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Bukti Pembayaran
-            </Button>
+            {selectedPaymentMethod !== 'cash' && (
+              <Button variant="outline" className="w-full" onClick={handleUploadProof}>
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Bukti Pembayaran
+              </Button>
+            )}
+
+            {/* File Preview Section */}
+            {paymentProof && (
+              <div className="rounded-lg border border-gray-200 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {previewUrl && (
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        className="h-12 w-12 rounded object-cover"
+                      />
+                    )}
+                    <div>
+                      <p className="text-sm font-medium">{paymentProof.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {(paymentProof.size / 1024).toFixed(0)} KB
+                      </p>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={handleRemoveFile}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <Button
               className="w-full bg-blue-500 font-bold text-white hover:bg-blue-600"
               onClick={handlePayNow}
@@ -238,32 +289,6 @@ export function BatchPaymentModal({ isOpen, onClose, bills, onSuccess }: BatchPa
                 : `Bayar ${bills.length} Tagihan — ${formatCurrency(grandTotal)}`}
             </Button>
           </div>
-
-          {/* File Preview Section */}
-          {paymentProof && (
-            <div className="rounded-lg border border-gray-200 p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {previewUrl && (
-                    <img
-                      src={previewUrl}
-                      alt="Preview"
-                      className="h-12 w-12 rounded object-cover"
-                    />
-                  )}
-                  <div>
-                    <p className="text-sm font-medium">{paymentProof.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {(paymentProof.size / 1024).toFixed(0)} KB
-                    </p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm" onClick={handleRemoveFile}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
       </DialogContent>
     </Dialog>
