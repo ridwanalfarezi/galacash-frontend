@@ -1,4 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
+import { Analytics } from '@vercel/analytics/react';
 import { lazy } from 'react';
 import {
   isRouteErrorResponse,
@@ -43,6 +44,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {children}
           <Toaster position="top-right" richColors />
         </QueryClientProvider>
+        <Analytics />
         <ScrollRestoration />
         <Scripts />
       </body>
