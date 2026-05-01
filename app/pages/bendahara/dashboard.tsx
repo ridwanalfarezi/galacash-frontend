@@ -66,22 +66,33 @@ export default function DashboardPage() {
 
   // Fund applications from API
   const pendingApplications = useMemo(() => {
-    return (
-      (dashboardData?.recentFundApplications || [])
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .filter((app: any) => app.status === 'pending')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((app: any) => ({
-          id: app.id || '',
-          userId: app.applicant?.id || '',
-          name: app.applicant?.name || 'Unknown',
-          description: app.purpose || '',
-          amount: app.amount || 0,
-          status: app.status || 'pending',
-          createdAt: app.date || '',
-        }))
-    );
-  }, [dashboardData]);
+    const applications = dashboardData?.recentFundApplications || [];
+    const pending: Array<{
+      id: string;
+      userId: string;
+      name: string;
+      description: string;
+      amount: number;
+      status: string;
+      createdAt: string;
+    }> = [];
+
+    for (const app of applications) {
+      if (app.status !== 'pending') continue;
+
+      pending.push({
+        id: app.id || '',
+        userId: app.applicant?.id || '',
+        name: app.applicant?.name || 'Unknown',
+        description: app.purpose || '',
+        amount: app.amount || 0,
+        status: app.status || 'pending',
+        createdAt: app.date || '',
+      });
+    }
+
+    return pending;
+  }, [dashboardData?.recentFundApplications]);
 
   const handleApprove = (id: string) => {
     approveMutation.mutate(id);

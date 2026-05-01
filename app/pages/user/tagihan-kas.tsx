@@ -116,15 +116,19 @@ function TagihanKasContent() {
   );
 
   // Selected bills data for the batch modal
-  const selectedBillsData = useMemo(
-    () => tagihanKasList.filter((t) => selectedBillIds.has(t.id)),
-    [tagihanKasList, selectedBillIds]
-  );
+  const { selectedBillsData, selectedTotalAmount } = useMemo(() => {
+    let total = 0;
+    const selected: TagihanKas[] = [];
 
-  const selectedTotalAmount = useMemo(
-    () => selectedBillsData.reduce((sum, b) => sum + b.totalAmount, 0),
-    [selectedBillsData]
-  );
+    for (const t of tagihanKasList) {
+      if (selectedBillIds.has(t.id)) {
+        selected.push(t);
+        total += t.totalAmount;
+      }
+    }
+
+    return { selectedBillsData: selected, selectedTotalAmount: total };
+  }, [tagihanKasList, selectedBillIds]);
 
   // Are all selectable bills on this page selected?
   const allSelectableSelected =

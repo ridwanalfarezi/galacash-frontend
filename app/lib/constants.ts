@@ -98,20 +98,32 @@ export const TRANSACTION_CATEGORIES = {
 
 export type TransactionCategoryKey = keyof typeof TRANSACTION_CATEGORIES;
 
-/**
- * Get transaction category options by type
- */
-export const getTransactionCategoryOptions = (type: 'income' | 'expense') =>
+type TransactionCategoryOption = {
+  value: TransactionCategoryKey;
+  label: string;
+};
+
+const buildTransactionCategoryOptions = (type: 'income' | 'expense'): TransactionCategoryOption[] =>
   Object.entries(TRANSACTION_CATEGORIES)
     .filter(([, config]) => {
-      // Safe access using type guard or unnecessary cast removal if types align
       const c = config as { type: string; system_only?: boolean; hidden?: boolean; label: string };
       return (c.type === type || c.type === 'both') && !c.system_only && !c.hidden;
     })
     .map(([value, config]) => ({
-      value,
+      value: value as TransactionCategoryKey,
       label: config.label,
     }));
+
+const TRANSACTION_CATEGORY_OPTIONS = {
+  income: buildTransactionCategoryOptions('income'),
+  expense: buildTransactionCategoryOptions('expense'),
+} as const;
+
+/**
+ * Get transaction category options by type
+ */
+export const getTransactionCategoryOptions = (type: 'income' | 'expense') =>
+  TRANSACTION_CATEGORY_OPTIONS[type];
 
 // ============================================================================
 // Chart Colors

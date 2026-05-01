@@ -64,9 +64,10 @@ export function ChartContainerImpl({
   }, []);
 
   const hasValidDimensions = dimensions.width > 0 && dimensions.height > 0;
+  const contextValue = React.useMemo(() => ({ config }), [config]);
 
   return (
-    <ChartContext.Provider value={{ config }}>
+    <ChartContext.Provider value={contextValue}>
       <div
         ref={containerRef}
         data-slot="chart"
