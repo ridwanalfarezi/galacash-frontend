@@ -1,54 +1,330 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { lazy, Suspense } from 'react'
+import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
+import { Clock, HandCoins } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import type { DateRange } from 'react-day-picker';
+import { Link } from 'react-router';
 
-import { DashboardSkeleton } from '~/components/data-display'
-import { requireAuth } from '~/lib/auth'
-import { DEFAULT_DASHBOARD_START_DATE } from '~/lib/constants'
-import { cashBillQueries } from '~/lib/queries/cash-bill.queries'
-import { dashboardQueries } from '~/lib/queries/dashboard.queries'
-import { fundApplicationQueries } from '~/lib/queries/fund-application.queries'
-import { transactionQueries } from '~/lib/queries/transaction.queries'
-import { queryClient } from '~/lib/query-client'
-import { formatDateForAPI } from '~/lib/utils'
+import { TagihanCard } from '~/components/dashboard/TagihanCard';
+import {
+  EmptyState,
+  StatCard,
+  StatCardsGridSkeleton,
+  TransactionItem,
+  TransactionListSkeleton,
+} from '~/components/data-display';
+import { Icons } from '~/components/icons';
+import { BatchPaymentModal } from '~/components/modals/BatchPaymentModal';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { DatePicker } from '~/components/ui/date-picker';
+import { Skeleton } from '~/components/ui/skeleton';
+import { requireAuth } from '~/lib/auth';
+import { calculateDeadline, calculateTotalBills } from '~/lib/calculations';
+import { DEFAULT_DASHBOARD_START_DATE } from '~/lib/constants';
+import { cashBillQueries } from '~/lib/queries/cash-bill.queries';
+import { dashboardQueries } from '~/lib/queries/dashboard.queries';
+import { fundApplicationQueries } from '~/lib/queries/fund-application.queries';
+import { transactionQueries } from '~/lib/queries/transaction.queries';
+import { queryClient } from '~/lib/query-client';
+import {
+  formatCurrency,
+  formatDate,
+  formatDateForAPI,
+  formatMonthYear,
+  groupTransactionsByDate,
+} from '~/lib/utils';
+import type { components } from '~/types/api';
+import { toTransactionDisplayList } from '~/types/domain';
 
-import type { Route } from './+types/dashboard'
+import type { Route } from './+types/dashboard';
 
-// Lazy load the page component for code splitting
-const DashboardPage = lazy(() => import('~/pages/user/dashboard'))
+type CashBill = components['schemas']['CashBill'];
+type FundApplication = components['schemas']['FundApplication'];
 
 export function meta() {
-  return [{ title: 'GalaCash | Dashboard' }]
+  return [{ title: 'GalaCash | Dashboard' }];
 }
 
 export async function clientLoader() {
-  // Check authentication
-  await requireAuth()
+  await requireAuth();
 
-  // Calculate initial date range (current month)
-  const startDate = formatDateForAPI(DEFAULT_DASHBOARD_START_DATE)
-  const endDate = formatDateForAPI(new Date())
+  const startDate = formatDateForAPI(DEFAULT_DASHBOARD_START_DATE);
+  const endDate = formatDateForAPI(new Date());
 
-  // Prefetch critical queries
   await Promise.all([
     queryClient.prefetchQuery(dashboardQueries.summary({ startDate, endDate })),
     queryClient.prefetchQuery(transactionQueries.list({ limit: 5, page: 1, startDate, endDate })),
     queryClient.prefetchQuery(cashBillQueries.my({ status: 'belum_dibayar', limit: 100 })),
     queryClient.prefetchQuery(fundApplicationQueries.my({ status: 'pending', limit: 5 })),
-  ])
+  ]);
 
   return {
     dehydratedState: dehydrate(queryClient),
-  }
+  };
 }
 
-clientLoader.hydrate = true
+clientLoader.hydrate = true;
+
+function DashboardPage() {
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: DEFAULT_DASHBOARD_START_DATE,
+    to: new Date(),
+  });
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+
+  const { data: summary, isLoading: isSummaryLoading } = useQuery(
+    dashboardQueries.summary({
+      startDate: date?.from ? formatDateForAPI(date.from) : undefined,
+      endDate: date?.to ? formatDateForAPI(date.to) : undefined,
+    })
+  );
+
+  const { data: transactionsData, isLoading: isTransactionsLoading } = useQuery(
+    transactionQueries.list({
+      limit: 5,
+      page: 1,
+      startDate: date?.from ? formatDateForAPI(date.from) : undefined,
+      endDate: date?.to ? formatDateForAPI(date.to) : undefined,
+    })
+  );
+
+  const { data: billsData, isLoading: isBillsLoading } = useQuery(
+    cashBillQueries.my({
+      status: 'belum_dibayar',
+      limit: 100,
+    })
+  );
+
+  const { data: fundApplicationsData, isLoading: isApplicationsLoading } = useQuery(
+    fundApplicationQueries.my({
+      status: 'pending',
+      limit: 5,
+    })
+  );
+
+  const { groupedTransactions } = useMemo(() => {
+    const filtered = toTransactionDisplayList(transactionsData?.transactions || []);
+    const grouped = groupTransactionsByDate(filtered);
+    return { groupedTransactions: grouped };
+  }, [transactionsData?.transactions]);
+
+  const filteredSummary = {
+    totalBalance: summary?.totalBalance ?? 0,
+    totalIncome: summary?.totalIncome ?? 0,
+    totalExpense: summary?.totalExpense ?? 0,
+  };
+
+  const bills = useMemo(() => (billsData?.data || []) as CashBill[], [billsData?.data]);
+  const hasBills = bills.length > 0;
+  const totalBills = useMemo(() => calculateTotalBills(bills), [bills]);
+  const deadline = useMemo(() => calculateDeadline(totalBills), [totalBills]);
+
+  const pendingApplications = useMemo(() => {
+    return (fundApplicationsData?.data || []) as FundApplication[];
+  }, [fundApplicationsData?.data]);
+
+  const formattedBillsForModal = useMemo(() => {
+    return bills.map((bill) => {
+      const monthNum = Number(bill.month) || 1;
+      const yearNum = Number(bill.year) || new Date().getFullYear();
+      const monthDate = new Date(yearNum, monthNum - 1);
+      const monthName = formatMonthYear(monthDate);
+
+      return {
+        id: String(bill.id || ''),
+        month: monthName,
+        billId: String(bill.billId || ''),
+        totalAmount: Number(bill.totalAmount || 0),
+      };
+    });
+  }, [bills]);
+
+  return (
+    <div className="p-6">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold text-gray-900">Saldo Kas</h1>
+        <div className="flex items-center gap-2">
+          <DatePicker date={date} onChange={setDate} />
+        </div>
+      </div>
+
+      {/* Tagihan Notification (Mobile Only) */}
+      <TagihanCard
+        isLoading={isBillsLoading}
+        hasBills={hasBills}
+        totalBills={totalBills}
+        deadline={deadline}
+        onPayNow={() => setIsBatchModalOpen(true)}
+        className="mb-8 block lg:hidden"
+      />
+
+      {/* Stat Cards - With skeleton loading */}
+      {isSummaryLoading ? (
+        <div className="mb-8">
+          <StatCardsGridSkeleton count={3} />
+        </div>
+      ) : (
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <StatCard
+            icon={<Icons.MoneyTotal className="mr-2 h-6 w-6" />}
+            title="Total Saldo"
+            label="Saldo Efektif"
+            value={formatCurrency(filteredSummary.totalBalance)}
+            variant="blue"
+          />
+          <StatCard
+            icon={<Icons.ArrowDownCircle className="mr-2 h-6 w-6" />}
+            title="Total Pemasukan"
+            label="Saldo Pemasukan"
+            value={formatCurrency(filteredSummary.totalIncome)}
+            variant="green"
+          />
+          <StatCard
+            icon={<Icons.ArrowUpCircle className="mr-2 h-6 w-6" />}
+            title="Total Pengeluaran"
+            label="Saldo Pengeluaran"
+            value={`-${formatCurrency(filteredSummary.totalExpense)}`}
+            variant="red"
+          />
+        </div>
+      )}
+
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        {/* Transaction History */}
+        <div className="grid gap-4 lg:col-span-2">
+          {/* Tagihan Notification (Desktop Only) */}
+          <TagihanCard
+            isLoading={isBillsLoading}
+            hasBills={hasBills}
+            totalBills={totalBills}
+            deadline={deadline}
+            onPayNow={() => setIsBatchModalOpen(true)}
+            className="hidden lg:block"
+          />
+
+          {/* Transaction History Card */}
+          <Card className="rounded-4xl border-none">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-gray-900 md:text-2xl xl:text-3xl">
+                Riwayat Transaksi
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              {isTransactionsLoading ? (
+                <TransactionListSkeleton count={5} />
+              ) : groupedTransactions.length > 0 ? (
+                groupedTransactions.map((day, dayIndex) => (
+                  <div key={dayIndex}>
+                    <h3 className="mb-2 border-b border-gray-900 pb-2 text-lg font-semibold text-gray-900 xl:text-xl">
+                      {formatDate(day.date)}
+                    </h3>
+                    <div className="space-y-6 sm:space-y-3">
+                      {day.items.map((transaction) => (
+                        <TransactionItem
+                          key={transaction.id}
+                          transaction={transaction}
+                          variant="compact"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  icon={Clock}
+                  title="Tidak ada transaksi"
+                  description="Belum ada transaksi pada periode yang dipilih"
+                />
+              )}
+              <div className="flex justify-center">
+                <Link to="/user/kas-kelas" className="hover:underline">
+                  View More
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Pending Submissions */}
+        <div>
+          <Card className="rounded-4xl border-none">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-gray-900 md:text-2xl xl:text-3xl">
+                Pengajuan Anda
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isApplicationsLoading ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={`dashboard-skeleton-user-${i}`}
+                      className="flex items-center space-x-3"
+                    >
+                      <Skeleton className="size-12 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-3 w-32" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : pendingApplications.length > 0 ? (
+                pendingApplications.map((application) => (
+                  <div
+                    key={application.id}
+                    className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center justify-center rounded-full bg-gray-300 p-2">
+                        <HandCoins className="size-8 text-gray-900" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-medium">
+                          {formatCurrency(application.amount || 0)}
+                        </h3>
+                        <h4 className="text-sm text-gray-500">{application.purpose}</h4>
+                        <h5 className="block text-xs text-yellow-500 capitalize md:hidden">
+                          {application.status}
+                        </h5>
+                      </div>
+                    </div>
+                    <div className="hidden items-center justify-center space-x-2 rounded-xl bg-yellow-300 px-2 py-1 md:flex">
+                      <Clock className="size-6 text-gray-900" />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  icon={HandCoins}
+                  title="Tidak ada pengajuan pending"
+                  description="Anda belum memiliki pengajuan dana yang sedang diproses"
+                />
+              )}
+            </CardContent>
+            <div className="flex justify-center">
+              <Link to="/user/aju-dana" className="hover:underline">
+                View More
+              </Link>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      <BatchPaymentModal
+        isOpen={isBatchModalOpen}
+        onClose={() => setIsBatchModalOpen(false)}
+        bills={formattedBillsForModal}
+        onSuccess={() => {}}
+      />
+    </div>
+  );
+}
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
   return (
     <HydrationBoundary state={loaderData.dehydratedState}>
-      <Suspense fallback={<DashboardSkeleton />}>
-        <DashboardPage />
-      </Suspense>
+      <DashboardPage />
     </HydrationBoundary>
-  )
+  );
 }

@@ -1,17 +1,17 @@
-import { requireRole } from '~/lib/auth'
-import SettingsPage from '~/pages/shared/settings'
+import SettingsPage from '~/components/shared/SettingsPage';
+import { requireRole } from '~/lib/auth';
 
 export function meta() {
-  return [{ title: 'GalaCash | Settings' }]
+  return [{ title: 'GalaCash | Settings' }];
 }
 
 export async function clientLoader() {
-  await requireRole('bendahara')
-  return null
+  await requireRole('bendahara');
+  return null;
 }
 
-clientLoader.hydrate = true
+clientLoader.hydrate = true;
 
 export default function Settings() {
-  return <SettingsPage />
+  return <SettingsPage />;
 }

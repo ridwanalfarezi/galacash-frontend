@@ -2,7 +2,7 @@
 
 > **Modern financial management application for class treasurers**  
 > Built with React Router v7, TypeScript, TailwindCSS, and TanStack Query  
-> **Last Updated:** January 25, 2026
+> **Last Updated:** June 16, 2026
 
 ---
 
@@ -131,9 +131,9 @@ A full-stack application that enables treasurers and students to track and manag
 ## ✨ Key Features & Optimizations
 
 - **⚡ Performance First**:
-  - **Route Lazy Loading**: All pages are code-split using `React.lazy` and `Suspense`.
+  - **Automatic Code Splitting**: React Router v7 splits each route file into its own chunk automatically — no manual `React.lazy` needed.
   - **Skeleton Screens**: Custom loading states for improved perceived performance.
-  - **Optimized Assets**: Dynamic imports for heavy components.
+  - **Optimized Assets**: Dynamic imports for heavy third-party components (Recharts).
 - **🛠️ Robust Architecture**:
   - **Centralized Query Keys**: Type-safe query management with TanStack Query.
   - **Auth Store**: Zustand-based authentication state to minimize API calls.
@@ -164,53 +164,49 @@ A full-stack application that enables treasurers and students to track and manag
 │   │   │   └── FileUpload.tsx
 │   │   ├── icons/          # Icon components
 │   │   ├── modals/         # Modal components
-│   │   ├── shared/         # Shared business components
+│   │   ├── shared/         # Shared business components (cross-route)
+│   │   │   ├── SettingsPage.tsx     # Settings UI shared by user + bendahara routes
 │   │   │   ├── PaginationControls.tsx
-│   │   │   └── layout/...
-│   │   └── ui/             # Shadcn UI (Base) components
+│   │   │   ├── layout/             # Sidebar, BottomBar, Layout wrapper
+│   │   │   ├── data-table/         # DataTable, DataTablePagination
+│   │   │   ├── explorer/           # ExplorerContext (filter/sort/pagination state)
+│   │   │   ├── aju-dana/           # AjuDanaBase shared component
+│   │   │   └── kas-kelas/          # KasKelasBase shared component
+│   │   └── ui/             # shadcn/ui primitives
 │   │       ├── button.tsx
-│   │       ├── pagination.tsx
+│   │       ├── card.tsx
 │   │       └── ...
 │   │
 │   ├── hooks/              # Custom React hooks
-│   │   └── use-mobile.ts
+│   │   └── useMobile.ts
 │   │
-│   ├── lib/                # Utility functions
-│   │   └── utils.ts        # Common utilities (cn, etc.)
+│   ├── lib/                # Core utilities and infrastructure
+│   │   ├── api/            # Fetch client + error handling
+│   │   ├── queries/        # TanStack Query option factories (keys.ts + *.queries.ts)
+│   │   ├── services/       # API service layer
+│   │   ├── stores/         # Zustand stores (auth.store.ts)
+│   │   ├── auth.ts         # requireAuth / requireRole / redirectIfAuthenticated
+│   │   ├── constants.ts
+│   │   ├── calculations.ts
+│   │   └── utils.ts
 │   │
-│   ├── pages/              # Page components
-│   │   ├── auth/           # Authentication pages
-│   │   │   └── sign-in.tsx # Sign-in page
-│   │   ├── shared/         # Shared pages across roles
-│   │   │   └── settings.tsx # Settings page (shared)
-│   │   ├── bendahara/      # Treasurer-specific pages
-│   │   │   ├── dashboard.tsx
-│   │   │   ├── aju-dana.tsx
-│   │   │   ├── kas-kelas.tsx
-│   │   │   └── rekap-kas.tsx
-│   │   └── user/           # Student-specific pages
-│   │       ├── dashboard.tsx
-│   │       ├── aju-dana.tsx
-│   │       ├── kas-kelas.tsx
-│   │       └── tagihan-kas.tsx
-│   │
-│   └── routes/             # Route components
-│       ├── auth/           # Authentication routes
-│       │   └── sign-in.tsx
-│       ├── bendahara/      # Treasurer routes
+│   └── routes/             # Route files — each is a self-contained page module
+│       ├── auth/
+│       │   └── sign-in.tsx          # Public sign-in page
+│       ├── user/                    # Student routes
 │       │   ├── dashboard.tsx
-│       │   ├── aju-dana.tsx
 │       │   ├── kas-kelas.tsx
-│       │   ├── rekap-kas.tsx  # Financial recap
+│       │   ├── aju-dana.tsx
+│       │   ├── tagihan-kas.tsx
+│       │   └── settings.tsx
+│       ├── bendahara/               # Treasurer routes
+│       │   ├── dashboard.tsx
+│       │   ├── kas-kelas.tsx
+│       │   ├── aju-dana.tsx
+│       │   ├── rekap-kas.tsx
 │       │   ├── detail-rekap-kas.tsx
 │       │   └── settings.tsx
-│       ├── user/           # Student routes
-│       │   ├── dashboard.tsx
-│       │   ├── aju-dana.tsx
-│       │   ├── kas-kelas.tsx
-│       │   ├── tagihan-kas.tsx # Bill payments
-│       │   └── settings.tsx
-│       └── index.tsx       # Home route
+│       └── index.tsx                # Root redirect
 │
 ├── public/                  # Static assets
 │   ├── logo.png            # Application logo
@@ -258,10 +254,39 @@ A full-stack application that enables treasurers and students to track and manag
 
 **Role-Based Structure:**
 
-- **Auth**: Authentication-related pages and routes
-- **Shared**: Components and pages used across all roles (e.g., settings)
-- **Bendahara**: Treasurer-specific functionality (rekap kas, approvals)
-- **User**: Student-specific functionality (tagihan kas, submissions)
+- **Auth**: Public sign-in route — no layout wrapper
+- **Shared**: Components used across roles live in `components/shared/` (e.g., `SettingsPage`, `KasKelasBase`, `DataTable`)
+- **Bendahara**: Treasurer-specific routes — rekap kas, fund application approvals, full transaction management
+- **User**: Student-specific routes — personal dashboard, cash bills (tagihan kas), fund application submissions
+
+**Route File Convention:**
+
+Each file in `routes/` is a fully self-contained page module — it owns its auth guard, data prefetch, internal component, and `HydrationBoundary`. React Router v7 automatically code-splits each route file, so no manual `React.lazy` is needed:
+
+```tsx
+export function meta() {
+  return [{ title: '...' }];
+}
+
+export async function clientLoader() {
+  await requireAuth(); // redirect if not logged in
+  await queryClient.prefetchQuery(someQuery()); // warm the TanStack Query cache
+  return { dehydratedState: dehydrate(queryClient) };
+}
+clientLoader.hydrate = true;
+
+function PageContent() {
+  /* actual UI with useQuery hooks */
+}
+
+export default function Route({ loaderData }) {
+  return (
+    <HydrationBoundary state={loaderData.dehydratedState}>
+      <PageContent />
+    </HydrationBoundary>
+  );
+}
+```
 
 **Data Transparency Architecture:**
 
@@ -302,7 +327,7 @@ const queryKeys = {
       [...queryKeys.transactions.all, 'list', filters] as const,
     recent: (limit: number) => [...queryKeys.transactions.all, 'recent', limit] as const,
   },
-}
+};
 ```
 
 ### Route Protection
@@ -312,13 +337,13 @@ const queryKeys = {
 ```typescript
 // In route loaders
 export async function clientLoader() {
-  await requireRole('bendahara') // Only bendahara can access
+  await requireRole('bendahara'); // Only bendahara can access
   // ... prefetch data
 }
 
 // Or for any authenticated user
 export async function clientLoader() {
-  await requireAuth() // Any logged-in user
+  await requireAuth(); // Any logged-in user
   // ... prefetch data
 }
 ```
@@ -341,7 +366,7 @@ const { data: summary } = useQuery(
     startDate: date?.from?.toISOString().split('T')[0],
     endDate: date?.to?.toISOString().split('T')[0],
   })
-)
+);
 ```
 
 ### Component Patterns
@@ -356,8 +381,8 @@ const { data: summary } = useQuery(
 
 ```typescript
 // Use nullish coalescing for proper 0 and negative handling
-const totalBalance = summary?.totalBalance ?? 0 // ✅ Correct
-const totalBalance = summary?.totalBalance || 0 // ❌ Fails for 0
+const totalBalance = summary?.totalBalance ?? 0; // ✅ Correct
+const totalBalance = summary?.totalBalance || 0; // ❌ Fails for 0
 ```
 
 **Component Organization:**
