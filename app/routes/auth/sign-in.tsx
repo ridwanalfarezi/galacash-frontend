@@ -169,8 +169,8 @@ function SignInPage() {
   const loginMutation = useMutation({
     mutationFn: (credentials: { nim: string; password: string }) => authService.login(credentials),
     onSuccess: (user) => {
+      queryClient.clear();
       setUser(user);
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
       toast.success('Login berhasil!');
       if (user.role === 'bendahara') {
         navigate('/bendahara/dashboard');

@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/react-query';
 
 /**
  * Shared React Query client instance
@@ -13,25 +13,25 @@ import { QueryClient } from '@tanstack/react-query'
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30 * 1000, // 30 seconds default
-      gcTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnWindowFocus: false,
+      staleTime: 0, // Financial truth: default to 0s so revalidations happen on navigation/refocus
+      gcTime: 5 * 60 * 1000, // 5 minutes garbage collection window
+      refetchOnWindowFocus: true, // Revalidate financial balances automatically when refocusing tab
       retry: (failureCount, error: unknown) => {
         // Don't retry on 4xx errors except 401
-        const err = error as { statusCode?: number; status?: number }
-        const status = err.statusCode || err.status
+        const err = error as { statusCode?: number; status?: number };
+        const status = err.statusCode || err.status;
 
         if (status !== undefined && status >= 400 && status < 500) {
           if (status === 401) {
-            return failureCount < 2
+            return failureCount < 2;
           }
-          return false
+          return false;
         }
-        return failureCount < 2
+        return failureCount < 2;
       },
     },
     mutations: {
       retry: false,
     },
   },
-})
+});

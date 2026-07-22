@@ -1,10 +1,10 @@
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions } from '@tanstack/react-query';
 
-import { queryKeys } from '~/lib/queries/keys'
+import { queryKeys } from '~/lib/queries/keys';
 import {
   fundApplicationService,
   type FundApplicationFilters,
-} from '~/lib/services/fund-application.service'
+} from '~/lib/services/fund-application.service';
 
 /**
  * Fund Application query factory
@@ -13,35 +13,35 @@ import {
 export const fundApplicationQueries = {
   /**
    * Get all fund applications (admin view)
-   * staleTime: 120s
+   * staleTime: 0s
    */
   list: (filters?: FundApplicationFilters) =>
     queryOptions({
       queryKey: [...queryKeys.fundApplications.all, 'list', filters] as const,
       queryFn: () => fundApplicationService.getApplications(filters),
-      staleTime: 120 * 1000,
+      staleTime: 0,
     }),
 
   /**
    * Get user's own fund applications
-   * staleTime: 120s
+   * staleTime: 0s
    */
   my: (filters?: FundApplicationFilters) =>
     queryOptions({
       queryKey: queryKeys.fundApplications.my(filters),
       queryFn: () => fundApplicationService.getMyApplications(filters),
-      staleTime: 120 * 1000,
+      staleTime: 0,
     }),
 
   /**
    * Get fund application detail by ID
-   * staleTime: 300s
+   * staleTime: 0s
    */
   detail: (id: string) =>
     queryOptions({
       queryKey: queryKeys.fundApplications.detail(id),
       queryFn: () => fundApplicationService.getApplicationById(id),
-      staleTime: 300 * 1000,
+      staleTime: 0,
       enabled: !!id,
     }),
-}
+};

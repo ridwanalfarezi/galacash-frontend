@@ -1,34 +1,34 @@
-'use client'
+'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import type React from 'react'
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type React from 'react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
-import { CurrencyInput, FileUpload } from '~/components/form'
-import { Button } from '~/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
+import { CurrencyInput, FileUpload } from '~/components/form';
+import { Button } from '~/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '~/components/ui/select'
-import { Textarea } from '~/components/ui/textarea'
-import { type FundCategoryKey, getFundCategoryOptions } from '~/lib/constants'
-import { queryKeys } from '~/lib/queries/keys'
-import { fundApplicationService } from '~/lib/services/fund-application.service'
+} from '~/components/ui/select';
+import { Textarea } from '~/components/ui/textarea';
+import { type FundCategoryKey, getFundCategoryOptions } from '~/lib/constants';
+import { invalidateFinancialQueries } from '~/lib/queries/query-broadcast';
+import { fundApplicationService } from '~/lib/services/fund-application.service';
 
 interface BuatAjuDanaModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     purpose: '',
     description: '',
@@ -36,15 +36,15 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
     amount: 0,
     attachment: null as File | null,
     attachmentPreview: '' as string,
-  })
+  });
 
   // Get dynamic options
-  const categoryOptions = getFundCategoryOptions()
+  const categoryOptions = getFundCategoryOptions();
 
   const createApplication = useMutation({
     mutationFn: async () => {
       if (!formData.purpose || !formData.category || formData.amount <= 0) {
-        throw new Error('Lengkapi keperluan, kategori, dan nominal yang valid')
+        throw new Error('Lengkapi keperluan, kategori, dan nominal yang valid');
       }
       return fundApplicationService.createApplication({
         purpose: formData.purpose,
@@ -52,11 +52,11 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
         amount: formData.amount,
         description: formData.description || undefined,
         attachment: formData.attachment || undefined,
-      })
+      });
     },
     onSuccess: () => {
-      toast.success('Pengajuan dana berhasil dibuat')
-      queryClient.invalidateQueries({ queryKey: queryKeys.fundApplications.all })
+      toast.success('Pengajuan dana berhasil dibuat');
+      invalidateFinancialQueries(queryClient);
       setFormData({
         purpose: '',
         description: '',
@@ -64,33 +64,33 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
         amount: 0,
         attachment: null,
         attachmentPreview: '',
-      })
-      onClose()
+      });
+      onClose();
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : 'Gagal membuat pengajuan dana'
-      toast.error(message)
+      const message = error instanceof Error ? error.message : 'Gagal membuat pengajuan dana';
+      toast.error(message);
     },
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    createApplication.mutate()
-  }
+    e.preventDefault();
+    createApplication.mutate();
+  };
 
   const handleFileChange = (file: File | null) => {
     // Always revoke previous URL first to prevent memory leak
     if (formData.attachmentPreview) {
-      URL.revokeObjectURL(formData.attachmentPreview)
+      URL.revokeObjectURL(formData.attachmentPreview);
     }
 
     if (file) {
-      const previewUrl = file.type.startsWith('image') ? URL.createObjectURL(file) : ''
-      setFormData((prev) => ({ ...prev, attachment: file, attachmentPreview: previewUrl }))
+      const previewUrl = file.type.startsWith('image') ? URL.createObjectURL(file) : '';
+      setFormData((prev) => ({ ...prev, attachment: file, attachmentPreview: previewUrl }));
     } else {
-      setFormData((prev) => ({ ...prev, attachment: null, attachmentPreview: '' }))
+      setFormData((prev) => ({ ...prev, attachment: null, attachmentPreview: '' }));
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -196,5 +196,5 @@ export function BuatAjuDanaModal({ isOpen, onClose }: BuatAjuDanaModalProps) {
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

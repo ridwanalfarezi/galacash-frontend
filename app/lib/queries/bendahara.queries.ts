@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 
 import { getErrorMessage } from '~/lib/api/errors';
 import { queryKeys } from '~/lib/queries/keys';
+import { invalidateFinancialQueries } from '~/lib/queries/query-broadcast';
 import {
   bendaharaService,
   type BendaharaFilters,
@@ -16,69 +17,69 @@ import {
 export const bendaharaQueries = {
   /**
    * Get bendahara dashboard
-   * staleTime: 60s
+   * staleTime: 0s (Immediate financial truth)
    */
   dashboard: (params?: { startDate?: string; endDate?: string }) =>
     queryOptions({
       queryKey: queryKeys.bendahara.dashboard(params),
       queryFn: () => bendaharaService.getDashboard(params),
-      staleTime: 60 * 1000,
+      staleTime: 0,
     }),
 
   /**
    * Get fund application detail by ID
-   * staleTime: 300s
+   * staleTime: 0s
    */
   fundApplicationDetail: (id: string) =>
     queryOptions({
       queryKey: queryKeys.bendahara.fundApplicationDetail(id),
       queryFn: () => bendaharaService.getFundApplicationDetail(id),
-      staleTime: 300 * 1000,
+      staleTime: 0,
       enabled: !!id,
     }),
 
   /**
    * Get cash bills for review
-   * staleTime: 120s
+   * staleTime: 0s
    */
   cashBills: (params?: BendaharaFilters) =>
     queryOptions({
       queryKey: queryKeys.bendahara.cashBills(params),
       queryFn: () => bendaharaService.getCashBills(params),
-      staleTime: 120 * 1000,
+      staleTime: 0,
     }),
 
   /**
    * Get financial recap (rekap kas)
-   * staleTime: 300s
+   * staleTime: 0s
    */
   rekapKas: (params?: BendaharaFilters) =>
     queryOptions({
       queryKey: queryKeys.bendahara.rekapKas(params),
       queryFn: () => bendaharaService.getRekapKas(params),
-      staleTime: 300 * 1000,
+      staleTime: 0,
     }),
 
   /**
    * Get students list
-   * staleTime: 300s
+   * staleTime: 0s
    */
   students: (params?: BendaharaFilters) =>
     queryOptions({
       queryKey: queryKeys.bendahara.students(params),
       queryFn: () => bendaharaService.getStudents(params),
-      staleTime: 300 * 1000,
+      staleTime: 0,
     }),
 
   /**
    * Get student detail
-   * staleTime: 300s
+   * staleTime: 0s
    */
   studentDetail: (id: string) =>
     queryOptions({
       queryKey: queryKeys.bendahara.studentDetail(id),
       queryFn: () => bendaharaService.getStudentDetail(id),
-      staleTime: 300 * 1000,
+      staleTime: 0,
       enabled: !!id,
     }),
 };
@@ -96,11 +97,7 @@ export const useApproveFundApplication = () => {
   return useMutation({
     mutationFn: (id: string) => bendaharaService.approveFundApplication(id),
     onSuccess: () => {
-      // Invalidate all fund application related queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.fundApplications.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+      invalidateFinancialQueries(queryClient);
       toast.success('Pengajuan dana berhasil disetujui');
     },
     onError: (error: unknown) => {
@@ -119,11 +116,7 @@ export const useRejectFundApplication = () => {
     mutationFn: ({ id, rejectionReason }: { id: string; rejectionReason: string }) =>
       bendaharaService.rejectFundApplication(id, rejectionReason),
     onSuccess: () => {
-      // Invalidate all fund application related queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.fundApplications.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+      invalidateFinancialQueries(queryClient);
       toast.success('Pengajuan dana berhasil ditolak');
     },
     onError: (error: unknown) => {
@@ -141,11 +134,7 @@ export const useConfirmPayment = () => {
   return useMutation({
     mutationFn: (billId: string) => bendaharaService.confirmPayment(billId),
     onSuccess: () => {
-      // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      invalidateFinancialQueries(queryClient);
       toast.success('Pembayaran berhasil dikonfirmasi');
     },
     onError: (error: unknown) => {
@@ -164,10 +153,7 @@ export const useRejectPayment = () => {
     mutationFn: ({ billId, reason }: { billId: string; reason?: string }) =>
       bendaharaService.rejectPayment(billId, reason),
     onSuccess: () => {
-      // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      invalidateFinancialQueries(queryClient);
       toast.success('Pembayaran berhasil ditolak');
     },
     onError: (error: unknown) => {
@@ -185,11 +171,7 @@ export const useCreateTransaction = () => {
   return useMutation({
     mutationFn: (data: CreateTransactionData) => bendaharaService.createTransaction(data),
     onSuccess: () => {
-      // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all });
+      invalidateFinancialQueries(queryClient);
       toast.success('Transaksi berhasil dibuat');
     },
     onError: (error: unknown) => {

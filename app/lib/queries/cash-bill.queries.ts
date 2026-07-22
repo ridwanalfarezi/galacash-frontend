@@ -2,6 +2,7 @@ import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query
 import { toast } from 'sonner';
 
 import { queryKeys } from '~/lib/queries/keys';
+import { invalidateFinancialQueries } from '~/lib/queries/query-broadcast';
 import {
   cashBillService,
   type CashBillFilters,
@@ -16,24 +17,24 @@ import {
 export const cashBillQueries = {
   /**
    * Get user's cash bills
-   * staleTime: 120s
+   * staleTime: 0s (Immediate financial truth)
    */
   my: (filters?: CashBillFilters) =>
     queryOptions({
       queryKey: queryKeys.cashBills.my(filters),
       queryFn: () => cashBillService.getMyBills(filters),
-      staleTime: 120 * 1000,
+      staleTime: 0,
     }),
 
   /**
    * Get cash bill detail by ID
-   * staleTime: 300s
+   * staleTime: 0s
    */
   detail: (id: string) =>
     queryOptions({
       queryKey: queryKeys.cashBills.detail(id),
       queryFn: () => cashBillService.getBillById(id),
-      staleTime: 300 * 1000,
+      staleTime: 0,
       enabled: !!id,
     }),
 };
@@ -47,16 +48,54 @@ export function usePayBill() {
   return useMutation({
     mutationFn: ({ billId, data }: { billId: string; data: PayBillData }) =>
       cashBillService.payBill(billId, data),
+    onMutate: async ({ billId }) => {
+      // 1. Cancel ongoing re-fetches so in-flight responses won't overwrite optimistic updates
+      await queryClient.cancelQueries({ queryKey: queryKeys.cashBills.all });
+
+      // 2. Snapshot current cash bill queries
+      const previousQueries = queryClient.getQueriesData({ queryKey: queryKeys.cashBills.all });
+
+      // 3. Optimistically update local query cache entries matching cash bills
+      queryClient.setQueriesData({ queryKey: queryKeys.cashBills.all }, (oldData: unknown) => {
+        if (!oldData || typeof oldData !== 'object') return oldData;
+        if (Array.isArray(oldData)) {
+          return oldData.map((item: Record<string, unknown>) =>
+            item && typeof item === 'object' && item.id === billId
+              ? { ...item, status: 'WAITING_APPROVAL' }
+              : item
+          );
+        }
+        const dataObj = oldData as { items?: Record<string, unknown>[] };
+        if (dataObj.items && Array.isArray(dataObj.items)) {
+          return {
+            ...dataObj,
+            items: dataObj.items.map((item: Record<string, unknown>) =>
+              item && typeof item === 'object' && item.id === billId
+                ? { ...item, status: 'WAITING_APPROVAL' }
+                : item
+            ),
+          };
+        }
+        return oldData;
+      });
+
+      return { previousQueries };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback to previous queries snapshot on error
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+      toast.error('Gagal mengupload bukti pembayaran');
+    },
     onSuccess: () => {
-      // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
       toast.success('Bukti pembayaran berhasil diupload');
     },
-    onError: () => {
-      toast.error('Gagal mengupload bukti pembayaran');
+    onSettled: () => {
+      // Revalidate all financial projections and broadcast cross-tab sync
+      invalidateFinancialQueries(queryClient);
     },
   });
 }
@@ -70,15 +109,13 @@ export function usePayBillsBatch() {
   return useMutation({
     mutationFn: (data: PayBillsBatchData) => cashBillService.payBillsBatch(data),
     onSuccess: (_data, variables) => {
-      // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
       toast.success(`${variables.billIds.length} tagihan berhasil dibayar`);
     },
     onError: () => {
       toast.error('Gagal mengupload bukti pembayaran');
+    },
+    onSettled: () => {
+      invalidateFinancialQueries(queryClient);
     },
   });
 }
@@ -92,15 +129,13 @@ export function useCancelPayment() {
   return useMutation({
     mutationFn: (billId: string) => cashBillService.cancelPayment(billId),
     onSuccess: () => {
-      // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.cashBills.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bendahara.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
       toast.success('Pembayaran berhasil dibatalkan');
     },
     onError: () => {
       toast.error('Gagal membatalkan pembayaran');
+    },
+    onSettled: () => {
+      invalidateFinancialQueries(queryClient);
     },
   });
 }

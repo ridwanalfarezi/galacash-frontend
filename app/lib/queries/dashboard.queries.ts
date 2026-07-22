@@ -1,7 +1,7 @@
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions } from '@tanstack/react-query';
 
-import { queryKeys } from '~/lib/queries/keys'
-import { dashboardService, type DashboardSummaryParams } from '~/lib/services/dashboard.service'
+import { queryKeys } from '~/lib/queries/keys';
+import { dashboardService, type DashboardSummaryParams } from '~/lib/services/dashboard.service';
 
 /**
  * Dashboard query factory
@@ -10,34 +10,34 @@ import { dashboardService, type DashboardSummaryParams } from '~/lib/services/da
 export const dashboardQueries = {
   /**
    * Get dashboard summary
-   * staleTime: 60s
+   * staleTime: 0s
    */
   summary: (params?: DashboardSummaryParams) =>
     queryOptions({
       queryKey: queryKeys.dashboard.summary(params),
       queryFn: () => dashboardService.getSummary(params),
-      staleTime: 60 * 1000, // 1 minute
+      staleTime: 0,
     }),
 
   /**
    * Get pending bills count
-   * staleTime: 60s
+   * staleTime: 0s
    */
   pendingBills: () =>
     queryOptions({
       queryKey: [...queryKeys.dashboard.all, 'pending-bills'] as const,
       queryFn: () => dashboardService.getPendingBills(),
-      staleTime: 60 * 1000,
+      staleTime: 0,
     }),
 
   /**
    * Get pending applications count
-   * staleTime: 60s
+   * staleTime: 0s
    */
   pendingApplications: () =>
     queryOptions({
       queryKey: [...queryKeys.dashboard.all, 'pending-applications'] as const,
       queryFn: () => dashboardService.getPendingApplications(),
-      staleTime: 60 * 1000,
+      staleTime: 0,
     }),
-}
+};

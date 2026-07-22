@@ -1,7 +1,8 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
 
+import { clearAuthState } from '~/lib/auth';
 import { queryKeys } from '~/lib/queries/keys';
-import { queryClient } from '~/lib/query-client';
+import { broadcastInvalidation } from '~/lib/queries/query-broadcast';
 import { userService } from '~/lib/services/user.service';
 import { useAuthStore } from '~/lib/stores/auth.store';
 
@@ -17,7 +18,7 @@ export const userQueries = {
     queryOptions({
       queryKey: queryKeys.user.profile(),
       queryFn: () => userService.getProfile(),
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 0,
     }),
 };
 
@@ -35,9 +36,9 @@ export function useUpdateProfile() {
   return useMutation({
     mutationFn: userService.updateProfile,
     onSuccess: (updatedUser) => {
-      // Update query cache
-      queryClient.invalidateQueries({ queryKey: queryKeys.user.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.auth.all });
+      // Update query cache and broadcast to other tabs
+      broadcastInvalidation(queryKeys.user.all);
+      broadcastInvalidation(queryKeys.auth.all);
       // Also update auth store if user data changed
       if (updatedUser) {
         const currentUser = useAuthStore.getState().user;
@@ -56,15 +57,12 @@ export function useUpdateProfile() {
  * Hook to change password
  */
 export function useChangePassword() {
-  const logout = useAuthStore.getState().logout;
   return useMutation({
     mutationFn: ({ oldPassword, newPassword }: { oldPassword: string; newPassword: string }) =>
       userService.changePassword(oldPassword, newPassword),
     onSuccess: () => {
-      // Clear all queries
-      queryClient.clear();
-      // Logout user
-      logout();
+      // Clear auth state and all cached queries
+      clearAuthState();
     },
   });
 }
@@ -76,9 +74,9 @@ export function useUploadAvatar() {
   return useMutation({
     mutationFn: userService.uploadAvatar,
     onSuccess: (response) => {
-      // Update query cache
-      queryClient.invalidateQueries({ queryKey: queryKeys.user.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.auth.all });
+      // Update query cache and broadcast to other tabs
+      broadcastInvalidation(queryKeys.user.all);
+      broadcastInvalidation(queryKeys.auth.all);
       // Also update auth store avatar
       if (response?.avatarUrl) {
         const currentUser = useAuthStore.getState().user;
