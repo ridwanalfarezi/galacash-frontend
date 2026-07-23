@@ -20,7 +20,8 @@ implementation does not match older guidance. Status values are `accepted`,
 - Evidence: auth store, FetchClient, and auth service.
 - Consequence: full reload revalidates with the API; local storage is not an
   authentication source.
-- Mismatch resolved: README text that says auth is persisted is stale.
+- Mismatch resolved: public documentation now reflects non-persistent auth
+  state.
 
 ## D-003: Native FetchClient and single-flight refresh
 
@@ -105,5 +106,3 @@ implementation does not match older guidance. Status values are `accepted`,
   zero-preserving convention.
 - FetchClient still contains explicit `any` allowances while the repository
   otherwise aims for strict typing.
-- README has stale statements about persisted auth and old configuration
-  filenames. Treat it as lower priority than source.

@@ -1,31 +1,32 @@
 # Semantic Memory: GalaCash Frontend
 
-Verified on 2026-07-23 against commit `c65fc94`. This is durable semantic
-memory, not a changelog. Every important claim names its evidence so it can be
-revalidated.
+Verified on 2026-07-23 against the current working tree. This is durable
+semantic memory, not a changelog. Every important claim names its evidence so
+it can be revalidated.
 
 ## Retrieval index
 
 Search aliases in parentheses when locating a concept:
 
-| Concept | Aliases | Primary evidence |
-| --- | --- | --- |
-| authentication | auth, session, cookie, refresh, 401 | `app/lib/auth.ts`, `app/lib/api/fetch-client.ts`, `app/lib/stores/auth.store.ts` |
-| authorization | role, user, student, bendahara, treasurer, guard | `app/routes.ts`, `app/routes/**`, `app/lib/auth.ts` |
-| remote API state | query, cache, stale, invalidation, refetch | `app/lib/query-client.ts`, `app/lib/queries/**` |
-| API contract | OpenAPI, generated types, response envelope | `package.json`, `app/types/api.d.ts`, `app/lib/services/**` |
-| cash bill | tagihan, payment, confirmation, bill | `app/lib/services/cash-bill.service.ts`, bill query/routes/components |
-| fund application | aju dana, application, approval | `app/lib/services/fund-application.service.ts`, bendahara queries |
-| transaction | kas kelas, income, expense, chart, balance | transaction service/query and shared kas components |
-| semester | academic period, excluded month, deadline | `app/lib/constants.ts`, `app/lib/calculations.ts` |
-| cross-tab freshness | BroadcastChannel, sync | `app/lib/queries/query-broadcast.ts` |
+| Concept             | Aliases                                          | Primary evidence                                                                 |
+| ------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------- |
+| authentication      | auth, session, cookie, refresh, 401              | `app/lib/auth.ts`, `app/lib/api/fetch-client.ts`, `app/lib/stores/auth.store.ts` |
+| authorization       | role, user, student, bendahara, treasurer, guard | `app/routes.ts`, `app/routes/**`, `app/lib/auth.ts`                              |
+| remote API state    | query, cache, stale, invalidation, refetch       | `app/lib/query-client.ts`, `app/lib/queries/**`                                  |
+| API contract        | OpenAPI, generated types, response envelope      | `package.json`, `app/types/api.d.ts`, `app/lib/services/**`                      |
+| cash bill           | tagihan, payment, confirmation, bill             | `app/lib/services/cash-bill.service.ts`, bill query/routes/components            |
+| fund application    | aju dana, application, approval                  | `app/lib/services/fund-application.service.ts`, bendahara queries                |
+| transaction         | kas kelas, income, expense, chart, balance       | transaction service/query and shared kas components                              |
+| semester            | academic period, excluded month, deadline        | `app/lib/constants.ts`, `app/lib/calculations.ts`                                |
+| cross-tab freshness | BroadcastChannel, sync                           | `app/lib/queries/query-broadcast.ts`                                             |
 
 ## System identity
 
 GalaCash Frontend is a React 19, React Router v7 SPA (`ssr: false`) for a
-financial system with student and treasurer experiences. Bun drives scripts,
-Vite builds, Tailwind v4 styles, and React Router route modules are
-automatically code-split.
+financial system with student and treasurer experiences. Bun drives package
+management, unit tests, and the static server; React Router/Vite builds and
+Playwright run through Node. Tailwind v4 styles the app, and React Router route
+modules are automatically code-split.
 
 Evidence: `package.json`, `react-router.config.ts`, `vite.config.ts`,
 `app/routes.ts`.
@@ -128,6 +129,9 @@ list that initiated the mutation.
   `Content-Type` boundary.
 - `app/types/api.d.ts` is the repository-local generated API contract
   snapshot. Use the configured generation workflow when refreshing it.
+- `bun run types:generate` is the configured import boundary for refreshing the
+  local snapshot. Review the generated diff before updating services, mocks,
+  and tests.
 
 Evidence: `.env.example`, `vite.config.ts`, `vercel.json`, `package.json`,
 `app/lib/api/**`, `app/lib/services/**`.
@@ -153,6 +157,9 @@ belum_dibayar
 menunggu_konfirmasi
   -> belum_dibayar  (cancel or rejection)
 ```
+
+Single-bill submissions require payment proof. Batch cash submissions may omit
+proof; batch bank/e-wallet submissions still require it.
 
 The confirmation API operation is treated as creating the corresponding
 `income / kas_kelas` transaction. Mutation success must refresh bills and
@@ -219,15 +226,15 @@ Evidence: `app/routes.ts`.
 
 ## Change impact map
 
-| If this changes | Also inspect |
-| --- | --- |
-| local API declaration/schema | service unwrapping, forms, mocks, E2E routes |
-| query key shape | every option factory, loader prefetch, mutation invalidation, cross-tab messages |
-| auth error code or cookie behavior | FetchClient refresh, route guards, logout, E2E auth mocks |
-| bill/application lifecycle | status badges, modal actions, mutation invalidation, dashboard counts |
-| transaction/category enum | constants, selectors, charts, forms, historical rendering |
-| semester/excluded months | dashboard default range, bill summaries, labels, tests |
-| shared role component | both role routes, action visibility, API authorization assumptions |
+| If this changes                    | Also inspect                                                                     |
+| ---------------------------------- | -------------------------------------------------------------------------------- |
+| local API declaration/schema       | service unwrapping, forms, mocks, E2E routes                                     |
+| query key shape                    | every option factory, loader prefetch, mutation invalidation, cross-tab messages |
+| auth error code or cookie behavior | FetchClient refresh, route guards, logout, E2E auth mocks                        |
+| bill/application lifecycle         | status badges, modal actions, mutation invalidation, dashboard counts            |
+| transaction/category enum          | constants, selectors, charts, forms, historical rendering                        |
+| semester/excluded months           | dashboard default range, bill summaries, labels, tests                           |
+| shared role component              | both role routes, action visibility, API authorization assumptions               |
 
 ## Freshness protocol
 

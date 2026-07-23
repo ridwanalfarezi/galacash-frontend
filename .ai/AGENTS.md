@@ -19,16 +19,16 @@ projections, accessibility, and small changes that fit existing architecture.
 
 ## Architectural boundaries
 
-| Concern | Current owner | Rule |
-| --- | --- | --- |
-| Route graph | `app/routes.ts` | Route modules are automatically code-split. |
-| Route access | `app/lib/auth.ts` and route loaders | Bendahara routes use `requireRole`; user routes mostly use `requireAuth`. |
-| Remote API state | TanStack Query | Use option factories and centralized keys. |
-| Client auth cache | `app/lib/stores/auth.store.ts` | Zustand is non-persistent and auth-only. |
-| HTTP/auth retry | `app/lib/api/fetch-client.ts` | Preserve cookie flow and one refresh request for concurrent 401s. |
-| API contract snapshot | `app/types/api.d.ts` | Use the configured generation workflow; do not treat hand edits as canonical. |
-| Financial projections | Query modules and `app/lib/queries/query-broadcast.ts` | Mutations must invalidate all affected views and open tabs. |
-| Shared UI | `app/components/ui` and `app/components/shared` | Preserve accessibility and role-specific action boundaries. |
+| Concern               | Current owner                                          | Rule                                                                          |
+| --------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| Route graph           | `app/routes.ts`                                        | Route modules are automatically code-split.                                   |
+| Route access          | `app/lib/auth.ts` and route loaders                    | Bendahara routes use `requireRole`; user routes mostly use `requireAuth`.     |
+| Remote API state      | TanStack Query                                         | Use option factories and centralized keys.                                    |
+| Client auth cache     | `app/lib/stores/auth.store.ts`                         | Zustand is non-persistent and auth-only.                                      |
+| HTTP/auth retry       | `app/lib/api/fetch-client.ts`                          | Preserve cookie flow and one refresh request for concurrent 401s.             |
+| API contract snapshot | `app/types/api.d.ts`                                   | Use the configured generation workflow; do not treat hand edits as canonical. |
+| Financial projections | Query modules and `app/lib/queries/query-broadcast.ts` | Mutations must invalidate all affected views and open tabs.                   |
+| Shared UI             | `app/components/ui` and `app/components/shared`        | Preserve accessibility and role-specific action boundaries.                   |
 
 ## Invariants
 

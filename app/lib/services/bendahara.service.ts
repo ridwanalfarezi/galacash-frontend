@@ -69,7 +69,7 @@ export const bendaharaService = {
    * Get fund application detail
    */
   async getFundApplicationDetail(id: string) {
-    const response = await apiClient.get(`/bendahara/fund-applications/${id}`);
+    const response = await apiClient.get(`/fund-applications/${id}`);
     return response.data.data;
   },
 

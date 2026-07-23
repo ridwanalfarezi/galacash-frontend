@@ -50,6 +50,6 @@ Use the narrowest relevant checks, then expand with risk:
 ```text
 bun run type-check
 bun run lint
-bun test
+bun run test
 bun run test:e2e
 ```

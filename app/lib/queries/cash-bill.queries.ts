@@ -10,6 +10,35 @@ import {
   type PayBillsBatchData,
 } from '~/lib/services/cash-bill.service';
 
+type BillRecord = Record<string, unknown>;
+
+function updateBillStatus(items: BillRecord[], billId: string): BillRecord[] {
+  return items.map((item) =>
+    item.id === billId ? { ...item, status: 'menunggu_konfirmasi' } : item
+  );
+}
+
+export function markBillAwaitingConfirmation(oldData: unknown, billId: string): unknown {
+  if (!oldData || typeof oldData !== 'object') return oldData;
+
+  if (Array.isArray(oldData)) {
+    return updateBillStatus(oldData as BillRecord[], billId);
+  }
+
+  const data = oldData as Record<string, unknown>;
+  for (const collectionKey of ['data', 'items', 'bills'] as const) {
+    const collection = data[collectionKey];
+    if (Array.isArray(collection)) {
+      return {
+        ...data,
+        [collectionKey]: updateBillStatus(collection as BillRecord[], billId),
+      };
+    }
+  }
+
+  return oldData;
+}
+
 /**
  * Cash Bill query factory
  * Defines all cash bill-related queries
@@ -56,28 +85,9 @@ export function usePayBill() {
       const previousQueries = queryClient.getQueriesData({ queryKey: queryKeys.cashBills.all });
 
       // 3. Optimistically update local query cache entries matching cash bills
-      queryClient.setQueriesData({ queryKey: queryKeys.cashBills.all }, (oldData: unknown) => {
-        if (!oldData || typeof oldData !== 'object') return oldData;
-        if (Array.isArray(oldData)) {
-          return oldData.map((item: Record<string, unknown>) =>
-            item && typeof item === 'object' && item.id === billId
-              ? { ...item, status: 'WAITING_APPROVAL' }
-              : item
-          );
-        }
-        const dataObj = oldData as { items?: Record<string, unknown>[] };
-        if (dataObj.items && Array.isArray(dataObj.items)) {
-          return {
-            ...dataObj,
-            items: dataObj.items.map((item: Record<string, unknown>) =>
-              item && typeof item === 'object' && item.id === billId
-                ? { ...item, status: 'WAITING_APPROVAL' }
-                : item
-            ),
-          };
-        }
-        return oldData;
-      });
+      queryClient.setQueriesData({ queryKey: queryKeys.cashBills.all }, (oldData: unknown) =>
+        markBillAwaitingConfirmation(oldData, billId)
+      );
 
       return { previousQueries };
     },

@@ -6,1419 +6,2201 @@
 export interface paths {
   '/auth/login': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
     /** Login with NIM and password */
     post: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
       requestBody: {
         content: {
           'application/json': {
             /** @example 1313612345 */
-            nim: string
+            nim: string;
             /** @example password123 */
-            password: string
-          }
-        }
-      }
+            password: string;
+          };
+        };
+      };
       responses: {
         /** @description Login successful */
         200: {
           headers: {
-            [name: string]: unknown
-          }
+            [name: string]: unknown;
+          };
           content: {
-            'application/json': components['schemas']['LoginResponse']
-          }
-        }
-        401: components['responses']['Unauthorized']
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            'application/json': components['schemas']['LoginResponse'];
+          };
+        };
+        401: components['responses']['Unauthorized'];
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/auth/refresh': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
     /** Refresh access token */
     post: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
       requestBody: {
         content: {
           'application/json': {
-            refreshToken: string
-          }
-        }
-      }
+            refreshToken: string;
+          };
+        };
+      };
       responses: {
         /** @description Token refreshed */
         200: {
           headers: {
-            [name: string]: unknown
-          }
+            [name: string]: unknown;
+          };
           content: {
             'application/json': {
-              success?: boolean
+              success?: boolean;
               data?: {
-                accessToken?: string
-                expiresIn?: number
-              }
-            }
-          }
-        }
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+                accessToken?: string;
+                expiresIn?: number;
+              };
+            };
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/auth/logout': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
     /** Logout and invalidate tokens */
     post: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Logged out successfully */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/auth/me': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /** Get current user info */
-    get: {
-      parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
-      responses: {
-        /** @description User info */
-        200: {
-          headers: {
-            [name: string]: unknown
-          }
-          content: {
-            'application/json': components['schemas']['UserResponse']
-          }
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/users/profile': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get user profile */
     get: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description User profile */
         200: {
           headers: {
-            [name: string]: unknown
-          }
+            [name: string]: unknown;
+          };
           content: {
-            'application/json': components['schemas']['UserResponse']
-          }
-        }
-      }
-    }
+            'application/json': components['schemas']['UserResponse'];
+          };
+        };
+      };
+    };
     /** Update user profile */
     put: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
       requestBody?: {
         content: {
           'application/json': {
-            name?: string
+            name?: string;
             /** Format: email */
-            email?: string
-          }
-        }
-      }
+            email?: string;
+          };
+        };
+      };
       responses: {
         /** @description Profile updated */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/users/password': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
     /** Change password */
     put: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
       requestBody: {
         content: {
           'application/json': {
-            oldPassword: string
-            newPassword: string
-            confirmPassword: string
-          }
-        }
-      }
+            oldPassword: string;
+            newPassword: string;
+            confirmPassword: string;
+          };
+        };
+      };
       responses: {
         /** @description Password changed */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/users/avatar': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
     /** Upload avatar */
     post: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
       requestBody?: {
         content: {
           'multipart/form-data': {
             /** Format: binary */
-            avatar?: string
-          }
-        }
-      }
+            avatar?: string;
+          };
+        };
+      };
       responses: {
         /** @description Avatar uploaded */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/classmates': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get classmates for the authenticated user's class */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description List of classmates */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/dashboard/summary': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get financial summary */
     get: {
       parameters: {
         query?: {
-          startDate?: string
-          endDate?: string
-        }
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+          startDate?: string;
+          endDate?: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Financial summary */
         200: {
           headers: {
-            [name: string]: unknown
-          }
+            [name: string]: unknown;
+          };
           content: {
-            'application/json': components['schemas']['DashboardSummary']
-          }
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            'application/json': components['schemas']['DashboardSummary'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/dashboard/pending-bills': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get pending bills summary */
     get: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Pending bills */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/dashboard/pending-applications': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get pending fund applications */
     get: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Pending applications */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/transactions': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get transactions list */
     get: {
       parameters: {
         query?: {
-          page?: components['parameters']['page']
-          limit?: components['parameters']['limit']
-          startDate?: string
-          endDate?: string
-          type?: 'income' | 'expense'
-          sortBy?: 'date' | 'amount' | 'type'
-          sortOrder?: 'asc' | 'desc'
-        }
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+          page?: components['parameters']['page'];
+          limit?: components['parameters']['limit'];
+          startDate?: string;
+          endDate?: string;
+          type?: 'income' | 'expense';
+          sortBy?: 'date' | 'amount' | 'type';
+          sortOrder?: 'asc' | 'desc';
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description List of transactions */
         200: {
           headers: {
-            [name: string]: unknown
-          }
+            [name: string]: unknown;
+          };
           content: {
-            'application/json': components['schemas']['TransactionListResponse']
-          }
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            'application/json': components['schemas']['TransactionListResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/transactions/{id}': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get transaction details */
     get: {
       parameters: {
-        query?: never
-        header?: never
+        query?: never;
+        header?: never;
         path: {
-          id: string
-        }
-        cookie?: never
-      }
-      requestBody?: never
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Transaction details */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/transactions/chart-data': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get chart data */
     get: {
       parameters: {
         query: {
-          type: 'income' | 'expense'
-        }
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+          type: 'income' | 'expense';
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Chart data */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/transactions/export': {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/transactions/breakdown': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    /** Export transactions */
-    post: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get transaction totals grouped by category */
+    get: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: {
-        content: {
-          'application/json': components['schemas']['ExportRequest']
-        }
-      }
+        query: {
+          type: 'income' | 'expense';
+          startDate?: string;
+          endDate?: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
-        /** @description Export URL */
+        /** @description Transaction category breakdown */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/transactions/export': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Export transactions */
+    get: {
+      parameters: {
+        query?: {
+          format?: 'excel' | 'csv';
+          type?: 'income' | 'expense';
+          startDate?: string;
+          endDate?: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Exported transaction file */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/fund-applications': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get all fund applications */
     get: {
       parameters: {
         query?: {
-          page?: components['parameters']['page']
-          limit?: components['parameters']['limit']
-          status?: 'pending' | 'approved' | 'rejected'
-          category?: 'education' | 'health' | 'emergency' | 'equipment'
-          minAmount?: number
-          maxAmount?: number
-        }
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+          page?: components['parameters']['page'];
+          limit?: components['parameters']['limit'];
+          status?: 'pending' | 'approved' | 'rejected';
+          category?: 'education' | 'health' | 'emergency' | 'equipment';
+          minAmount?: number;
+          maxAmount?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description List of fund applications */
         200: {
           headers: {
-            [name: string]: unknown
-          }
+            [name: string]: unknown;
+          };
           content: {
-            'application/json': components['schemas']['FundApplicationListResponse']
-          }
-        }
-      }
-    }
-    put?: never
+            'application/json': components['schemas']['FundApplicationListResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
     /** Create fund application */
     post: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
       requestBody?: {
         content: {
           'multipart/form-data': {
-            purpose: string
-            description?: string
+            purpose: string;
+            description?: string;
             /** @enum {string} */
-            category: 'education' | 'health' | 'emergency' | 'equipment'
-            amount: number
+            category: 'education' | 'health' | 'emergency' | 'equipment';
+            amount: number;
             /** Format: binary */
-            attachment?: string
-          }
-        }
-      }
+            attachment?: string;
+          };
+        };
+      };
       responses: {
         /** @description Application created */
         201: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/fund-applications/my': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get my fund applications */
     get: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description My applications */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/fund-applications/{id}': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get fund application details */
     get: {
       parameters: {
-        query?: never
-        header?: never
+        query?: never;
+        header?: never;
         path: {
-          id: string
-        }
-        cookie?: never
-      }
-      requestBody?: never
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Application details */
         200: {
           headers: {
-            [name: string]: unknown
-          }
+            [name: string]: unknown;
+          };
           content: {
-            'application/json': components['schemas']['FundApplicationDetail']
-          }
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            'application/json': components['schemas']['FundApplicationDetail'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/cash-bills': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get my cash bills */
     get: {
       parameters: {
         query?: {
-          page?: components['parameters']['page']
-          limit?: components['parameters']['limit']
-          status?: 'belum_dibayar' | 'menunggu_konfirmasi' | 'sudah_dibayar'
-          month?: string
-          year?: number
-        }
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+          page?: components['parameters']['page'];
+          limit?: components['parameters']['limit'];
+          status?: 'belum_dibayar' | 'menunggu_konfirmasi' | 'sudah_dibayar';
+          month?: string;
+          year?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description List of cash bills */
         200: {
           headers: {
-            [name: string]: unknown
-          }
+            [name: string]: unknown;
+          };
           content: {
-            'application/json': components['schemas']['CashBillListResponse']
-          }
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            'application/json': components['schemas']['CashBillListResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/cash-bills/my': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get the authenticated user's cash bills */
+    get: {
+      parameters: {
+        query?: {
+          page?: components['parameters']['page'];
+          limit?: components['parameters']['limit'];
+          status?: 'belum_dibayar' | 'menunggu_konfirmasi' | 'sudah_dibayar';
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description List of the user's cash bills */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['CashBillListResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/cash-bills/batch-pay': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Submit one payment for multiple cash bills */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'multipart/form-data': {
+            billIds: string | string[];
+            /** @enum {string} */
+            paymentMethod: 'bank' | 'ewallet' | 'cash';
+            /**
+             * Format: binary
+             * @description Required unless paymentMethod is cash
+             */
+            paymentProof?: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Batch payment submitted */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/cash-bills/{id}': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get cash bill details */
     get: {
       parameters: {
-        query?: never
-        header?: never
+        query?: never;
+        header?: never;
         path: {
-          id: string
-        }
-        cookie?: never
-      }
-      requestBody?: never
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Bill details */
         200: {
           headers: {
-            [name: string]: unknown
-          }
+            [name: string]: unknown;
+          };
           content: {
-            'application/json': components['schemas']['CashBillDetail']
-          }
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            'application/json': components['schemas']['CashBillDetail'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/cash-bills/{id}/pay': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
     /** Submit payment proof */
     post: {
       parameters: {
-        query?: never
-        header?: never
+        query?: never;
+        header?: never;
         path: {
-          id: string
-        }
-        cookie?: never
-      }
+          id: string;
+        };
+        cookie?: never;
+      };
       requestBody?: {
         content: {
           'multipart/form-data': {
             /** @enum {string} */
-            paymentMethod: 'bank' | 'ewallet' | 'cash'
+            paymentMethod: 'bank' | 'ewallet' | 'cash';
             /** Format: binary */
-            paymentProof: string
-          }
-        }
-      }
+            paymentProof: string;
+          };
+        };
+      };
       responses: {
         /** @description Payment submitted */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/cash-bills/{id}/cancel-payment': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
     /** Cancel payment */
     post: {
       parameters: {
-        query?: never
-        header?: never
+        query?: never;
+        header?: never;
         path: {
-          id: string
-        }
-        cookie?: never
-      }
-      requestBody?: never
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Payment cancelled */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/bendahara/dashboard': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get treasurer dashboard */
     get: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Treasurer dashboard */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/bendahara/fund-applications': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /** Get all fund applications for review */
-    get: {
-      parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
-      responses: {
-        /** @description Applications for review */
-        200: {
-          headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/bendahara/fund-applications/{id}/approve': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
     /**
      * Approve fund application
      * @description Approves the application and automatically creates an expense transaction
      */
     post: {
       parameters: {
-        query?: never
-        header?: never
+        query?: never;
+        header?: never;
         path: {
-          id: string
-        }
-        cookie?: never
-      }
-      requestBody?: never
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Application approved */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/bendahara/fund-applications/{id}/reject': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
     /** Reject fund application */
     post: {
       parameters: {
-        query?: never
-        header?: never
+        query?: never;
+        header?: never;
         path: {
-          id: string
-        }
-        cookie?: never
-      }
+          id: string;
+        };
+        cookie?: never;
+      };
       requestBody: {
         content: {
           'application/json': {
-            rejectionReason: string
-          }
-        }
-      }
+            rejectionReason: string;
+          };
+        };
+      };
       responses: {
         /** @description Application rejected */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/bendahara/cash-bills': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get all cash bills */
     get: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description All cash bills */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/bendahara/cash-bills/{id}/confirm': {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/bendahara/cash-bills/{id}/confirm-payment': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
     /**
      * Confirm payment
      * @description Confirms the payment and automatically creates an income transaction
      */
     post: {
       parameters: {
-        query?: never
-        header?: never
+        query?: never;
+        header?: never;
         path: {
-          id: string
-        }
-        cookie?: never
-      }
-      requestBody?: never
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Payment confirmed */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/bendahara/cash-bills/{id}/reject': {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/bendahara/cash-bills/{id}/reject-payment': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
     /** Reject payment proof */
     post: {
       parameters: {
-        query?: never
-        header?: never
+        query?: never;
+        header?: never;
         path: {
-          id: string
-        }
-        cookie?: never
-      }
-      requestBody?: never
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Payment rejected */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/bendahara/rekap-kas': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get financial recap */
     get: {
       parameters: {
         query?: {
-          startDate?: string
-          endDate?: string
-          groupBy?: 'day' | 'week' | 'month' | 'year'
-        }
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+          startDate?: string;
+          endDate?: string;
+          groupBy?: 'day' | 'week' | 'month' | 'year';
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description Financial recap */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/bendahara/rekap-kas/export': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Export financial recap */
-    post: {
+    get: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: {
-        content: {
-          'application/json': components['schemas']['ExportRequest']
-        }
-      }
+        query?: {
+          startDate?: string;
+          endDate?: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
-        /** @description Export URL */
+        /** @description Exported financial recap file */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/bendahara/students': {
     parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     /** Get class students */
     get: {
       parameters: {
-        query?: never
-        header?: never
-        path?: never
-        cookie?: never
-      }
-      requestBody?: never
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         /** @description List of students */
         200: {
           headers: {
-            [name: string]: unknown
-          }
-          content?: never
-        }
-      }
-    }
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/bendahara/students/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get student details */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Student details */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/bendahara/transactions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Create manual transaction
+     * @description Allows bendahara to manually create income/expense transactions
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'multipart/form-data': {
+            /**
+             * Format: date
+             * @description Transaction date
+             */
+            date: string;
+            /** @description Transaction description */
+            description: string;
+            /**
+             * @description Transaction type
+             * @enum {string}
+             */
+            type: 'income' | 'expense';
+            /**
+             * Format: float
+             * @description Transaction amount
+             */
+            amount: number;
+            /** @description Transaction category (optional) */
+            category?: string;
+            /**
+             * Format: binary
+             * @description Supporting document (optional, max 10MB)
+             */
+            attachment?: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Transaction created successfully */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              success?: boolean;
+              data?: components['schemas']['Transaction'];
+              message?: string;
+            };
+          };
+        };
+        /** @description Validation error */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/payment-accounts': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all payment accounts (bendahara only) */
+    get: {
+      parameters: {
+        query?: {
+          status?: 'active' | 'inactive';
+          accountType?: 'bank' | 'ewallet';
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description List of payment accounts */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    /** Create payment account */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['PaymentAccountInput'];
+        };
+      };
+      responses: {
+        /** @description Account created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/payment-accounts/active': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get active payment accounts (public) */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Active accounts list */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/payment-accounts/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get payment account details */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Account details */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    /** Update payment account */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['PaymentAccountUpdate'];
+        };
+      };
+      responses: {
+        /** @description Account updated */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    post?: never;
+    /** Delete payment account */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Account deleted */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/payment-accounts/{id}/activate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Activate payment account */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Account activated */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/payment-accounts/{id}/deactivate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Deactivate payment account */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Account deactivated */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/labels': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all labels */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description All labels */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/labels/bill-statuses': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get bill status labels */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Bill statuses */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/labels/fund-statuses': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get fund status labels */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Fund statuses */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/labels/fund-categories': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get fund category labels */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Fund categories */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/labels/transaction-types': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get transaction type labels */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Transaction types */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/labels/transaction-categories': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get transaction category labels */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Transaction categories */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/labels/payment-methods': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get payment method labels */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Payment methods */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/cron/generate-bills': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Generate monthly cash bills
+     * @description Protected scheduler endpoint for idempotent monthly bill generation
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header: {
+          'x-cron-secret': string;
+        };
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Bill generation completed */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        401: components['responses']['Unauthorized'];
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/cron/health': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Check scheduled-job endpoint health */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Scheduler endpoint is healthy */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
-export type webhooks = Record<string, never>
+export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     ErrorResponse: {
       /** @example false */
-      success?: boolean
+      success?: boolean;
       error?: {
-        code?: string
-        message?: string
-        details?: Record<string, never>
-      }
-    }
+        code?: string;
+        message?: string;
+        details?: Record<string, never>;
+      };
+    };
     Pagination: {
-      page?: number
-      limit?: number
-      totalItems?: number
-      totalPages?: number
-    }
+      page?: number;
+      limit?: number;
+      totalItems?: number;
+      totalPages?: number;
+    };
     User: {
       /** Format: uuid */
-      id?: string
-      nim?: string
-      name?: string
-      email?: string
+      id?: string;
+      nim?: string;
+      name?: string;
+      email?: string;
       /** @enum {string} */
-      role?: 'user' | 'bendahara'
+      role?: 'user' | 'bendahara';
       /** Format: uuid */
-      classId?: string
-      className?: string
-      avatarUrl?: string
-    }
+      classId?: string;
+      className?: string;
+      avatarUrl?: string;
+    };
     UserResponse: {
-      success?: boolean
-      data?: components['schemas']['User']
-    }
+      success?: boolean;
+      data?: components['schemas']['User'];
+    };
     LoginResponse: {
-      success?: boolean
+      success?: boolean;
       data?: {
-        user?: components['schemas']['User']
+        user?: components['schemas']['User'];
         tokens?: {
-          accessToken?: string
-          refreshToken?: string
-          expiresIn?: number
-        }
-      }
-    }
+          accessToken?: string;
+          refreshToken?: string;
+          expiresIn?: number;
+        };
+      };
+    };
     DashboardSummary: {
-      success?: boolean
+      success?: boolean;
       data?: {
-        totalBalance?: number
-        totalIncome?: number
-        totalExpense?: number
+        totalBalance?: number;
+        totalIncome?: number;
+        totalExpense?: number;
         period?: {
           /** Format: date */
-          startDate?: string
+          startDate?: string;
           /** Format: date */
-          endDate?: string
-        }
-      }
-    }
+          endDate?: string;
+        };
+      };
+    };
     Transaction: {
       /** Format: uuid */
-      id?: string
+      id?: string;
       /** @enum {string} */
-      type?: 'income' | 'expense'
-      description?: string
-      amount?: number
+      type?: 'income' | 'expense';
+      description?: string;
+      amount?: number;
       /** Format: date */
-      date?: string
-    }
+      date?: string;
+    };
     TransactionListResponse: {
-      success?: boolean
+      success?: boolean;
       data?: {
-        transactions?: components['schemas']['Transaction'][]
-        pagination?: components['schemas']['Pagination']
-      }
-    }
+        transactions?: components['schemas']['Transaction'][];
+        pagination?: components['schemas']['Pagination'];
+      };
+    };
     FundApplication: {
       /** Format: uuid */
-      id?: string
-      date?: string
-      purpose?: string
+      id?: string;
+      date?: string;
+      purpose?: string;
       /** @enum {string} */
-      category?: 'education' | 'health' | 'emergency' | 'equipment'
+      category?: 'education' | 'health' | 'emergency' | 'equipment';
       /** @enum {string} */
-      status?: 'pending' | 'approved' | 'rejected'
-      amount?: number
+      status?: 'pending' | 'approved' | 'rejected';
+      amount?: number;
       applicant?: {
-        id?: string
-        name?: string
-      }
-    }
+        id?: string;
+        name?: string;
+      };
+    };
     FundApplicationDetail: components['schemas']['FundApplication'] & {
-      description?: string
-      attachmentUrl?: string
-      rejectionReason?: string
+      description?: string;
+      attachmentUrl?: string;
+      rejectionReason?: string;
       reviewedBy?: {
-        id?: string
-        name?: string
-      }
+        id?: string;
+        name?: string;
+      };
       /** Format: date-time */
-      reviewedAt?: string
+      reviewedAt?: string;
       /** Format: date-time */
-      createdAt?: string
-    }
+      createdAt?: string;
+    };
     FundApplicationListResponse: {
-      success?: boolean
+      success?: boolean;
       data?: {
-        applications?: components['schemas']['FundApplication'][]
-        pagination?: components['schemas']['Pagination']
-      }
-    }
+        applications?: components['schemas']['FundApplication'][];
+        pagination?: components['schemas']['Pagination'];
+      };
+    };
     CashBill: {
       /** Format: uuid */
-      id?: string
-      billId?: string
-      month?: string
-      year?: number
+      id?: string;
+      billId?: string;
+      month?: string;
+      year?: number;
       /** @enum {string} */
-      status?: 'belum_dibayar' | 'menunggu_konfirmasi' | 'sudah_dibayar'
+      status?: 'belum_dibayar' | 'menunggu_konfirmasi' | 'sudah_dibayar';
       /** Format: date */
-      dueDate?: string
-      totalAmount?: number
-    }
+      dueDate?: string;
+      totalAmount?: number;
+    };
     CashBillDetail: components['schemas']['CashBill'] & {
-      name?: string
-      kasKelas?: number
-      biayaAdmin?: number
+      name?: string;
+      kasKelas?: number;
+      biayaAdmin?: number;
       /** @enum {string} */
-      paymentMethod?: 'bank' | 'ewallet' | 'cash'
-      paymentProofUrl?: string
+      paymentMethod?: 'bank' | 'ewallet' | 'cash';
+      paymentProofUrl?: string;
       /** Format: date-time */
-      paidAt?: string
+      paidAt?: string;
       /** Format: date-time */
-      confirmedAt?: string
-    }
+      confirmedAt?: string;
+    };
     CashBillListResponse: {
-      success?: boolean
+      success?: boolean;
       data?: {
-        bills?: components['schemas']['CashBill'][]
-        pagination?: components['schemas']['Pagination']
-      }
-    }
+        bills?: components['schemas']['CashBill'][];
+        pagination?: components['schemas']['Pagination'];
+      };
+    };
     ExportRequest: {
       /** @enum {string} */
-      format?: 'xlsx' | 'pdf'
+      format?: 'xlsx' | 'pdf';
+    };
+    PaymentAccountInput: {
+      name: string;
+      /** @enum {string} */
+      accountType: 'bank' | 'ewallet';
+      accountNumber?: string;
+      accountHolder?: string;
+      description?: string;
+    };
+    PaymentAccountUpdate: {
+      name?: string;
+      /** @enum {string} */
+      status?: 'active' | 'inactive';
+      accountNumber?: string;
+      accountHolder?: string;
+      description?: string;
       /** Format: date */
-      startDate?: string
-      /** Format: date */
-      endDate?: string
-    }
-  }
+      endDate?: string;
+    };
+  };
   responses: {
     /** @description Authentication required or invalid */
     Unauthorized: {
       headers: {
-        [name: string]: unknown
-      }
+        [name: string]: unknown;
+      };
       content: {
-        'application/json': components['schemas']['ErrorResponse']
-      }
-    }
-  }
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+  };
   parameters: {
-    page: number
-    limit: number
-  }
-  requestBodies: never
-  headers: never
-  pathItems: never
+    page: number;
+    limit: number;
+  };
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
-export type $defs = Record<string, never>
-export type operations = Record<string, never>
+export type $defs = Record<string, never>;
+export type operations = Record<string, never>;

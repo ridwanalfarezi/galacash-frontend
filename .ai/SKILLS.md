@@ -16,8 +16,8 @@ them.
 
 ## Add or change an API field
 
-1. Obtain or define the updated API contract for this repository.
-2. Run the configured type-generation workflow.
+1. Confirm the upstream API contract has been published and validated.
+2. Run `bun run types:generate`.
 3. Review the generated diff in `app/types/api.d.ts`.
 4. Update service unwrapping and any domain adapter.
 5. Update query option types, forms, components, mocks, and tests.
@@ -117,10 +117,14 @@ Do not treat a hand edit to the generated declaration as the canonical fix.
 
 ## Verification matrix
 
-| Change | Minimum checks |
-| --- | --- |
-| docs/memory only | links, `git diff --check` |
-| component or utility | `bun test`, `bun run type-check`, lint relevant files |
-| route/query/service | `bun run type-check`, `bun run lint`, relevant tests |
-| auth/roles/financial workflow | above plus targeted Playwright E2E |
-| generated API contract | type generation diff, type-check, affected local tests |
+| Change                        | Minimum checks                                            |
+| ----------------------------- | --------------------------------------------------------- |
+| docs/memory only              | links, `git diff --check`                                 |
+| component or utility          | `bun run test`, `bun run type-check`, lint relevant files |
+| route/query/service           | `bun run type-check`, `bun run lint`, relevant tests      |
+| auth/roles/financial workflow | above plus targeted Playwright E2E                        |
+| generated API contract        | type generation diff, type-check, affected local tests    |
+
+Use `bun run test` for unit tests; plain `bun test` also discovers Playwright
+files and is not the intended suite boundary. Use `bun run test:e2e` for the
+browser suite.

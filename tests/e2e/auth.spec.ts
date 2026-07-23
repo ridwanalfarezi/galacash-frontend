@@ -35,6 +35,10 @@ test.describe('Authentication Flow', () => {
     });
 
     test('should redirect student to user dashboard on successful login', async ({ page }) => {
+      // Register the authenticated-session baseline first. Playwright evaluates
+      // routes in reverse registration order, so the login override below wins.
+      await loginAs(page, 'student');
+
       // Mock login API
       await page.route('**/api/auth/login', async (route) => {
         await route.fulfill({
@@ -55,9 +59,6 @@ test.describe('Authentication Flow', () => {
           },
         });
       });
-
-      // Mock subsequent auth/profile requests
-      await loginAs(page, 'student');
 
       // Mock dashboard data to prevent errors after redirect
       await page.route('**/api/dashboard/**', async (route) => {
@@ -95,6 +96,9 @@ test.describe('Authentication Flow', () => {
     test('should redirect bendahara to bendahara dashboard on successful login', async ({
       page,
     }) => {
+      // Register the authenticated-session baseline before endpoint overrides.
+      await loginAs(page, 'bendahara');
+
       // Mock login API
       await page.route('**/api/auth/login', async (route) => {
         await route.fulfill({
@@ -115,9 +119,6 @@ test.describe('Authentication Flow', () => {
           },
         });
       });
-
-      // Mock subsequent auth/profile requests
-      await loginAs(page, 'bendahara');
 
       // Mock dashboard data to prevent errors after redirect
       await page.route('**/api/dashboard/**', async (route) => {

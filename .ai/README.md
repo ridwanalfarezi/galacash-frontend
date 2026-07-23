@@ -6,12 +6,12 @@ retrieve the right context without treating old notes as truth.
 
 ## Files
 
-| File | Memory type | Read when |
-| --- | --- | --- |
-| `.ai/AGENTS.md` | operating policy | starting any implementation or review |
-| `.ai/CONTEXT.md` | semantic facts and relationships | understanding architecture, domain, contracts, and blast radius |
-| `.ai/DECISIONS.md` | rationale, constraints, and known mismatches | changing architecture or resolving contradictory guidance |
-| `.ai/SKILLS.md` | procedural playbooks | performing a common task |
+| File               | Memory type                                  | Read when                                                       |
+| ------------------ | -------------------------------------------- | --------------------------------------------------------------- |
+| `.ai/AGENTS.md`    | operating policy                             | starting any implementation or review                           |
+| `.ai/CONTEXT.md`   | semantic facts and relationships             | understanding architecture, domain, contracts, and blast radius |
+| `.ai/DECISIONS.md` | rationale, constraints, and known mismatches | changing architecture or resolving contradictory guidance       |
+| `.ai/SKILLS.md`    | procedural playbooks                         | performing a common task                                        |
 
 The repository-root `AGENTS.md` is the discovery hook that tells compatible
 agents to load this directory.
@@ -33,14 +33,14 @@ agents to load this directory.
 
 ## Retrieval guide
 
-| Task | Load |
-| --- | --- |
-| UI-only component change | `.ai/AGENTS.md`, relevant `.ai/CONTEXT.md` component/domain sections |
-| route or role change | `.ai/AGENTS.md`, `.ai/CONTEXT.md` roles/auth/route map, `.ai/DECISIONS.md` |
-| query/cache bug | `.ai/CONTEXT.md` data model, `.ai/SKILLS.md` stale-data playbook |
-| API integration | `.ai/CONTEXT.md` API contract, `.ai/SKILLS.md` API-field playbook |
-| financial workflow | all four files |
-| new dependency or architecture | all four files |
+| Task                           | Load                                                                       |
+| ------------------------------ | -------------------------------------------------------------------------- |
+| UI-only component change       | `.ai/AGENTS.md`, relevant `.ai/CONTEXT.md` component/domain sections       |
+| route or role change           | `.ai/AGENTS.md`, `.ai/CONTEXT.md` roles/auth/route map, `.ai/DECISIONS.md` |
+| query/cache bug                | `.ai/CONTEXT.md` data model, `.ai/SKILLS.md` stale-data playbook           |
+| API integration                | `.ai/CONTEXT.md` API contract, `.ai/SKILLS.md` API-field playbook          |
+| financial workflow             | all four files                                                             |
+| new dependency or architecture | all four files                                                             |
 
 ## Source priority
 

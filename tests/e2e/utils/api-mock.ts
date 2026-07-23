@@ -5,20 +5,13 @@ import { mockBendahara, mockStudent } from '../mocks/data'
 export const loginAs = async (page: Page, role: 'student' | 'bendahara') => {
   const user = role === 'student' ? mockStudent : mockBendahara
 
-  // Mock /users/profile (used for current user)
-  await page.route('**/api/users/profile', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        success: true,
-        data: user,
-      }),
-    })
+  // Any endpoint not explicitly mocked by the scenario is a test failure.
+  await page.route('**/api/**', async (route) => {
+    await route.abort('failed')
   })
 
-  // Mock /auth/me (alternative)
-  await page.route('**/api/auth/me', async (route) => {
+  // Mock /users/profile (used for current user)
+  await page.route('**/api/users/profile', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -36,7 +29,6 @@ export const loginAs = async (page: Page, role: 'student' | 'bendahara') => {
       contentType: 'application/json',
       body: JSON.stringify({
         success: true,
-        data: { accessToken: 'fake-token' },
       }),
     })
   })

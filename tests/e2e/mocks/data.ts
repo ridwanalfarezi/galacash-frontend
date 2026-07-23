@@ -1,7 +1,7 @@
 // Mock Users
 export const mockStudent = {
   id: 'student-id-1',
-  nim: '1234567890',
+  nim: '1313624000',
   name: 'John Student',
   email: 'student@example.com',
   role: 'user',
@@ -12,7 +12,7 @@ export const mockStudent = {
 
 export const mockBendahara = {
   id: 'bendahara-id-1',
-  nim: '0987654321',
+  nim: '1313624999',
   name: 'Jane Bendahara',
   email: 'bendahara@example.com',
   role: 'bendahara',
@@ -25,11 +25,13 @@ export const mockBendahara = {
 export const mockBillPending = {
   id: 'bill-id-1',
   billId: 'BILL-001',
-  month: '1',
+  month: 1,
   year: 2024,
   status: 'belum_dibayar',
   dueDate: '2024-01-31',
   totalAmount: 50000,
+  kasKelas: 50000,
+  biayaAdmin: 0,
   name: 'Kas Januari 2024',
 }
 

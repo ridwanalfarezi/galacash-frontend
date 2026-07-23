@@ -25,10 +25,10 @@ test.describe('Student Bill Payment Flow', () => {
     const isMobile = viewport ? viewport.width < 1024 : false;
     test.skip(isMobile, 'Bill table and payment flow require desktop viewport');
 
-    // On desktop, table is visible
-    const billText = page.getByText('Belum Dibayar').filter({ hasText: 'Belum Dibayar' }).first();
-    await expect(billText).toBeVisible({ timeout: 10000 });
-    await billText.click();
+    // Open detail through the row action. Clicking the row itself now selects it for batch payment.
+    const billRow = page.locator('tr').filter({ hasText: 'BILL-001' });
+    await expect(billRow).toBeVisible({ timeout: 10000 });
+    await billRow.getByRole('button').last().click();
 
     // Check modal content
     await expect(page.getByRole('dialog')).toBeVisible({ timeout: 10000 });
@@ -51,6 +51,59 @@ test.describe('Student Bill Payment Flow', () => {
 
     // Click "Bayar Sekarang"
     await page.getByRole('button', { name: /Bayar Sekarang/i }).click();
+  });
+
+  test('Student can pay multiple bills in cash without payment proof', async ({ page }) => {
+    const viewport = page.viewportSize();
+    test.skip(
+      Boolean(viewport && viewport.width < 1024),
+      'Batch table selection is covered in the desktop workflow'
+    );
+
+    await loginAs(page, 'student');
+    const secondBill = {
+      ...mockBillPending,
+      id: 'bill-id-2',
+      billId: 'BILL-002',
+      month: 2,
+    };
+
+    await page.route('**/api/cash-bills/my*', async (route) => {
+      await route.fulfill({
+        json: {
+          success: true,
+          data: {
+            data: [mockBillPending, secondBill],
+            page: 1,
+            limit: 25,
+            total: 2,
+            totalPages: 1,
+          },
+        },
+      });
+    });
+
+    await page.goto('/user/tagihan-kas');
+    await page.getByLabel('Pilih semua tagihan').click();
+    await expect(page.getByText('2 tagihan dipilih')).toBeVisible();
+    await page.getByRole('button', { name: 'Bayar Sekarang' }).click();
+    await page.getByRole('button', { name: 'Cash' }).click();
+
+    const batchRequest = page.waitForRequest('**/api/cash-bills/batch-pay');
+    await page.route('**/api/cash-bills/batch-pay', async (route) => {
+      const requestBody = route.request().postData() ?? '';
+      expect(route.request().method()).toBe('POST');
+      expect(requestBody).toContain('cash');
+      expect(requestBody).toContain('bill-id-1');
+      expect(requestBody).toContain('bill-id-2');
+      await route.fulfill({
+        json: { success: true, data: [mockBillWaiting, { ...mockBillWaiting, ...secondBill }] },
+      });
+    });
+
+    await page.getByRole('button', { name: /Bayar 2 Tagihan/ }).click();
+    await batchRequest;
+    await expect(page.getByRole('dialog')).toBeHidden();
   });
 
   test('Treasurer can confirm payment', async ({ page }) => {
@@ -89,9 +142,6 @@ test.describe('Student Bill Payment Flow', () => {
     // Ensure student name is visible
     await expect(page.getByText(mockStudent.name).first()).toBeVisible({ timeout: 10000 });
 
-    // Navigate to detail page
-    await page.goto(`/bendahara/rekap-kas/${mockStudent.id}`);
-
     // Mock student detail and bills
     await page.route(`**/api/bendahara/students/${mockStudent.id}`, async (route) => {
       await route.fulfill({ json: { success: true, data: mockStudent } });
@@ -100,6 +150,9 @@ test.describe('Student Bill Payment Flow', () => {
     await page.route(`**/api/bendahara/cash-bills?userId=${mockStudent.id}*`, async (route) => {
       await route.fulfill({ json: { success: true, data: [mockBillWaiting] } });
     });
+
+    // Navigate to detail page
+    await page.goto(`/bendahara/rekap-kas/${mockStudent.id}`);
 
     // Check we are on detail page
     await expect(page).toHaveURL(new RegExp(`/bendahara/rekap-kas/${mockStudent.id}`));
@@ -119,8 +172,13 @@ test.describe('Student Bill Payment Flow', () => {
     await page.getByRole('button', { name: /Konfirmasi Pembayaran/i }).click();
   });
 
-  // TODO: Implement reject payment button in UI before enabling this test
-  test.skip('Treasurer can reject payment', async ({ page }) => {
+  test('Treasurer can reject payment', async ({ page }) => {
+    const viewport = page.viewportSize();
+    test.skip(
+      Boolean(viewport && viewport.width < 1024),
+      'Rekap kas table is hidden on mobile viewports (< lg breakpoint)'
+    );
+
     await loginAs(page, 'bendahara');
 
     // Mock rekap kas list
@@ -150,9 +208,6 @@ test.describe('Student Bill Payment Flow', () => {
     // Ensure student name is visible
     await expect(page.getByText(mockStudent.name).first()).toBeVisible();
 
-    // Navigate to detail page
-    await page.goto(`/bendahara/rekap-kas/${mockStudent.id}`);
-
     // Mock student detail and bills
     await page.route(`**/api/bendahara/students/${mockStudent.id}`, async (route) => {
       await route.fulfill({ json: { success: true, data: mockStudent } });
@@ -162,6 +217,9 @@ test.describe('Student Bill Payment Flow', () => {
       await route.fulfill({ json: { success: true, data: [mockBillWaiting] } });
     });
 
+    // Navigate to detail page
+    await page.goto(`/bendahara/rekap-kas/${mockStudent.id}`);
+
     await page.getByText('Menunggu Konfirmasi').first().click();
 
     // Reject
@@ -169,7 +227,8 @@ test.describe('Student Bill Payment Flow', () => {
       await route.fulfill({ json: { success: true, data: mockBillPending } });
     });
 
-    // This button does not exist yet!
-    await page.getByRole('button', { name: /Tolak/i }).click({ timeout: 2000 });
+    page.on('dialog', (dialog) => dialog.accept());
+    await page.getByRole('button', { name: /Tolak Pembayaran/i }).click();
+    await expect(page.getByRole('dialog')).toBeHidden();
   });
 });

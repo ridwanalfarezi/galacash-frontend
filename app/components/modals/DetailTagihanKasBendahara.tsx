@@ -1,93 +1,107 @@
-'use client'
+'use client';
 
-import { Upload } from 'lucide-react'
-import { toast } from 'sonner'
+import { Upload } from 'lucide-react';
+import { toast } from 'sonner';
 
-import { Badge } from '~/components/ui/badge'
-import { Button } from '~/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
-import { Label } from '~/components/ui/label'
-import { Separator } from '~/components/ui/separator'
-import { useConfirmPayment } from '~/lib/queries/bendahara.queries'
-import { formatCurrency } from '~/lib/utils'
+import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog';
+import { Label } from '~/components/ui/label';
+import { Separator } from '~/components/ui/separator';
+import { useConfirmPayment, useRejectPayment } from '~/lib/queries/bendahara.queries';
+import { formatCurrency } from '~/lib/utils';
 
-import { Icons } from '../icons'
+import { Icons } from '../icons';
 
 interface TagihanKasDetail {
-  id: string
-  month: string
-  status: 'Belum Dibayar' | 'Menunggu Konfirmasi' | 'Sudah Dibayar'
-  billId: string
-  dueDate: string
-  totalAmount: number
-  name: string
-  kasKelas: number
-  biayaAdmin: number
-  metodePembayaran?: 'bank' | 'ewallet' | 'cash'
-  paymentProofUrl?: string | null
+  id: string;
+  month: string;
+  status: 'Belum Dibayar' | 'Menunggu Konfirmasi' | 'Sudah Dibayar';
+  billId: string;
+  dueDate: string;
+  totalAmount: number;
+  name: string;
+  kasKelas: number;
+  biayaAdmin: number;
+  metodePembayaran?: 'bank' | 'ewallet' | 'cash';
+  paymentProofUrl?: string | null;
 }
 
 interface DetailTagihanKasProps {
-  isOpen: boolean
-  onClose: () => void
-  tagihan: TagihanKasDetail
+  isOpen: boolean;
+  onClose: () => void;
+  tagihan: TagihanKasDetail;
+}
+
+function getStatusBadge(status: TagihanKasDetail['status']) {
+  switch (status) {
+    case 'Belum Dibayar':
+      return (
+        <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-100">
+          {status}
+        </Badge>
+      );
+    case 'Menunggu Konfirmasi':
+      return (
+        <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100">
+          {status}
+        </Badge>
+      );
+    case 'Sudah Dibayar':
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100">
+          {status}
+        </Badge>
+      );
+    default:
+      return <Badge variant="outline">{status}</Badge>;
+  }
 }
 
 export function DetailTagihanKasBendahara({ isOpen, onClose, tagihan }: DetailTagihanKasProps) {
-  const { mutate: confirmPayment, isPending: isConfirming } = useConfirmPayment()
+  const { mutate: confirmPayment, isPending: isConfirming } = useConfirmPayment();
+  const { mutate: rejectPayment, isPending: isRejecting } = useRejectPayment();
 
-  const getStatusBadge = (status: TagihanKasDetail['status']) => {
-    switch (status) {
-      case 'Belum Dibayar':
-        return (
-          <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-100">
-            {status}
-          </Badge>
-        )
-      case 'Menunggu Konfirmasi':
-        return (
-          <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100">
-            {status}
-          </Badge>
-        )
-      case 'Sudah Dibayar':
-        return (
-          <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100">
-            {status}
-          </Badge>
-        )
-      default:
-        return <Badge variant="outline">{status}</Badge>
-    }
-  }
-
-  const handleClose = () => onClose()
+  const handleClose = () => onClose();
 
   const handleConfirmPayment = () => {
     if (confirm('Apakah Anda yakin ingin mengonfirmasi pembayaran ini?')) {
       confirmPayment(tagihan.id, {
         onSuccess: () => {
-          onClose()
+          onClose();
         },
-      })
+      });
     }
-  }
+  };
+
+  const handleRejectPayment = () => {
+    if (confirm('Tolak bukti pembayaran ini?')) {
+      rejectPayment(
+        { billId: tagihan.id, reason: 'Bukti pembayaran ditolak oleh bendahara' },
+        {
+          onSuccess: () => {
+            onClose();
+          },
+        }
+      );
+    }
+  };
 
   const handleViewProof = () => {
     if (tagihan.paymentProofUrl) {
-      window.open(tagihan.paymentProofUrl, '_blank')
+      window.open(tagihan.paymentProofUrl, '_blank', 'noopener,noreferrer');
     } else {
-      toast.info('Bukti pembayaran tidak tersedia (atau belum diimplementasikan di backend)')
+      toast.info('Bukti pembayaran tidak tersedia (atau belum diimplementasikan di backend)');
     }
-  }
+  };
 
   const renderPaymentInfo = () => {
     // Show payment info if waiting confirmation OR already paid
     if (tagihan?.status === 'Menunggu Konfirmasi' || tagihan?.status === 'Sudah Dibayar') {
-      const metode = tagihan?.metodePembayaran ?? 'cash'
+      const metode = tagihan?.metodePembayaran ?? 'cash';
 
       const metodeLabel =
-        metode === 'bank' ? 'Bank Transfer' : metode === 'ewallet' ? 'E-Wallet' : 'Cash'
+        metode === 'bank' ? 'Bank Transfer' : metode === 'ewallet' ? 'E-Wallet' : 'Cash';
 
       return (
         <div className="space-y-6">
@@ -104,11 +118,11 @@ export function DetailTagihanKasBendahara({ isOpen, onClose, tagihan }: DetailTa
             </div>
           </div>
         </div>
-      )
+      );
     }
 
-    return null
-  }
+    return null;
+  };
 
   const renderAdminActions = () => {
     switch (tagihan.status) {
@@ -122,7 +136,7 @@ export function DetailTagihanKasBendahara({ isOpen, onClose, tagihan }: DetailTa
               Tutup
             </Button>
           </div>
-        )
+        );
 
       case 'Menunggu Konfirmasi':
         return (
@@ -134,11 +148,19 @@ export function DetailTagihanKasBendahara({ isOpen, onClose, tagihan }: DetailTa
             <Button className="w-full" onClick={handleConfirmPayment} disabled={isConfirming}>
               {isConfirming ? 'Memproses...' : 'Konfirmasi Pembayaran'}
             </Button>
+            <Button
+              className="w-full"
+              variant="destructive"
+              onClick={handleRejectPayment}
+              disabled={isRejecting}
+            >
+              {isRejecting ? 'Memproses...' : 'Tolak Pembayaran'}
+            </Button>
             <Button className="w-full" variant="outline" onClick={handleClose}>
               Tutup
             </Button>
           </div>
-        )
+        );
 
       case 'Sudah Dibayar':
         return (
@@ -151,12 +173,12 @@ export function DetailTagihanKasBendahara({ isOpen, onClose, tagihan }: DetailTa
               Tutup
             </Button>
           </div>
-        )
+        );
 
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -226,5 +248,5 @@ export function DetailTagihanKasBendahara({ isOpen, onClose, tagihan }: DetailTa
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

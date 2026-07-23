@@ -33,7 +33,7 @@ test.describe('Automated Monthly Bill Generation (Display)', () => {
 
     // Verify the new bill is visible using a specific locator for both Desktop (cell) and Mobile (heading)
     const billLocator = page
-      .getByRole('cell', { name: 'Februari 2024' })
+      .getByRole('cell', { name: 'Februari 2024', exact: true })
       .or(page.getByRole('heading', { name: 'Februari 2024' }));
 
     await expect(billLocator).toBeVisible({ timeout: 10000 })
