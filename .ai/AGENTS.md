@@ -1,178 +1,81 @@
-# Agent Identity: GalaCash Frontend
+# Agent Operating Contract
 
-## Role
+Applies to work on the GalaCash React frontend.
 
-Senior software engineering agent for a React-based financial management SPA serving class treasurers and students. Maintain architectural integrity, enforce role-based boundaries, and optimize for performance.
+## Mission
 
-## Core Objectives
+Maintain a trustworthy financial SPA for students (`user`) and treasurers
+(`bendahara`). Favor correctness, authorization clarity, fresh financial
+projections, accessibility, and small changes that fit existing architecture.
 
-- Preserve type safety and strict TypeScript discipline
-- Maintain separation between bendahara (treasurer) and user (student) domains
-- Ensure financial data accuracy in all calculations
-- Keep bundle size minimal through code splitting
-- Prevent authentication bypasses or role confusion
+## Start-of-task protocol
 
-## Architectural Assumptions
+1. Read `README.md` in this directory and load only the memory relevant to the
+   task.
+2. Inspect the current implementation before trusting a remembered claim.
+3. Identify the source contract and all downstream projections before editing.
+4. Check the working tree and preserve unrelated user changes.
+5. State uncertainty explicitly; do not convert an inference into a fact.
 
-**Framework Stack**
+## Architectural boundaries
 
-- React Router v7 in SPA mode (no SSR)
-- Bun as package manager and runtime
-- Vite for builds
-- TailwindCSS for styling
-
-**State Architecture**
-
-- TanStack Query for server state with query key factories
-- Zustand reserved exclusively for authentication state
-- No client-side persistence of auth tokens
-
-**Data Flow**
-
-- Route loaders prefetch data via React Query
-- HydrationBoundary dehydrates state for client
-- Mutations invalidate related queries on success
-- Automatic token refresh on 401 responses
-
-**Code Organization**
-
-- `~/pages/` contains role-specific page implementations
-- `~/routes/` contains React Router route definitions
-- `~/lib/queries/` uses factory pattern for query keys
-- `~/lib/services/` encapsulates all API calls
-- `~/components/ui/` contains Shadcn UI primitives
+| Concern | Current owner | Rule |
+| --- | --- | --- |
+| Route graph | `app/routes.ts` | Route modules are automatically code-split. |
+| Route access | `app/lib/auth.ts` and route loaders | Bendahara routes use `requireRole`; user routes mostly use `requireAuth`. |
+| Remote API state | TanStack Query | Use option factories and centralized keys. |
+| Client auth cache | `app/lib/stores/auth.store.ts` | Zustand is non-persistent and auth-only. |
+| HTTP/auth retry | `app/lib/api/fetch-client.ts` | Preserve cookie flow and one refresh request for concurrent 401s. |
+| API contract snapshot | `app/types/api.d.ts` | Use the configured generation workflow; do not treat hand edits as canonical. |
+| Financial projections | Query modules and `app/lib/queries/query-broadcast.ts` | Mutations must invalidate all affected views and open tabs. |
+| Shared UI | `app/components/ui` and `app/components/shared` | Preserve accessibility and role-specific action boundaries. |
 
 ## Invariants
 
-1. **Context First**: Consult `CONTEXT.md` before touching financial logic, auth, or query keys
-2. **Type Safety**: All API responses typed via OpenAPI-generated types in `app/types/api.d.ts`
-3. **Null Safety**: Use nullish coalescing (`??`) not logical OR (`||`) for financial data
-4. **Role Boundaries**: Bendahara and user pages remain strictly separated
-5. **Import Order**: ESLint-enforced: external → internal (`~/*`)
-6. **Naming**: Components PascalCase, utilities camelCase, pages kebab-case
-7. **No Explicit Any**: TypeScript `any` is forbidden at error level
+- Monetary zero is valid. Prefer `??` when providing a monetary fallback. When
+  touching existing `||` monetary fallbacks, assess and correct them rather
+  than documenting them as safe.
+- Do not persist tokens or authenticated user data in local storage. The client
+  contract uses browser-inaccessible httpOnly cookies.
+- `clearAuthState()` clears both Zustand auth state and the QueryClient cache.
+- A query key's shape is part of cache identity. Change it only with a complete
+  invalidation audit.
+- Financial data currently uses `staleTime: 0` and refetch-on-focus. Treat this
+  as intentional truth-first behavior.
+- `invalidateFinancialQueries()` is the broad invalidation path for bill,
+  application, transaction, dashboard, and bendahara projections.
+- Role-specific pages may share presentation components, but permissions and
+  available actions must remain explicit at route and mutation boundaries.
+- Legacy hidden category values remain displayable even when not selectable.
+- Indonesian labels and semester rules are user-visible domain behavior.
 
-## Protected Elements
+## High-risk changes
 
-**Never modify without explicit permission:**
+Audit end to end before changing:
 
-- Query key factory pattern in `~/lib/queries/keys.ts`
-- API client architecture in `~/lib/api/` (FetchClient + token refresh)
-- Authentication flow in `~/lib/auth.ts` and `~/lib/stores/auth.store.ts`
-- Route protection guards (`requireAuth`, `requireRole`)
-- Route-level error boundary (`RouteErrorBoundary`)
-- Financial calculation utilities in `~/lib/calculations.ts`
-- OpenAPI type generation process
-- ESLint import ordering rules
-- Pre-commit hooks and lint-staged configuration
+- `app/lib/auth.ts`
+- `app/lib/api/fetch-client.ts`
+- `app/lib/queries/keys.ts`
+- `app/lib/queries/query-broadcast.ts`
+- `app/lib/calculations.ts`
+- `app/lib/constants.ts`
+- `app/types/api.d.ts`
+- loader guards in `app/routes/**`
 
-**Require architecture review:**
+For any of these, trace route -> query -> service -> endpoint -> local API
+declaration and trace the reverse path for invalidation/error behavior.
 
-- Adding new state management libraries
-- Changing from Bun to another package manager
-- Introducing server-side rendering
-- Modifying role-based access control logic
-- Adding new Radix UI dependencies
+## Dependency policy
 
-## Refactoring Boundaries
+Prefer the existing stack: React Router, TanStack Query, Zustand, React Hook
+Form, Zod, Radix/shadcn, Tailwind, date-fns, Lucide, Recharts, and native fetch.
+Ask before adding a new runtime dependency or state/HTTP/UI framework.
 
-**Safe to refactor freely:**
+## Completion protocol
 
-- Component implementation details within established patterns
-- Utility functions in `~/lib/utils.ts`
-- CSS class ordering within Tailwind conventions
-- Skeleton component designs
-- Chart configurations in Recharts
-
-**Require caution:**
-
-- Query option factories (preserve cache key stability)
-- Service layer method signatures (preserve API contract)
-- Route file structures (preserve lazy loading)
-- Modal component APIs (preserve form integration)
-
-## Dependency Rules
-
-**Preferred**
-
-- Radix UI primitives for accessibility
-- Lucide React for icons
-- Date-fns for date manipulation
-- Zod for validation schemas
-- React Hook Form for form state
-
-**Avoid Adding**
-
-- Additional state management libraries (Zustand + React Query sufficient)
-- Alternative HTTP clients (FetchClient wrapper over native fetch is standard)
-- Component libraries beyond Shadcn/Radix
-- Global CSS-in-JS solutions (Tailwind is standard)
-
-**Prohibited**
-
-- Axios or other third-party HTTP clients (custom FetchClient is standard)
-- Redux or MobX for state management
-- Moment.js (use date-fns)
-- Inline style objects
-
-## Decision Principles
-
-**When resolving tradeoffs:**
-
-1. **Type Safety > Convenience**: Prefer verbose but correct types over `any`
-2. **Performance > DX**: Accept more complex code for better bundle size
-3. **Explicit > Implicit**: Favor explicit imports and explicit types
-4. **Composition > Inheritance**: Build features through component composition
-5. **Server State > Client State**: Push state to TanStack Query whenever possible
-6. **Role Separation > Code Reuse**: Duplicate code before blurring role boundaries
-7. **Strict > Lenient**: Follow ESLint rules; disable only with justification
-
-**Error Handling**
-
-- All API errors must be caught and typed as `APIError`
-- Financial calculation errors must propagate visibly to UI
-- Authentication errors must redirect to sign-in
-- Network errors should retry automatically (React Query handles this)
-
-## Communication Style
-
-**Code Changes**
-
-- Declarative descriptions of what changed and why
-- No filler or motivational language
-- Reference specific files and line numbers when relevant
-- Focus on architectural impact over implementation details
-
-**Questions to Ask**
-
-- When introducing new dependencies
-- When modifying authentication or authorization
-- When changing build configuration
-- When removing existing patterns
-- When performance tradeoffs are unclear
-
-**Documentation**
-
-- Update README.md for architectural changes only
-- Document breaking changes in commit messages
-- Prefer inline JSDoc over external documentation
-- Type definitions are documentation
-
-## Context Signals
-
-**This codebase values:**
-
-- Financial precision (no rounding errors, correct currency formatting)
-- Fast perceived performance (skeletons, prefetching, lazy loading)
-- Clear role separation (bendahara vs user)
-- Strict TypeScript discipline
-- Minimal bundle size
-- Accessibility compliance
-
-**This codebase rejects:**
-
-- Premature abstraction
-- Over-engineered solutions
-- Mixing concerns across role boundaries
-- Implicit behaviors
-- Untyped code paths
+- Run checks proportional to the change.
+- Re-read the diff for auth, role, money, date, and cache semantics.
+- Update `.ai/CONTEXT.md` when a stable fact or relationship changed.
+- Update `.ai/DECISIONS.md` when an architectural choice or known mismatch was
+  resolved.
+- Update `.ai/SKILLS.md` when the safe procedure changed.

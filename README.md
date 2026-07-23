@@ -397,7 +397,7 @@ const totalBalance = summary?.totalBalance || 0; // ❌ Fails for 0
 
 ### Code Quality Tools
 
-- 🔍 ESLint with TypeScript and React plugins - [.eslintrc.json](.eslintrc.json)
+- 🔍 ESLint with TypeScript and React plugins - [eslint.config.mjs](eslint.config.mjs)
 - 💅 Prettier with TailwindCSS plugin - [.prettierrc](.prettierrc)
 - 🐶 Husky for Git hooks
 - 📝 Commitlint for conventional commits - [commitlint.config.js](commitlint.config.js)
