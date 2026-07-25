@@ -98,7 +98,7 @@ cp .env.example .env
 ```
 
 `VITE_API_URL` defaults to `/api`. During development, Vite proxies `/api` to
-the API target configured in `vite.config.ts`.
+the backend specified by `API_URL`, falling back to `http://localhost:3000`.
 
 Start the development server:
 
@@ -183,6 +183,19 @@ server.ts            production static server and /api proxy
 | `bun run clean`          | Remove the production build directory                |
 | `bun run prepare`        | Install Husky hooks                                  |
 | `bun run commit`         | Create a Conventional Commit interactively           |
+
+## Vercel deployment
+
+Create a frontend Vercel project rooted at this repository. Set:
+
+```dotenv
+VITE_API_URL=/api
+API_URL=https://YOUR_BACKEND_PROJECT.vercel.app
+```
+
+The catch-all function in `api/[...path].ts` proxies browser `/api` requests
+to the backend. This keeps JWT cookies same-origin even though frontend and
+backend are separate Vercel projects.
 
 ## Production and Docker
 

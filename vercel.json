@@ -1,8 +1,9 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://galacash-server-2-66220284668.asia-southeast2.run.app/api/:path*"
+      "destination": "https://galacash-server.vercel.app/api/:path*"
     }
   ]
 }

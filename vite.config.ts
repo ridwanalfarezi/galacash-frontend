@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://galacash-server-2-66220284668.asia-southeast2.run.app',
+        target: process.env.API_URL || 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
         cookieDomainRewrite: 'localhost',

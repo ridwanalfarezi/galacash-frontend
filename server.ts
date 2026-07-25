@@ -3,8 +3,7 @@ import { join } from 'path'
 
 const PORT = parseInt(process.env.PORT || '3000')
 const BASE_DIR = join(import.meta.dir, 'build/client')
-const PROXY_TARGET =
-  process.env.API_URL || 'https://galacash-server-2-66220284668.asia-southeast2.run.app'
+const PROXY_TARGET = process.env.API_URL || 'http://localhost:3000'
 
 console.log(`🚀 Starting Bun server on port ${PORT}...`)
 console.log(`📂 Serving static files from: ${BASE_DIR}`)
