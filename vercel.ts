@@ -1,22 +1,7 @@
-const rawApiUrl = process.env.API_URL;
+import { deploymentEnv, routes, type VercelConfig } from '@vercel/config/v1';
 
-if (!rawApiUrl) {
-  throw new Error('API_URL must be set to the backend origin for this Vercel environment.');
-}
-
-const apiUrl = new URL(rawApiUrl);
-
-if (!['http:', 'https:'].includes(apiUrl.protocol)) {
-  throw new Error('API_URL must use http:// or https://.');
-}
-
-const backendOrigin = apiUrl.toString().replace(/\/+$/, '');
-
-export const config = {
+export const config: VercelConfig = {
   rewrites: [
-    {
-      source: '/api/:path*',
-      destination: `${backendOrigin}/api/:path*`,
-    },
+    routes.rewrite('/api/:path*', `${deploymentEnv('API_URL')}/api/:path*`),
   ],
 };
