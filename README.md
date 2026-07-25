@@ -193,9 +193,14 @@ VITE_API_URL=/api
 API_URL=https://YOUR_BACKEND_PROJECT.vercel.app
 ```
 
-The catch-all function in `api/[...path].ts` proxies browser `/api` requests
-to the backend. This keeps JWT cookies same-origin even though frontend and
-backend are separate Vercel projects.
+Set `API_URL` separately for each Vercel target:
+
+- Production points to the production backend.
+- Preview points to the backend's stable development-branch URL.
+
+`vercel.ts` builds the `/api/:path*` rewrite from the target environment's
+`API_URL`. Browser requests stay same-origin, so JWT cookies continue to work
+even though the frontend and backend are separate Vercel projects.
 
 ## Production and Docker
 
