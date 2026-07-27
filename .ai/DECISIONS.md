@@ -10,7 +10,9 @@ implementation does not match older guidance. Status values are `accepted`,
 - Decision: React Router runs with `ssr: false`.
 - Evidence: `react-router.config.ts`.
 - Consequence: route authentication and data prefetch happen client-side;
-  user-specific financial data is not server-rendered.
+  user-specific financial data is not server-rendered. Components must not add
+  React Server Component directives such as `'use client'`; Vite ignores them
+  in this SPA and they interfere with build sourcemaps.
 
 ## D-002: Cookie authentication with in-memory user cache
 

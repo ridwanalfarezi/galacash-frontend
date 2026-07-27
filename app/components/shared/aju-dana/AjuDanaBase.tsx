@@ -1,5 +1,3 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
 import { ChevronRight, HandCoins, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';

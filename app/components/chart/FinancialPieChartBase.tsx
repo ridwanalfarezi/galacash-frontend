@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { Pie, PieChart, Sector } from 'recharts';
 import type { PieSectorDataItem } from 'recharts/types/polar/Pie';
