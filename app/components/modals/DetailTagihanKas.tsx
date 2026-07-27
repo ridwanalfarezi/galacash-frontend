@@ -1,5 +1,3 @@
-'use client'
-
 import { Copy, Upload, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'

@@ -1,4 +1,3 @@
-'use client'
 import { ArrowDown, ArrowUp, ArrowUpDown, Check, X } from 'lucide-react'
 import type React from 'react'
 import { useState } from 'react'

@@ -1,5 +1,3 @@
-'use client';
-
 import { ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';

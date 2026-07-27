@@ -1,5 +1,3 @@
-'use client';
-
 import { ChevronDown, ChevronUp, Filter } from 'lucide-react';
 import { useState } from 'react';
 

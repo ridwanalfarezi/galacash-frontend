@@ -1,5 +1,3 @@
-'use client';
-
 import { Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
