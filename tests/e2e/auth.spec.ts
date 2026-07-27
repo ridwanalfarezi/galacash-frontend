@@ -1,8 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-import { loginAs } from './utils/api-mock';
+import { loginAs, mockUnauthenticated } from './utils/api-mock';
 
 test.describe('Authentication Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    await mockUnauthenticated(page);
+  });
+
   test.describe('Login Page', () => {
     test('should render login form with NIM and password fields', async ({ page }) => {
       await page.goto('/sign-in');

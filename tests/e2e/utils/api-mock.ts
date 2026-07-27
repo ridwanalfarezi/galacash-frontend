@@ -2,6 +2,22 @@ import type { Page } from '@playwright/test'
 
 import { mockBendahara, mockStudent } from '../mocks/data'
 
+export const mockUnauthenticated = async (page: Page) => {
+  await page.route('**/api/users/profile', async (route) => {
+    await route.fulfill({
+      status: 401,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        },
+      }),
+    })
+  })
+}
+
 export const loginAs = async (page: Page, role: 'student' | 'bendahara') => {
   const user = role === 'student' ? mockStudent : mockBendahara
 
